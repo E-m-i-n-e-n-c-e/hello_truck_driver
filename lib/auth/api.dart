@@ -123,22 +123,18 @@ class API {
         'staleRefreshToken': staleRefreshToken,
       },
     );
-    if (response.statusCode == 200) {
-      await Future.wait([
-        storage.write(
-          key: 'refreshToken',
-          value: response.data['refreshToken'],
-        ),
-        storage.write(key: 'accessToken', value: response.data['accessToken']),
-      ]);
+    await Future.wait([
+      storage.write(
+        key: 'refreshToken',
+        value: response.data['refreshToken'],
+      ),
+      storage.write(key: 'accessToken', value: response.data['accessToken']),
+    ]);
 
-      ref.read(authClientProvider).emitSignIn(
-        accessToken: response.data['accessToken'],
-        refreshToken: response.data['refreshToken'],
-      );
-    } else {
-      throw Exception('Failed to verify OTP');
-    }
+    ref.read(authClientProvider).emitSignIn(
+      accessToken: response.data['accessToken'],
+      refreshToken: response.data['refreshToken'],
+    );
   }
 
   Future<void> signOut() async {

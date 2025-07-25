@@ -1,34 +1,43 @@
-// class Customer {
-//   final String firstName;
-//   final String phoneNumber;
-//   final String lastName;
-//   final String email;
-//   final String referralCode;
-//   final bool isBusiness;
-//   final DateTime createdAt;
-//   final DateTime updatedAt;
+class Driver {
+  final String phoneNumber;
+  final String? firstName;
+  final String? lastName;
+  final String? email;
+  final String? alternatePhone;
+  final String? referalCode;
+  final String? photo;
+  final String verificationStatus;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-//   const Customer({
-//     required this.firstName,
-//     required this.lastName,
-//     required this.email,
-//     required this.phoneNumber,
-//     required this.referralCode,
-//     required this.isBusiness,
-//     required this.createdAt,
-//     required this.updatedAt,
-//   });
+  const Driver({
+    required this.phoneNumber,
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.alternatePhone,
+    this.referalCode,
+    this.photo,
+    required this.verificationStatus,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
-//   factory Customer.fromJson(Map<String, dynamic> json) {
-//     return Customer(
-//       firstName: json['firstName'] ?? '',
-//       lastName: json['lastName'] ?? '',
-//       email: json['email'] ?? '',
-//       phoneNumber: json['phoneNumber'] ?? '',
-//       referralCode: json['referralCode'] ?? '',
-//       isBusiness: json['isBusiness'] ?? false,
-//       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
-//       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
-//     );
-//   }
-// }
+  factory Driver.fromJson(Map<String, dynamic> json) {
+    return Driver(
+      phoneNumber: json['phoneNumber'] ?? '',
+      firstName: json['firstName'],
+      lastName: json['lastName'],
+      email: json['email'],
+      alternatePhone: json['alternatePhone'],
+      referalCode: json['referalCode'],
+      photo: json['photo'],
+      verificationStatus: json['verificationStatus'] ?? 'PENDING',
+      isActive: json['isActive'] ?? true,
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
+    );
+  }
+}

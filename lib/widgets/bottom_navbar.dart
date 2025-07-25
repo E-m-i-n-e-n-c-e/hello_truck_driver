@@ -25,11 +25,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
           children: [
             _buildNavItem(icon: Icons.home, index: 0, colorScheme: colorScheme),
             _buildNavItem(icon: Icons.map, index: 1, colorScheme: colorScheme),
-            // _buildNavItem(
-            //   icon: Icons.person,
-            //   index: 2,
-            //   colorScheme: colorScheme,
-            // ),
+            _buildNavItem(
+              icon: Icons.person,
+              index: 2,
+              colorScheme: colorScheme,
+            ),
           ],
         ),
       ),

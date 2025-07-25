@@ -52,7 +52,7 @@ class AuthClient with WidgetsBindingObserver {
       // }
 
       final response = await _dio.post(
-        '$baseUrl/auth/customer/refresh-token',
+        '$baseUrl/auth/driver/refresh-token',
         data: {'refreshToken': refreshToken},
       );
       final data = response.data;

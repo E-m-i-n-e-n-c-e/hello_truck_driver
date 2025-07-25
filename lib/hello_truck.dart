@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/home_screen.dart';
-// import 'package:hello_truck_driver/screens/profile_screen.dart';
+import 'package:hello_truck_driver/screens/profile_screen.dart';
 import 'package:hello_truck_driver/screens/map_screen.dart';
-// import 'package:hello_truck_driver/screens/onboarding_screen.dart';
+import 'package:hello_truck_driver/screens/onboarding_screen.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
@@ -13,7 +13,7 @@ final navigationIndexProvider = StateProvider.autoDispose<int>((ref) => 0); // S
 final screens=[
   const HomeScreen(),
   const MapScreen(),
-  // const ProfileScreen(),
+  const ProfileScreen(),
 ];
 
 class HelloTruck extends ConsumerWidget {
@@ -44,9 +44,9 @@ class HelloTruck extends ConsumerWidget {
       );
     }
 
-      // if (authState.value?.hasCompletedOnboarding!=true) {
-      //   return const OnboardingScreen();
-      // }
+      if (authState.value?.hasCompletedOnboarding!=true) {
+        return const OnboardingScreen();
+      }
 
     return Scaffold(
       body: screens[selectedIndex],
