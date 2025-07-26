@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/auth/api_exception.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class API {
   final Dio _dio = Dio();
@@ -131,6 +132,8 @@ class API {
       storage.write(key: 'accessToken', value: response.data['accessToken']),
     ]);
 
+    await FirebaseAuth.instance.signInWithCustomToken(response.data['firebaseToken']);
+
     ref.read(authClientProvider).emitSignIn(
       accessToken: response.data['accessToken'],
       refreshToken: response.data['refreshToken'],
@@ -152,6 +155,7 @@ class API {
           storage.delete(key: 'refreshToken'),
           storage.delete(key: 'accessToken'),
         ]);
+        await FirebaseAuth.instance.signOut();
         ref.read(authClientProvider).emitSignOut();
       }
     }

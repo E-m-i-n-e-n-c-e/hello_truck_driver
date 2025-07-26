@@ -12,15 +12,15 @@ Future<void> updateDriverProfile(
   API api, {
   String? firstName,
   String? lastName,
-  String? email,
   String? alternatePhone,
   String? photo,
+  String? googleIdToken,
 }) async {
   await api.put('/driver/profile', data: {
     if (firstName?.isNotEmpty ?? false) 'firstName': firstName,
     if (lastName?.isNotEmpty ?? false) 'lastName': lastName,
-    if (email?.isNotEmpty ?? false) 'email': email,
     if (alternatePhone?.isNotEmpty ?? false) 'alternatePhone': alternatePhone,
     if (photo?.isNotEmpty ?? false) 'photo': photo,
+    if (googleIdToken?.isNotEmpty ?? false) 'googleIdToken': googleIdToken,
   });
 }

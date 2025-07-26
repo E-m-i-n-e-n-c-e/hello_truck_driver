@@ -62,7 +62,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         api,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        email: _emailController.text.trim(),
         alternatePhone: _alternatePhoneController.text.trim(),
       );
 
@@ -244,12 +243,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                     TextFormField(
                       controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email (Optional)',
+                      decoration: InputDecoration(
+                        labelText: 'Email',
                         hintText: 'Enter your email address',
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
                       ),
-                      enabled: _isEditing && !_isLoading,
+                      enabled: false,
                       keyboardType: TextInputType.emailAddress,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return null;

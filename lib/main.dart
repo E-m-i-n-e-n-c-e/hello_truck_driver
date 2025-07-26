@@ -1,15 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_truck_driver/firebase_options.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/hello_truck.dart';
 import 'package:hello_truck_driver/login_page.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hello_truck_driver/splash_screen.dart';
+import 'package:hello_truck_driver/screens/splash_screen.dart';
 
-void main() {
+void main() async {
   // Preserve splash screen until app is fully loaded
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Initialize Firebase
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -38,11 +43,14 @@ class MyApp extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final api = ref.watch(apiProvider);
     final isLoading = authState.isLoading || api.isLoading;
-    final isAnimationComplete = ref.watch(AnimatedSplashScreenState.isAnimationComplete);
+    final isAnimationComplete = ref.watch(
+      AnimatedSplashScreenState.isAnimationComplete,
+    );
 
     if (isLoading || !isAnimationComplete) {
       return AnimatedSplashScreen(
-        backgroundColor: MediaQuery.of(context).platformBrightness == Brightness.dark
+        backgroundColor:
+            MediaQuery.of(context).platformBrightness == Brightness.dark
             ? const Color(0xFF007F82)
             : const Color(0xFF22AAAE),
       );
@@ -76,25 +84,28 @@ class MyApp extends ConsumerWidget {
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: colorScheme.primary.withValues(alpha: 0.5)),
+            borderSide: BorderSide(
+              color: colorScheme.primary.withValues(alpha: 0.5),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: colorScheme.primary, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
         ),
       ),
       themeMode: ThemeMode.light,
       home: authState.when(
         data: (authState) =>
             authState.isAuthenticated ? const HelloTruck() : const LoginPage(),
-        error: (error, stackTrace) => Scaffold(
-          body: Center(child: Text('Error: ${error.toString()}')),
-        ),
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        error: (error, stackTrace) =>
+            Scaffold(body: Center(child: Text('Error: ${error.toString()}'))),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
     );
   }
