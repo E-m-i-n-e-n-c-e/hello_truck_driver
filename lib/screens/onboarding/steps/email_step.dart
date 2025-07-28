@@ -139,7 +139,7 @@ class EmailStep extends StatelessWidget {
                       boxShadow: [
                         BoxShadow(
                           color: colorScheme.shadow.withValues(alpha: 0.1),
-                          blurRadius: 4,
+                          blurRadius: 12,
                           offset: const Offset(0, 2),
                         ),
                       ],
