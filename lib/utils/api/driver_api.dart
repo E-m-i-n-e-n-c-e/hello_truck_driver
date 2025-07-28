@@ -1,9 +1,34 @@
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/driver.dart';
+import 'package:hello_truck_driver/models/documents.dart';
+
+/// Create driver profile
+Future<void> createDriverProfile(
+  API api, {
+  required String firstName,
+  String? lastName,
+  String? alternatePhone,
+  String? photo,
+  String? referalCode,
+  String? googleIdToken,
+  required DriverDocuments documents,
+}) async {
+  await api.post('/driver/profile', data: {
+    'firstName': firstName,
+    if (lastName?.isNotEmpty ?? false) 'lastName': lastName,
+    if (alternatePhone?.isNotEmpty ?? false) 'alternatePhone': alternatePhone,
+    if (photo?.isNotEmpty ?? false) 'photo': photo,
+    if (referalCode?.isNotEmpty ?? false) 'referalCode': referalCode,
+    if (googleIdToken?.isNotEmpty ?? false) 'googleIdToken': googleIdToken,
+    'documents': documents.toJson(),
+  });
+}
 
 /// Get driver profile
-Future<Driver> getDriverProfile(API api) async {
-  final response = await api.get('/driver/profile');
+Future<Driver> getDriverProfile(API api, {bool includeDocuments = false}) async {
+  final response = await api.get('/driver/profile', queryParameters: {
+    'includeDocuments': includeDocuments,
+  });
   return Driver.fromJson(response.data);
 }
 

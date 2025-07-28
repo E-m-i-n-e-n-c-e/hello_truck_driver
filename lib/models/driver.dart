@@ -1,3 +1,5 @@
+import 'package:hello_truck_driver/models/documents.dart';
+
 class Driver {
   final String phoneNumber;
   final String? firstName;
@@ -10,6 +12,7 @@ class Driver {
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final DriverDocuments? documents;
 
   const Driver({
     required this.phoneNumber,
@@ -23,6 +26,7 @@ class Driver {
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
+    this.documents,
   });
 
   factory Driver.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,7 @@ class Driver {
       isActive: json['isActive'] ?? true,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
+      documents: json['documents'] != null ? DriverDocuments.fromJson(json['documents']) : null,
     );
   }
 }

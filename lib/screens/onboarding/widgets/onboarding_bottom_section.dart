@@ -4,116 +4,139 @@ import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_con
 
 class OnboardingBottomSection extends StatelessWidget {
   final OnboardingController controller;
-  final VoidCallback onNextPressed;
+  final VoidCallback? onNext;
+  final VoidCallback? onPrevious;
+  final VoidCallback? onSubmit;
+  final String? nextButtonText;
+  final bool showBackButton;
 
   const OnboardingBottomSection({
     super.key,
     required this.controller,
-    required this.onNextPressed,
+    this.onNext,
+    this.onPrevious,
+    this.onSubmit,
+    this.nextButtonText,
+    this.showBackButton = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isLastStep = controller.currentStep == controller.totalSteps - 1;
+    final isFirstStep = controller.currentStep == 0;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 44),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(
-          top: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.08),
-            width: 1,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, -8),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Skip button for optional steps
-          // if (controller.currentStep > 0 && controller.currentStep < controller.totalSteps - 1)
-          //   FadeTransition(
-          //     opacity: controller.fadeAnimation,
-          //     child: TextButton(
-          //       onPressed: onNextPressed,
-          //       child: Text(
-          //         'Skip this step',
-          //         style: GoogleFonts.dmSans(
-          //           color: colorScheme.onSurface.withValues(alpha: 0.6),
-          //           fontSize: 14,
-          //           fontWeight: FontWeight.w500,
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-
-          const SizedBox(height: 10),
-
-          // Enhanced main button with better loading states
-          ScaleTransition(
-            scale: controller.scaleAnimation,
-            child: SizedBox(
-              width: double.infinity,
-              height: 58,
-              child: ElevatedButton(
-                onPressed: controller.isLoading || controller.isUploadingImage ? null : onNextPressed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.secondary,
-                  foregroundColor: colorScheme.onSecondary,
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ).copyWith(
-                  overlayColor: WidgetStateProperty.all(
-                    colorScheme.onSecondary.withValues(alpha: 0.1),
-                  ),
+    return AnimatedBuilder(
+      animation: controller.fadeAnimation,
+      builder: (context, _) {
+        return FadeTransition(
+          opacity: controller.fadeAnimation,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: colorScheme.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.shadow.withValues(alpha: 0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
                 ),
-                child: controller.isLoading || controller.isUploadingImage
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation(
-                                colorScheme.onSecondary,
+              ],
+            ),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Back button
+                  if (showBackButton && !isFirstStep)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: controller.isLoading || controller.isUploadingImage ? null : onPrevious,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(
+                            color: colorScheme.outline.withValues(alpha: 0.5),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.arrow_back_ios_rounded,
+                              size: 18,
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Back',
+                              style: GoogleFonts.dmSans(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            controller.isUploadingImage ? 'Uploading Photo...' : 'Setting Up Profile...',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Text(
-                        controller.getButtonText(),
-                        style: GoogleFonts.dmSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
+                          ],
                         ),
                       ),
+                    ),
+
+                  if (showBackButton && !isFirstStep) const SizedBox(width: 16),
+
+                  // Next/Submit button
+                  Expanded(
+                    flex: showBackButton && !isFirstStep ? 1 : 2,
+                    child: ElevatedButton(
+                      onPressed: controller.isLoading || controller.isUploadingImage
+                          ? null
+                          : (isLastStep ? onSubmit : onNext),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: colorScheme.secondary,
+                        foregroundColor: colorScheme.onSecondary,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: controller.isLoading || controller.isUploadingImage
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  isLastStep
+                                      ? 'Complete Profile'
+                                      : (nextButtonText ?? controller.getButtonText()),
+                                  style: GoogleFonts.dmSans(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(
+                                  isLastStep
+                                      ? Icons.check_rounded
+                                      : Icons.arrow_forward_ios_rounded,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

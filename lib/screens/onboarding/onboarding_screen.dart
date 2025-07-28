@@ -3,13 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/utils/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_header.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_bottom_section.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/name_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/photo_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/email_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/phone_step.dart';
-import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
+import 'package:hello_truck_driver/screens/onboarding/steps/documents_step.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -21,6 +22,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with TickerProviderStateMixin {
   late OnboardingController _controller;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -42,42 +44,42 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   Future<void> _nextStep() async {
-    if (_controller.currentStep < _controller.totalSteps - 1) {
-      if (await _validateCurrentStep()) {
-        setState(() => _controller.nextStep());
+    if (await _validateCurrentStep()) {
+      if (_controller.currentStep < _controller.getTotalSteps() - 1) {
+        if (mounted) {
+          FocusScope.of(context).unfocus(); // Dismiss keyboard
+        }
+        _controller.nextStep();
         _controller.pageController.nextPage(
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeInOutCubic,
         );
-        _controller.resetAnimations();
-      }
-    } else {
-      if (await _validateCurrentStep()) {
-        await _submitOnboarding();
       }
     }
   }
 
-  Future<void> _previousStep() async {
+  void _previousStep() {
     if (_controller.currentStep > 0) {
-      setState(() => _controller.previousStep());
+      if (mounted) {
+        FocusScope.of(context).unfocus(); // Dismiss keyboard
+      }
+      _controller.previousStep();
       _controller.pageController.previousPage(
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOutCubic,
       );
-      _controller.resetAnimations();
     }
   }
 
   Future<bool> _validateCurrentStep() async {
     switch (_controller.currentStep) {
       case 0: // Name step
-        if (_controller.firstNameController.text.trim().isEmpty) {
+        if (!_controller.validatePersonalInfo()) {
           _showError('Please enter your first name');
-          _controller.shake();
           return false;
         }
         return true;
+
       case 1: // Photo step
         if (_controller.selectedImage == null && _controller.uploadedImageUrl == null) {
           return true; // Photo is optional
@@ -89,20 +91,72 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           );
         }
         return _controller.uploadedImageUrl != null || _controller.selectedImage == null;
-      case 2: // Email step (optional)
-        return true;
-      case 3: // Phone step (optional)
-        if (_controller.alternatePhoneController.text.trim().isNotEmpty) {
-          if (!RegExp(r'^[0-9]{10}$')
-              .hasMatch(_controller.alternatePhoneController.text.trim())) {
-            _showError('Please enter a valid 10-digit phone number');
-            _controller.shake();
-            return false;
-          }
+
+      case 2: // Email step
+        if (!_controller.validateEmail()) {
+          _showError('Please enter a valid email address');
+          return false;
         }
         return true;
+
+      case 3: // Documents step
+        final documentError = _controller.validateDocuments();
+        if (documentError != null) {
+          _showError(documentError);
+          return false;
+        }
+        return true;
+
+      case 4: // Phone step
+        final error = _controller.validatePhoneDetails();
+        if (error != null) {
+          _showError(error);
+          return false;
+        }
+        return true;
+
       default:
         return true;
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (!await _validateCurrentStep()) return;
+
+    _controller.setLoading(true);
+    try {
+      final api = await ref.read(apiProvider.future);
+      final documents = _controller.getDriverDocuments();
+
+      if (documents == null) {
+        _showError('Please complete all document uploads');
+        _controller.setLoading(false);
+        return;
+      }
+
+      await driver_api.createDriverProfile(
+        api,
+        firstName: _controller.firstNameController.text.trim(),
+        lastName: _controller.lastNameController.text.trim().isEmpty
+            ? null
+            : _controller.lastNameController.text.trim(),
+        alternatePhone: _controller.alternatePhoneController.text.trim().isEmpty
+            ? null
+            : _controller.alternatePhoneController.text.trim(),
+        photo: _controller.uploadedImageUrl,
+        googleIdToken: _controller.googleIdToken,
+        documents: documents,
+      );
+
+      if (mounted) {
+        // Refresh tokens to update auth state
+        ref.read(authClientProvider).refreshTokens();
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError('Failed to complete onboarding: $e');
+        _controller.setLoading(false);
+      }
     }
   }
 
@@ -114,32 +168,44 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     SnackBars.success(context, message);
   }
 
-  Future<void> _submitOnboarding() async {
-    _controller.setLoading(true);
+  List<Widget> _getSteps() {
+    final steps = <Widget>[
+      // Step 0: Name
+      NameStep(
+        controller: _controller,
+        onNext: _nextStep,
+      ),
 
-    try {
-      final api = await ref.read(apiProvider.future);
+      // Step 1: Photo
+      PhotoStep(
+        controller: _controller,
+        onNext: _nextStep,
+        onError: _showError,
+      ),
 
-      await driver_api.updateDriverProfile(
-        api,
-        firstName: _controller.firstNameController.text.trim(),
-        lastName: _controller.lastNameController.text.trim().isEmpty
-            ? null
-            : _controller.lastNameController.text.trim(),
-        alternatePhone: _controller.alternatePhoneController.text.trim().isEmpty
-            ? null
-            : _controller.alternatePhoneController.text.trim(),
-        photo: _controller.uploadedImageUrl,
-        googleIdToken: _controller.googleIdToken,
-      );
+      // Step 2: Email
+      EmailStep(
+        controller: _controller,
+        onNext: _nextStep,
+        onError: _showError,
+        onSuccess: _showSuccess,
+      ),
 
-      ref.read(authClientProvider).refreshTokens();
-    } catch (e) {
-      if (mounted) {
-        _showError('Failed to complete onboarding: $e');
-        _controller.setLoading(false);
-      }
-    }
+      // Step 3: Documents
+      DocumentsStep(
+        controller: _controller,
+        onNext: _nextStep,
+        onError: _showError,
+      ),
+
+      // Step 4: Phone      // Step 3: Phone
+      PhoneStep(
+        controller: _controller,
+        onNext: _nextStep,
+      ),
+    ];
+
+    return steps;
   }
 
   @override
@@ -149,43 +215,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Enhanced Header with improved progress indicator
-            OnboardingHeader(
-              controller: _controller,
-              onPreviousPressed: _previousStep,
-            ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              // Header with progress
+              OnboardingHeader(controller: _controller),
 
-            // Content with better animations
-            Expanded(
-              child: PageView(
-                controller: _controller.pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  NameStep(controller: _controller, onNext: _nextStep),
-                  PhotoStep(
-                    controller: _controller,
-                    onNext: _nextStep,
-                    onError: _showError,
-                  ),
-                  EmailStep(
-                    controller: _controller,
-                    onNext: _nextStep,
-                    onError: _showError,
-                    onSuccess: _showSuccess,
-                  ),
-                  PhoneStep(controller: _controller, onNext: _nextStep),
-                ],
+              // Content
+              Expanded(
+                child: PageView(
+                  controller: _controller.pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: _getSteps().map((step) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Step content
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: MediaQuery.of(context).size.height -
+                                        MediaQuery.of(context).padding.top -
+                                        MediaQuery.of(context).padding.bottom -
+                                        180, // Adjust based on header and bottom section height
+                            ),
+                            child: step,
+                          ),
+                          // Bottom section with navigation
+                          OnboardingBottomSection(
+                            controller: _controller,
+                            onNext: _nextStep,
+                            onPrevious: _previousStep,
+                            onSubmit: _submitForm,
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-
-            // Enhanced Bottom Section with better visual hierarchy
-            OnboardingBottomSection(
-              controller: _controller,
-              onNextPressed: _nextStep,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

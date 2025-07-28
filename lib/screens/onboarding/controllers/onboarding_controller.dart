@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hello_truck_driver/models/documents.dart';
 import 'dart:io';
 
 class OnboardingController {
@@ -18,15 +19,17 @@ class OnboardingController {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final alternatePhoneController = TextEditingController();
+  final panNumberController = TextEditingController();
 
   // Focus Nodes
   final firstNameFocus = FocusNode();
   final lastNameFocus = FocusNode();
   final alternatePhoneFocus = FocusNode();
+  final panNumberFocus = FocusNode();
 
   // State Variables
   int _currentStep = 0;
-  final int totalSteps = 4;
+  final int totalSteps = 5; // Name, Photo, Email, Phone, Documents
   bool _isLoading = false;
   bool _isUploadingImage = false;
   bool _isPickingImage = false;
@@ -34,6 +37,24 @@ class OnboardingController {
   String? _uploadedImageUrl;
   String? _googleIdToken;
   String? _userEmail;
+
+  // Document-related state
+  File? _selectedLicense;
+  File? _selectedRcBook;
+  File? _selectedFc;
+  File? _selectedInsurance;
+  File? _selectedAadhar;
+  File? _selectedEbBill;
+  String? _uploadedLicenseUrl;
+  String? _uploadedRcBookUrl;
+  String? _uploadedFcUrl;
+  String? _uploadedInsuranceUrl;
+  String? _uploadedAadharUrl;
+  String? _uploadedEbBillUrl;
+  DateTime? _licenseExpiry;
+  DateTime? _fcExpiry;
+  DateTime? _insuranceExpiry;
+  bool _isUploadingDocument = false;
 
   // State change notifiers
   VoidCallback? _onStateChanged;
@@ -43,10 +64,28 @@ class OnboardingController {
   bool get isLoading => _isLoading;
   bool get isUploadingImage => _isUploadingImage;
   bool get isPickingImage => _isPickingImage;
+  bool get isUploadingDocument => _isUploadingDocument;
   File? get selectedImage => _selectedImage;
   String? get uploadedImageUrl => _uploadedImageUrl;
   String? get googleIdToken => _googleIdToken;
   String? get userEmail => _userEmail;
+
+  // Document getters
+  File? get selectedLicense => _selectedLicense;
+  File? get selectedRcBook => _selectedRcBook;
+  File? get selectedFc => _selectedFc;
+  File? get selectedInsurance => _selectedInsurance;
+  File? get selectedAadhar => _selectedAadhar;
+  File? get selectedEbBill => _selectedEbBill;
+  String? get uploadedLicenseUrl => _uploadedLicenseUrl;
+  String? get uploadedRcBookUrl => _uploadedRcBookUrl;
+  String? get uploadedFcUrl => _uploadedFcUrl;
+  String? get uploadedInsuranceUrl => _uploadedInsuranceUrl;
+  String? get uploadedAadharUrl => _uploadedAadharUrl;
+  String? get uploadedEbBillUrl => _uploadedEbBillUrl;
+  DateTime? get licenseExpiry => _licenseExpiry;
+  DateTime? get fcExpiry => _fcExpiry;
+  DateTime? get insuranceExpiry => _insuranceExpiry;
 
   OnboardingController({required TickerProvider vsync}) {
     _initializeAnimations(vsync);
@@ -101,30 +140,27 @@ class OnboardingController {
     _scaleAnimationController.forward();
   }
 
-  void resetAnimations() {
-    _animationController.reset();
-    _slideAnimationController.reset();
-    _scaleAnimationController.reset();
-    startAnimations();
-  }
-
-  void shake() {
-    _scaleAnimationController.reset();
-    _scaleAnimationController.forward();
-  }
-
+  // Navigation
   void nextStep() {
     if (_currentStep < totalSteps - 1) {
       _currentStep++;
+      _notifyStateChange();
     }
   }
 
   void previousStep() {
     if (_currentStep > 0) {
       _currentStep--;
+      _notifyStateChange();
     }
   }
 
+  void setCurrentStep(int step) {
+    _currentStep = step;
+    _notifyStateChange();
+  }
+
+  // Loading state
   void setLoading(bool loading) {
     _isLoading = loading;
     _notifyStateChange();
@@ -140,19 +176,234 @@ class OnboardingController {
     _notifyStateChange();
   }
 
-  String getButtonText() {
-    switch (_currentStep) {
-      case 0:
-        return 'Continue with Name';
-      case 1:
-        return 'Continue to Email';
-      case 2:
-        return 'Continue to Phone';
-      case 3:
-        return 'Complete Setup';
-      default:
-        return 'Continue';
+  void setUploadingDocument(bool uploading) {
+    _isUploadingDocument = uploading;
+    _notifyStateChange();
+  }
+
+  // Get total steps
+  int getTotalSteps() {
+    return totalSteps;
+  }
+
+  // Validation
+  bool validatePersonalInfo() {
+    return firstNameController.text.trim().isNotEmpty;
+  }
+
+  bool validateEmail() {
+    // Email step is optional - user can proceed with or without Google verification
+    return true;
+  }
+
+  String? validatePhoneDetails() {
+    final phone = alternatePhoneController.text.trim();
+
+    if (phone.isEmpty) return null; // Phone is optional
+
+    if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
+      return 'Please enter a valid 10-digit phone number';
     }
+
+    return null;
+  }
+
+  String? validateDocuments() {
+
+    // Validate PAN number format
+    if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(panNumberController.text.trim())) {
+      return 'Please enter a valid PAN number';
+      // example: ABCDE1234F
+    }
+
+    // Check if all required documents are uploaded
+    if (_uploadedLicenseUrl == null) return 'Please upload your driving license';
+    if (_licenseExpiry == null) return 'Please select license expiry date';
+    if (_uploadedRcBookUrl == null) return 'Please upload your RC book';
+    if (_uploadedFcUrl == null) return 'Please upload your FC certificate';
+    if (_fcExpiry == null) return 'Please select FC expiry date';
+    if (_uploadedInsuranceUrl == null) return 'Please upload your insurance certificate';
+    if (_insuranceExpiry == null) return 'Please select insurance expiry date';
+    if (_uploadedAadharUrl == null) return 'Please upload your Aadhar card';
+    if (_uploadedEbBillUrl == null) return 'Please upload your electricity bill';
+    if (panNumberController.text.trim().isEmpty) return 'Please enter your PAN number';
+
+
+
+    return null;
+  }
+
+  String getButtonText() {
+    if (_currentStep == totalSteps - 1) {
+      return 'Complete Setup';
+    }
+    return 'Continue';
+  }
+
+  // Document methods
+  void setLicenseExpiry(DateTime date) {
+    _licenseExpiry = date;
+    _notifyStateChange();
+  }
+
+  void setFcExpiry(DateTime date) {
+    _fcExpiry = date;
+    _notifyStateChange();
+  }
+
+  void setInsuranceExpiry(DateTime date) {
+    _insuranceExpiry = date;
+    _notifyStateChange();
+  }
+
+  Future<void> pickDocument({
+    required String documentType,
+    required Function(String) onError,
+  }) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 90,
+      );
+
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+
+        switch (documentType) {
+          case 'license':
+            _selectedLicense = file;
+            _uploadedLicenseUrl = null;
+            break;
+          case 'rcBook':
+            _selectedRcBook = file;
+            _uploadedRcBookUrl = null;
+            break;
+          case 'fc':
+            _selectedFc = file;
+            _uploadedFcUrl = null;
+            break;
+          case 'insurance':
+            _selectedInsurance = file;
+            _uploadedInsuranceUrl = null;
+            break;
+          case 'aadhar':
+            _selectedAadhar = file;
+            _uploadedAadharUrl = null;
+            break;
+          case 'ebBill':
+            _selectedEbBill = file;
+            _uploadedEbBillUrl = null;
+            break;
+        }
+
+        _notifyStateChange();
+      }
+    } catch (e) {
+      onError('Failed to pick document: $e');
+    }
+  }
+
+  Future<void> uploadDocument({
+    required String documentType,
+    required Function(String) onError,
+    required Function(String) onSuccess,
+  }) async {
+    File? selectedFile;
+
+    switch (documentType) {
+      case 'license':
+        selectedFile = _selectedLicense;
+        break;
+      case 'rcBook':
+        selectedFile = _selectedRcBook;
+        break;
+      case 'fc':
+        selectedFile = _selectedFc;
+        break;
+      case 'insurance':
+        selectedFile = _selectedInsurance;
+        break;
+      case 'aadhar':
+        selectedFile = _selectedAadhar;
+        break;
+      case 'ebBill':
+        selectedFile = _selectedEbBill;
+        break;
+    }
+
+    if (selectedFile == null) return;
+
+    setUploadingDocument(true);
+
+    try {
+      final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('driver-documents/$fileName');
+
+      final uploadTask = storageRef.putFile(selectedFile);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      switch (documentType) {
+        case 'license':
+          _uploadedLicenseUrl = downloadUrl;
+          break;
+        case 'rcBook':
+          _uploadedRcBookUrl = downloadUrl;
+          break;
+        case 'fc':
+          _uploadedFcUrl = downloadUrl;
+          break;
+        case 'insurance':
+          _uploadedInsuranceUrl = downloadUrl;
+          break;
+        case 'aadhar':
+          _uploadedAadharUrl = downloadUrl;
+          break;
+        case 'ebBill':
+          _uploadedEbBillUrl = downloadUrl;
+          break;
+      }
+
+      setUploadingDocument(false);
+      onSuccess('Document uploaded successfully!');
+    } catch (e) {
+      setUploadingDocument(false);
+      onError('Failed to upload document: $e');
+    }
+  }
+
+  DriverDocuments? getDriverDocuments() {
+    if (_uploadedLicenseUrl == null ||
+        _uploadedRcBookUrl == null ||
+        _uploadedFcUrl == null ||
+        _uploadedInsuranceUrl == null ||
+        _uploadedAadharUrl == null ||
+        _uploadedEbBillUrl == null ||
+        _licenseExpiry == null ||
+        _fcExpiry == null ||
+        _insuranceExpiry == null) {
+      return null;
+    }
+
+    return DriverDocuments(
+      licenseUrl: _uploadedLicenseUrl!,
+      licenseExpiry: _licenseExpiry!,
+      rcBookUrl: _uploadedRcBookUrl!,
+      fcUrl: _uploadedFcUrl!,
+      fcExpiry: _fcExpiry!,
+      insuranceUrl: _uploadedInsuranceUrl!,
+      insuranceExpiry: _insuranceExpiry!,
+      aadharUrl: _uploadedAadharUrl!,
+      panNumber: panNumberController.text.trim(),
+      ebBillUrl: _uploadedEbBillUrl!,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
   }
 
   Future<void> pickImage({
@@ -210,6 +461,7 @@ class OnboardingController {
     }
   }
 
+  // Google OAuth
   Future<void> linkEmailWithGoogle({
     required Function(String) onError,
     required Function(String) onSuccess,
@@ -246,8 +498,10 @@ class OnboardingController {
     firstNameController.dispose();
     lastNameController.dispose();
     alternatePhoneController.dispose();
+    panNumberController.dispose();
     firstNameFocus.dispose();
     lastNameFocus.dispose();
     alternatePhoneFocus.dispose();
+    panNumberFocus.dispose();
   }
 }

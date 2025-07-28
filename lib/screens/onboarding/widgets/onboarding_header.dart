@@ -4,153 +4,61 @@ import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_con
 
 class OnboardingHeader extends StatelessWidget {
   final OnboardingController controller;
-  final VoidCallback onPreviousPressed;
 
   const OnboardingHeader({
     super.key,
     required this.controller,
-    required this.onPreviousPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final totalSteps = controller.totalSteps;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            colorScheme.surface,
-            colorScheme.surface.withValues(alpha: 0.95),
-          ],
-        ),
-      ),
-      child: Column(
-        children: [
-          // Enhanced top bar with better spacing
-          Row(
-            children: [
-              if (controller.currentStep > 0)
-                ScaleTransition(
-                  scale: controller.scaleAnimation,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: colorScheme.outline.withValues(alpha: 0.15),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.shadow.withValues(alpha: 0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: onPreviousPressed,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Icon(
-                            Icons.arrow_back_ios_rounded,
-                            color: colorScheme.onSurface,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                )
-              else
-                const SizedBox(width: 52),
-              Expanded(
-                child: Center(
-                  child: FadeTransition(
-                    opacity: controller.fadeAnimation,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.secondaryContainer.withValues(alpha: 0.7),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Step ${controller.currentStep + 1} of ${controller.totalSteps}',
-                        style: GoogleFonts.dmSans(
-                          color: colorScheme.onSecondaryContainer,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 52),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Enhanced progress bar with animated segments
-          Container(
-            height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: colorScheme.outline.withValues(alpha: 0.1),
-            ),
-            child: Stack(
+    return AnimatedBuilder(
+      animation: controller.fadeAnimation,
+      builder: (context, _) {
+        return FadeTransition(
+          opacity: controller.fadeAnimation,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
               children: [
+                // Progress indicator
                 Row(
-                  children: List.generate(controller.totalSteps, (index) {
-                    return Expanded(
-                      child: Container(
-                        margin: EdgeInsets.only(
-                          right: index < controller.totalSteps - 1 ? 2 : 0,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: index <= controller.currentStep
-                              ? colorScheme.secondary
-                              : Colors.transparent,
-                        ),
+                  children: [
+                    for (int i = 0; i < totalSteps; i++) ...[
+                      Expanded(
                         child: AnimatedContainer(
-                          duration: Duration(
-                            milliseconds: 800 + (index * 100),
-                          ),
-                          curve: Curves.easeInOutCubic,
-                          height: 8,
+                          duration: const Duration(milliseconds: 300),
+                          height: 4,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            gradient: index <= controller.currentStep
-                                ? LinearGradient(
-                                    colors: [
-                                      colorScheme.secondary,
-                                      colorScheme.secondaryContainer,
-                                    ],
-                                  )
-                                : null,
+                            color: i <= controller.currentStep
+                                ? colorScheme.secondary
+                                : colorScheme.outline.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ),
-                    );
-                  }),
+                      if (i < totalSteps - 1) const SizedBox(width: 8),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Step counter
+                Text(
+                  'Step ${controller.currentStep + 1} of $totalSteps',
+                  style: GoogleFonts.dmSans(
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
