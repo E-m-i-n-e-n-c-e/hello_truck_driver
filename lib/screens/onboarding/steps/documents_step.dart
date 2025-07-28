@@ -162,6 +162,7 @@ class DocumentsStep extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isUploaded = uploadedUrl != null;
     final isSelected = selectedFile != null;
+    final isUploading = controller.isUploadingSpecificDocument(documentType);
 
     return Card(
       elevation: 0,
@@ -246,7 +247,7 @@ class DocumentsStep extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: controller.isUploadingDocument
+                onPressed: isUploading
                     ? null
                     : () => _handleDocumentUpload(documentType),
                 style: OutlinedButton.styleFrom(
@@ -260,7 +261,7 @@ class DocumentsStep extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                icon: controller.isUploadingDocument
+                icon: isUploading
                     ? SizedBox(
                         width: 16,
                         height: 16,
@@ -271,10 +272,11 @@ class DocumentsStep extends StatelessWidget {
                       )
                     : Icon(
                         isUploaded ? Icons.refresh_rounded : Icons.upload_file_rounded,
+                        color: isUploaded ? colorScheme.secondary : null,
                         size: 18,
                       ),
                 label: Text(
-                  controller.isUploadingDocument
+                  isUploading
                       ? 'Uploading...'
                       : isUploaded
                           ? 'Re-upload Document'

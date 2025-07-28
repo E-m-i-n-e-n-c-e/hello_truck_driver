@@ -55,7 +55,7 @@ class OnboardingController {
   DateTime? _licenseExpiry;
   DateTime? _fcExpiry;
   DateTime? _insuranceExpiry;
-  bool _isUploadingDocument = false;
+  final Set<String> _uploadingDocuments = <String>{};
 
   // State change notifiers
   VoidCallback? _onStateChanged;
@@ -65,7 +65,8 @@ class OnboardingController {
   bool get isLoading => _isLoading;
   bool get isUploadingImage => _isUploadingImage;
   bool get isPickingImage => _isPickingImage;
-  bool get isUploadingDocument => _isUploadingDocument;
+  bool get isUploadingDocument => _uploadingDocuments.isNotEmpty;
+  bool isUploadingSpecificDocument(String documentType) => _uploadingDocuments.contains(documentType);
   File? get selectedImage => _selectedImage;
   String? get uploadedImageUrl => _uploadedImageUrl;
   String? get googleIdToken => _googleIdToken;
@@ -189,8 +190,12 @@ class OnboardingController {
     _notifyStateChange();
   }
 
-  void setUploadingDocument(bool uploading) {
-    _isUploadingDocument = uploading;
+  void setUploadingDocument(String documentType, bool uploading) {
+    if (uploading) {
+      _uploadingDocuments.add(documentType);
+    } else {
+      _uploadingDocuments.remove(documentType);
+    }
     _notifyStateChange();
   }
 
@@ -354,7 +359,7 @@ class OnboardingController {
 
     if (selectedFile == null) return;
 
-    setUploadingDocument(true);
+    setUploadingDocument(documentType, true);
 
     try {
       final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.jpg';
@@ -387,10 +392,10 @@ class OnboardingController {
           break;
       }
 
-      setUploadingDocument(false);
+      setUploadingDocument(documentType, false);
       onSuccess('Document uploaded successfully!');
     } catch (e) {
-      setUploadingDocument(false);
+      setUploadingDocument(documentType, false);
       onError('Failed to upload document: $e');
     }
   }
