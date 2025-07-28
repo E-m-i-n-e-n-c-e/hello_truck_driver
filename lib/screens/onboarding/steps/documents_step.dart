@@ -219,6 +219,15 @@ class DocumentsStep extends StatelessWidget {
                               color: colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                       ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Supports: JPG, PNG, PDF (Max 10MB)',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: colorScheme.secondary.withValues(alpha: 0.8),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
                     ],
                   ),
                 ),
@@ -268,10 +277,10 @@ class DocumentsStep extends StatelessWidget {
                   controller.isUploadingDocument
                       ? 'Uploading...'
                       : isUploaded
-                          ? 'Re-upload'
+                          ? 'Re-upload Document'
                           : isSelected
-                              ? 'Upload Selected'
-                              : 'Select & Upload',
+                              ? 'Upload Selected File'
+                              : 'Choose File to Upload',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     color: isUploaded ? colorScheme.secondary : null,

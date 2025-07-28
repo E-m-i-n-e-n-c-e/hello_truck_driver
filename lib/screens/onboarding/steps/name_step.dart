@@ -17,7 +17,7 @@ class NameStep extends StatelessWidget {
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 32),
 
@@ -39,7 +39,8 @@ class NameStep extends StatelessWidget {
 
           OnboardingStepDescription(
             controller: controller,
-            description: 'This will be displayed on your driver profile and help customers identify you during their rides.',
+            description:
+                'This will be displayed on your driver profile and help customers identify you during their rides.',
           ),
 
           const SizedBox(height: 56),

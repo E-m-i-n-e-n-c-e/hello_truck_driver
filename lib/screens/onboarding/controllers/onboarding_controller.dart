@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hello_truck_driver/models/documents.dart';
@@ -273,16 +274,21 @@ class OnboardingController {
     required Function(String) onError,
   }) async {
     try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageQuality: 90,
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+        allowMultiple: false,
       );
 
-      if (pickedFile != null) {
-        final file = File(pickedFile.path);
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        
+        // Validate file size (limit to 10MB)
+        final fileSize = await file.length();
+        if (fileSize > 10 * 1024 * 1024) {
+          onError('File size must be less than 10MB');
+          return;
+        }
 
         switch (documentType) {
           case 'license':

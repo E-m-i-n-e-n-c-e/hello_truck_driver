@@ -22,7 +22,7 @@ class PhotoStep extends StatelessWidget {
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 32),
 
@@ -33,16 +33,14 @@ class PhotoStep extends StatelessWidget {
 
           const SizedBox(height: 40),
 
-          OnboardingStepTitle(
-            controller: controller,
-            title: 'Add your photo',
-          ),
+          OnboardingStepTitle(controller: controller, title: 'Add your photo'),
 
           const SizedBox(height: 16),
 
           OnboardingStepDescription(
             controller: controller,
-            description: 'Upload a clear, professional photo to help customers recognize you. This builds trust and makes pickups smoother.',
+            description:
+                'Upload a clear, professional photo to help customers recognize you. This builds trust and makes pickups smoother.',
           ),
 
           const SizedBox(height: 56),

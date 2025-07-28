@@ -20,7 +20,7 @@ class PhoneStep extends StatelessWidget {
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 32),
 

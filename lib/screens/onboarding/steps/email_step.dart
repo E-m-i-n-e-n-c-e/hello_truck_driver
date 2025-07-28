@@ -24,7 +24,7 @@ class EmailStep extends StatelessWidget {
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 32),
 
@@ -154,7 +154,7 @@ class EmailStep extends StatelessWidget {
                     ),
                   ),
                   label: Text(
-                    'Continue with Google',
+                    'Connect with Google',
                     style: GoogleFonts.dmSans(
                       color: colorScheme.onSurface.withValues(alpha: 0.8),
                       fontSize: 16,
