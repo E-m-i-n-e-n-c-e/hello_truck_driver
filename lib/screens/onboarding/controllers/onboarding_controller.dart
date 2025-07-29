@@ -381,7 +381,9 @@ class OnboardingController {
     setUploadingDocument(documentType, true);
 
     try {
-      final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      // Get file extension from the actual file
+      final fileExtension = selectedFile.path.split('.').last.toLowerCase();
+      final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('driver-documents/$fileName');

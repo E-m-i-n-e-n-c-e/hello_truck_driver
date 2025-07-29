@@ -83,6 +83,18 @@ class API {
     queryParameters: queryParameters,
   );
 
+  Future<Response> getFile(String url, {CachePolicy? policy}) {
+    return _dio.get(
+      url,
+      options: _cacheOptions
+          .copyWith(policy: policy ?? _cacheOptions.policy)
+          .toOptions()
+          .copyWith(
+            responseType: ResponseType.bytes, // Force binary response for files
+          ),
+    );
+  }
+
   Future<Response> post(String path, {dynamic data}) =>
       _dio.post('$baseUrl$path', data: data);
 

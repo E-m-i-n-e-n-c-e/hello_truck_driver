@@ -2,17 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/screens/profile/document_upload_screen.dart';
 import 'package:hello_truck_driver/utils/api/driver_api.dart' as driver_api;
-import 'package:hello_truck_driver/utils/api/documents_api.dart' as documents_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
-
-final driverProvider = FutureProvider.autoDispose<Driver>((ref) async {
-  final api = await ref.watch(apiProvider.future);
-  return driver_api.getDriverProfile(api, includeDocuments: true);
-});
+import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
+import 'package:hello_truck_driver/screens/profile/document_viewer.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -25,8 +19,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with TickerProviderStateMixin {
   bool _isEditing = false;
   bool _isLoading = false;
-  bool _isUploadingDocument = false;
-  bool _hasDocumentChanges = false;
   final _formKey = GlobalKey<FormState>();
   late TabController _tabController;
 
@@ -34,24 +26,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   late final TextEditingController _lastNameController;
   late final TextEditingController _emailController;
   late final TextEditingController _alternatePhoneController;
-  late final TextEditingController _panNumberController;
-
-  // Document editing state
-  String? _newLicenseUrl;
-  String? _newRcBookUrl;
-  String? _newFcUrl;
-  String? _newInsuranceUrl;
-  String? _newAadharUrl;
-  String? _newEbBillUrl;
-  File? _selectedLicense;
-  File? _selectedRcBook;
-  File? _selectedFc;
-  File? _selectedInsurance;
-  File? _selectedAadhar;
-  File? _selectedEbBill;
-  DateTime? _licenseExpiry;
-  DateTime? _fcExpiry;
-  DateTime? _insuranceExpiry;
 
   @override
   void initState() {
@@ -61,7 +35,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     _lastNameController = TextEditingController();
     _emailController = TextEditingController();
     _alternatePhoneController = TextEditingController();
-    _panNumberController = TextEditingController();
   }
 
   @override
@@ -71,7 +44,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     _lastNameController.dispose();
     _emailController.dispose();
     _alternatePhoneController.dispose();
-    _panNumberController.dispose();
     super.dispose();
   }
 
@@ -80,28 +52,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     _lastNameController.text = driver.lastName ?? '';
     _emailController.text = driver.email ?? '';
     _alternatePhoneController.text = driver.alternatePhone ?? '';
-
-    if (driver.documents != null) {
-      _panNumberController.text = driver.documents!.panNumber;
-      _licenseExpiry = driver.documents!.licenseExpiry;
-      _fcExpiry = driver.documents!.fcExpiry;
-      _insuranceExpiry = driver.documents!.insuranceExpiry;
-    }
-
-    // Reset document changes when initializing
-    _hasDocumentChanges = false;
-    _newLicenseUrl = null;
-    _newRcBookUrl = null;
-    _newFcUrl = null;
-    _newInsuranceUrl = null;
-    _newAadharUrl = null;
-    _newEbBillUrl = null;
-    _selectedLicense = null;
-    _selectedRcBook = null;
-    _selectedFc = null;
-    _selectedInsurance = null;
-    _selectedAadhar = null;
-    _selectedEbBill = null;
   }
 
   Future<void> _updateProfile() async {
@@ -133,146 +83,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     }
   }
 
-  Future<void> _updateDocuments() async {
-    if (!_hasDocumentChanges) {
-      setState(() => _isEditing = false);
-      return;
-    }
+  Future<void> _reUploadDocument(String documentType, String title) async {
+    final documents = (await ref.read(driverProvider.future)).documents;
+    if (documents == null) return;
 
-    setState(() => _isLoading = true);
-    try {
-      final api = ref.read(apiProvider).value!;
+    final currentExpiry = switch (documentType) {
+      'license' => documents.licenseExpiry,
+      'fc' => documents.fcExpiry,
+      'insurance' => documents.insuranceExpiry,
+      _ => null,
+    };
 
-      await documents_api.updateDriverDocuments(
-        api,
-        licenseUrl: _newLicenseUrl,
-        licenseExpiry: _licenseExpiry,
-        rcBookUrl: _newRcBookUrl,
-        fcUrl: _newFcUrl,
-        fcExpiry: _fcExpiry,
-        insuranceUrl: _newInsuranceUrl,
-        insuranceExpiry: _insuranceExpiry,
-        aadharUrl: _newAadharUrl,
-        panNumber: _panNumberController.text.trim().isNotEmpty
-            ? _panNumberController.text.trim()
-            : null,
-        ebBillUrl: _newEbBillUrl,
-      );
+    final currentUrl = switch (documentType) {
+      'license' => documents.licenseUrl,
+      'rcBook' => documents.rcBookUrl,
+      'fc' => documents.fcUrl,
+      'insurance' => documents.insuranceUrl,
+      'aadhar' => documents.aadharUrl,
+      'ebBill' => documents.ebBillUrl,
+      _ => '',
+    };
 
-      if (mounted) {
-        setState(() {
-          _isEditing = false;
-          _hasDocumentChanges = false;
-        });
-        SnackBars.success(context, 'Documents updated successfully');
-        ref.invalidate(driverProvider);
-      }
-    } catch (e) {
-      if (mounted) {
-        SnackBars.error(context, 'Failed to update documents: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
+    if (!mounted) return;
 
-  Future<void> _pickDocument(String documentType) async {
-    try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 2048,
-        maxHeight: 2048,
-        imageQuality: 90,
-      );
-
-      if (pickedFile != null) {
-        final file = File(pickedFile.path);
-
-        setState(() {
-          switch (documentType) {
-            case 'license':
-              _selectedLicense = file;
-              break;
-            case 'rcBook':
-              _selectedRcBook = file;
-              break;
-            case 'fc':
-              _selectedFc = file;
-              break;
-            case 'insurance':
-              _selectedInsurance = file;
-              break;
-            case 'aadhar':
-              _selectedAadhar = file;
-              break;
-            case 'ebBill':
-              _selectedEbBill = file;
-              break;
-          }
-        });
-
-        // Upload the document immediately
-        await _uploadAndSetDocument(documentType, file);
-      }
-    } catch (e) {
-      SnackBars.error(context, 'Failed to pick document: $e');
-    }
-  }
-
-  Future<void> _uploadAndSetDocument(String documentType, File file) async {
-    setState(() => _isUploadingDocument = true);
-
-    try {
-      final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('driver-documents/$fileName');
-
-      final uploadTask = storageRef.putFile(file);
-      final snapshot = await uploadTask;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-
-      setState(() {
-        _hasDocumentChanges = true;
-        switch (documentType) {
-          case 'license':
-            _newLicenseUrl = downloadUrl;
-            break;
-          case 'rcBook':
-            _newRcBookUrl = downloadUrl;
-            break;
-          case 'fc':
-            _newFcUrl = downloadUrl;
-            break;
-          case 'insurance':
-            _newInsuranceUrl = downloadUrl;
-            break;
-          case 'aadhar':
-            _newAadharUrl = downloadUrl;
-            break;
-          case 'ebBill':
-            _newEbBillUrl = downloadUrl;
-            break;
-        }
-      });
-
-      SnackBars.success(context, 'Document uploaded successfully');
-    } catch (e) {
-      SnackBars.error(context, 'Failed to upload document: $e');
-    } finally {
-      setState(() => _isUploadingDocument = false);
-    }
-  }
-
-  void _onExpiryDateChanged() {
-    setState(() => _hasDocumentChanges = true);
-  }
-
-  void _onPanNumberChanged() {
-    setState(() => _hasDocumentChanges = true);
+    showDialog(
+      context: context,
+      builder: (ctx) => DocumentReUploadDialog(
+        title: title,
+        documentType: documentType,
+        currentExpiry: currentExpiry,
+        currentUrl: currentUrl,
+        onSuccess: () {
+          ref.invalidate(driverProvider);
+          ref.invalidate(documentFilesProvider);
+          SnackBars.success(context, '$title re-uploaded successfully');
+        },
+      ),
+    );
   }
 
   String _getVerificationStatusText(String status) {
@@ -305,7 +152,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final driver = ref.watch(driverProvider);
+    final driverAsync = ref.watch(driverProvider);
+    // initialization of document files provider
+    ref.watch(documentFilesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -334,11 +183,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               onPressed: () => setState(() => _isEditing = true),
             )
           else ...[
-            if (_hasDocumentChanges && _tabController.index == 1)
-              IconButton(
-                icon: const Icon(Icons.save),
-                onPressed: _isLoading ? null : _updateDocuments,
-              ),
             IconButton(
               icon: const Icon(Icons.close),
               onPressed: () => setState(() => _isEditing = false),
@@ -346,7 +190,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           ],
         ],
       ),
-      body: driver.when(
+      body: driverAsync.when(
         data: (driver) {
           if (!_isEditing) {
             _initializeControllers(driver);
@@ -677,78 +521,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Changes indicator
-          if (_hasDocumentChanges && _isEditing)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'You have unsaved changes. Tap the save button to update your documents.',
-                      style: TextStyle(color: Colors.orange),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-          // PAN Number
-          if (_isEditing) ...[
-            TextFormField(
-              controller: _panNumberController,
-              decoration: const InputDecoration(
-                labelText: 'PAN Number',
-                hintText: 'Enter your PAN number',
-                prefixIcon: Icon(Icons.credit_card_rounded),
-              ),
-              enabled: _isEditing && !_isLoading,
-              onChanged: (_) => _onPanNumberChanged(),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'PAN number is required';
-                }
-                if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(value.trim())) {
-                  return 'Please enter a valid PAN number (e.g., ABCDE1234F)';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
-          ] else ...[
-            _InfoTile(
-              icon: Icons.credit_card_rounded,
-              title: 'PAN Number',
-              subtitle: documents.panNumber,
-            ),
-            const SizedBox(height: 16),
-          ],
+          // PAN Number display
+          _InfoTile(
+            icon: Icons.credit_card_rounded,
+            title: 'PAN Number',
+            subtitle: documents.panNumber,
+          ),
+          const SizedBox(height: 16),
 
           // Document Cards
           _buildDocumentCard(
             context,
             title: 'Driving License',
-            subtitle: 'Valid until ${_formatDate(_licenseExpiry ?? documents.licenseExpiry)}',
+            subtitle: 'Valid until ${_formatDate(documents.licenseExpiry)}',
             icon: Icons.drive_eta_rounded,
             documentType: 'license',
-            currentUrl: _newLicenseUrl ?? documents.licenseUrl,
-            selectedFile: _selectedLicense,
-            hasChanges: _newLicenseUrl != null,
+            currentUrl: documents.licenseUrl,
             showExpiryDate: true,
-            expiryDate: _licenseExpiry ?? documents.licenseExpiry,
-            onExpiryDateSelected: (date) {
-              setState(() => _licenseExpiry = date);
-              _onExpiryDateChanged();
-            },
+            expiryDate: documents.licenseExpiry,
           ),
 
           const SizedBox(height: 16),
@@ -759,9 +549,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             subtitle: 'Vehicle registration certificate',
             icon: Icons.local_shipping_rounded,
             documentType: 'rcBook',
-            currentUrl: _newRcBookUrl ?? documents.rcBookUrl,
-            selectedFile: _selectedRcBook,
-            hasChanges: _newRcBookUrl != null,
+            currentUrl: documents.rcBookUrl,
           ),
 
           const SizedBox(height: 16),
@@ -769,18 +557,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildDocumentCard(
             context,
             title: 'FC Certificate',
-            subtitle: 'Valid until ${_formatDate(_fcExpiry ?? documents.fcExpiry)}',
+            subtitle: 'Valid until ${_formatDate(documents.fcExpiry)}',
             icon: Icons.verified_rounded,
             documentType: 'fc',
-            currentUrl: _newFcUrl ?? documents.fcUrl,
-            selectedFile: _selectedFc,
-            hasChanges: _newFcUrl != null,
+            currentUrl: documents.fcUrl,
             showExpiryDate: true,
-            expiryDate: _fcExpiry ?? documents.fcExpiry,
-            onExpiryDateSelected: (date) {
-              setState(() => _fcExpiry = date);
-              _onExpiryDateChanged();
-            },
+            expiryDate: documents.fcExpiry,
           ),
 
           const SizedBox(height: 16),
@@ -788,18 +570,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildDocumentCard(
             context,
             title: 'Insurance Certificate',
-            subtitle: 'Valid until ${_formatDate(_insuranceExpiry ?? documents.insuranceExpiry)}',
+            subtitle: 'Valid until ${_formatDate(documents.insuranceExpiry)}',
             icon: Icons.security_rounded,
             documentType: 'insurance',
-            currentUrl: _newInsuranceUrl ?? documents.insuranceUrl,
-            selectedFile: _selectedInsurance,
-            hasChanges: _newInsuranceUrl != null,
+            currentUrl: documents.insuranceUrl,
             showExpiryDate: true,
-            expiryDate: _insuranceExpiry ?? documents.insuranceExpiry,
-            onExpiryDateSelected: (date) {
-              setState(() => _insuranceExpiry = date);
-              _onExpiryDateChanged();
-            },
+            expiryDate: documents.insuranceExpiry,
           ),
 
           const SizedBox(height: 16),
@@ -810,9 +586,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             subtitle: 'Identity proof',
             icon: Icons.person_rounded,
             documentType: 'aadhar',
-            currentUrl: _newAadharUrl ?? documents.aadharUrl,
-            selectedFile: _selectedAadhar,
-            hasChanges: _newAadharUrl != null,
+            currentUrl: documents.aadharUrl,
           ),
 
           const SizedBox(height: 16),
@@ -823,9 +597,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             subtitle: 'Address proof',
             icon: Icons.receipt_long_rounded,
             documentType: 'ebBill',
-            currentUrl: _newEbBillUrl ?? documents.ebBillUrl,
-            selectedFile: _selectedEbBill,
-            hasChanges: _newEbBillUrl != null,
+            currentUrl: documents.ebBillUrl,
           ),
 
           const SizedBox(height: 32),
@@ -841,11 +613,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     required IconData icon,
     required String documentType,
     required String currentUrl,
-    required File? selectedFile,
-    required bool hasChanges,
+    bool hasChanges = false,
     bool showExpiryDate = false,
     DateTime? expiryDate,
-    Function(DateTime)? onExpiryDateSelected,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -926,13 +696,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
             const SizedBox(height: 16),
 
-            // View/Edit Actions
+            // View/Re-upload Actions
             Row(
               children: [
                 // View Document Button
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _viewDocument(currentUrl, title),
+                    onPressed: () => showDocumentViewer(context,ref: ref, documentType: documentType, title: title),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       side: BorderSide(
@@ -952,74 +722,60 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                   ),
                 ),
 
-                if (_isEditing) ...[
-                  const SizedBox(width: 12),
-                  // Replace Document Button
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _isUploadingDocument
-                          ? null
-                          : () => _pickDocument(documentType),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        side: BorderSide(
-                          color: colorScheme.secondary.withValues(alpha: 0.5),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                const SizedBox(width: 12),
+                // Re-upload Document Button
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _reUploadDocument(documentType, title),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.secondary,
+                      foregroundColor: colorScheme.onSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      icon: _isUploadingDocument
-                          ? SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation(colorScheme.secondary),
-                              ),
-                            )
-                          : const Icon(Icons.upload_file_rounded, size: 18),
-                      label: Text(
-                        _isUploadingDocument ? 'Uploading...' : 'Replace',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.secondary,
-                        ),
+                    ),
+                    icon: const Icon(Icons.upload_file_rounded, size: 18),
+                    label: const Text(
+                      'Re-upload',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ],
+                ),
               ],
             ),
 
-            // Expiry Date Picker
-            if (showExpiryDate && _isEditing) ...[
+            // Expiry Date Display (always visible when expiry exists)
+            if (showExpiryDate && expiryDate != null) ...[
               const SizedBox(height: 12),
-              SizedBox(
+              Container(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => _selectExpiryDate(context, onExpiryDateSelected!),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(
-                      color: colorScheme.secondary.withValues(alpha: 0.5),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.3),
                   ),
-                  icon: Icon(
-                    Icons.calendar_today_rounded,
-                    size: 18,
-                    color: colorScheme.secondary,
-                  ),
-                  label: Text(
-                    'Expires: ${_formatDate(expiryDate!)}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.secondary,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      size: 18,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Expires: ${_formatDate(expiryDate)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1029,80 +785,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     );
   }
 
-  void _viewDocument(String url, String title) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppBar(
-              title: Text(title),
-              leading: IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ),
-            Expanded(
-              child: InteractiveViewer(
-                child: Image.network(
-                  url,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline, size: 48),
-                          SizedBox(height: 8),
-                          Text('Failed to load document'),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _selectExpiryDate(
-    BuildContext context,
-    Function(DateTime) onDateSelected,
-  ) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 365)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  secondary: Theme.of(context).colorScheme.secondary,
-                ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      onDateSelected(picked);
-    }
-  }
-
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }
+
 
 class _InfoTile extends StatelessWidget {
   final IconData icon;
