@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 
 class OnboardingStepContainer extends StatelessWidget {
@@ -158,6 +159,8 @@ class OnboardingTextField extends StatefulWidget {
   final Function(String)? onSubmitted;
   final int maxLines;
   final String? prefixText;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
 
   const OnboardingTextField({
     super.key,
@@ -173,6 +176,8 @@ class OnboardingTextField extends StatefulWidget {
     this.onSubmitted,
     this.maxLines = 1,
     this.prefixText,
+    this.maxLength,
+    this.inputFormatters,
   });
 
   @override
@@ -247,6 +252,8 @@ class _OnboardingTextFieldState extends State<OnboardingTextField>
                 obscureText: widget.obscureText,
                 keyboardType: widget.keyboardType,
                 maxLines: widget.maxLines,
+                maxLength: widget.maxLength,
+                inputFormatters: widget.inputFormatters,
                 onFieldSubmitted: widget.onSubmitted,
                 decoration: InputDecoration(
                   labelText: widget.label,

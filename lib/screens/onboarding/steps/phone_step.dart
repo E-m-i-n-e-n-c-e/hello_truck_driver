@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
@@ -53,6 +54,10 @@ class PhoneStep extends StatelessWidget {
             hint: 'Phone Number',
             icon: Icons.phone_rounded,
             keyboardType: TextInputType.phone,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(10),
+              FilteringTextInputFormatter.digitsOnly,
+            ],
             prefixText: '+91 ',
             onSubmitted: (_) => onNext(),
           ),
