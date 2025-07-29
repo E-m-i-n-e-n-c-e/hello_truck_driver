@@ -291,7 +291,7 @@ class OnboardingController {
     _notifyStateChange();
   }
 
-  Future<void> pickDocument({
+  Future<bool> pickDocument({
     required String documentType,
     required Function(String) onError,
   }) async {
@@ -309,7 +309,7 @@ class OnboardingController {
         final fileSize = await file.length();
         if (fileSize > 10 * 1024 * 1024) {
           onError('File size must be less than 10MB');
-          return;
+          return false;
         }
 
         switch (documentType) {
@@ -340,10 +340,12 @@ class OnboardingController {
         }
 
         _notifyStateChange();
+        return true; // Successfully picked document
       }
     } catch (e) {
       onError('Failed to pick document: $e');
     }
+    return false; // Document picking failed
   }
 
   Future<void> uploadDocument({

@@ -224,7 +224,7 @@ class DocumentsStep extends StatelessWidget {
                       Text(
                         'Supports: JPG, PNG, PDF (Max 10MB)',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.secondary.withValues(alpha: 0.8),
+                              color: colorScheme.secondary.withValues(alpha: 0.85),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
                             ),
@@ -235,7 +235,7 @@ class DocumentsStep extends StatelessWidget {
                 if (isUploaded)
                   Icon(
                     Icons.check_circle_rounded,
-                    color: colorScheme.secondary,
+                    color: colorScheme.secondary.withValues(alpha: 0.85),
                     size: 24,
                   ),
               ],
@@ -267,7 +267,7 @@ class DocumentsStep extends StatelessWidget {
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation(colorScheme.secondary),
+                          valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                         ),
                       )
                     : Icon(
@@ -285,7 +285,11 @@ class DocumentsStep extends StatelessWidget {
                               : 'Choose File to Upload',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isUploaded ? colorScheme.secondary : null,
+                    color: isUploading
+                        ? colorScheme.primary
+                        : isUploaded
+                            ? colorScheme.secondary
+                            : null,
                   ),
                 ),
               ),
@@ -334,11 +338,11 @@ class DocumentsStep extends StatelessWidget {
 
   Future<void> _handleDocumentUpload(String documentType) async {
     // First pick the document
-    await controller.pickDocument(
+    final success = await controller.pickDocument(
       documentType: documentType,
       onError: onError,
     );
-
+    if (!success) return;
     // Then upload it if selected
     await controller.uploadDocument(
       documentType: documentType,
@@ -353,6 +357,9 @@ class DocumentsStep extends StatelessWidget {
     BuildContext context,
     Function(DateTime) onDateSelected,
   ) async {
+    // Unfocus the PAN number field specifically to prevent keyboard from reappearing
+    controller.panNumberFocus.unfocus();
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now().add(const Duration(days: 365)),
