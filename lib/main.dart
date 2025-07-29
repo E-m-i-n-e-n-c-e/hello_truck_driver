@@ -42,6 +42,7 @@ class MyApp extends ConsumerWidget {
 
     final authState = ref.watch(authStateProvider);
     final api = ref.watch(apiProvider);
+
     final isLoading = authState.isLoading || api.isLoading;
     final isAnimationComplete = ref.watch(
       AnimatedSplashScreenState.isAnimationComplete,

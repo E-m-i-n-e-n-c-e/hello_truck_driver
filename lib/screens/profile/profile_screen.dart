@@ -115,7 +115,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         currentUrl: currentUrl,
         onSuccess: () {
           ref.invalidate(driverProvider);
-          ref.invalidate(documentFilesProvider);
           SnackBars.success(context, '$title re-uploaded successfully');
         },
       ),
@@ -153,8 +152,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final driverAsync = ref.watch(driverProvider);
-    // initialization of document files provider
-    ref.watch(documentFilesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -702,7 +699,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 // View Document Button
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => showDocumentViewer(context,ref: ref, documentType: documentType, title: title),
+                    onPressed: () => showDocumentViewer(context, documentType: documentType, title: title),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       side: BorderSide(
