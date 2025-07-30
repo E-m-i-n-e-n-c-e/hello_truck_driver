@@ -288,7 +288,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _EditableInfoTile(
             icon: Icons.person_rounded,
             title: 'Last Name',
-            subtitle: driver.lastName ?? 'Not set',
+            subtitle: driver.lastName?.isNotEmpty == true ? driver.lastName! : 'Not set',
             onEdit: () => _showEditDialog(
               context,
               'Last Name',

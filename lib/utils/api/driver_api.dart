@@ -43,7 +43,7 @@ Future<void> updateDriverProfile(
 }) async {
   await api.put('/driver/profile', data: {
     if (firstName?.isNotEmpty ?? false) 'firstName': firstName,
-    if (lastName?.isNotEmpty ?? false) 'lastName': lastName,
+    if (lastName != null) 'lastName': lastName,
     if (alternatePhone?.isNotEmpty ?? false) 'alternatePhone': alternatePhone,
     if (photo?.isNotEmpty ?? false) 'photo': photo,
     if (googleIdToken?.isNotEmpty ?? false) 'googleIdToken': googleIdToken,
