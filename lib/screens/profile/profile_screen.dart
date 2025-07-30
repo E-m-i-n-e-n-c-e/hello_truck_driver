@@ -7,6 +7,9 @@ import 'package:hello_truck_driver/utils/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
 import 'package:hello_truck_driver/screens/profile/document_viewer.dart';
+import 'package:hello_truck_driver/screens/profile/profile_edit_dialogs.dart';
+import 'package:hello_truck_driver/screens/profile/profile_picture_dialog.dart';
+import 'package:hello_truck_driver/screens/profile/email_link_dialog.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -17,70 +20,18 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen>
     with TickerProviderStateMixin {
-  bool _isEditing = false;
-  bool _isLoading = false;
-  final _formKey = GlobalKey<FormState>();
   late TabController _tabController;
-
-  late final TextEditingController _firstNameController;
-  late final TextEditingController _lastNameController;
-  late final TextEditingController _emailController;
-  late final TextEditingController _alternatePhoneController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _firstNameController = TextEditingController();
-    _lastNameController = TextEditingController();
-    _emailController = TextEditingController();
-    _alternatePhoneController = TextEditingController();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _emailController.dispose();
-    _alternatePhoneController.dispose();
     super.dispose();
-  }
-
-  void _initializeControllers(Driver driver) {
-    _firstNameController.text = driver.firstName ?? '';
-    _lastNameController.text = driver.lastName ?? '';
-    _emailController.text = driver.email ?? '';
-    _alternatePhoneController.text = driver.alternatePhone ?? '';
-  }
-
-  Future<void> _updateProfile() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-    try {
-      final api = ref.read(apiProvider).value!;
-      await driver_api.updateDriverProfile(
-        api,
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        alternatePhone: _alternatePhoneController.text.trim(),
-      );
-
-      if (mounted) {
-        setState(() => _isEditing = false);
-        SnackBars.success(context, 'Profile updated successfully');
-        ref.invalidate(driverProvider);
-      }
-    } catch (e) {
-      if (mounted) {
-        SnackBars.error(context, 'Failed to update profile: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
   }
 
   Future<void> _reUploadDocument(String documentType, String title) async {
@@ -173,26 +124,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             Tab(text: 'Documents'),
           ],
         ),
-        actions: [
-          if (!_isEditing)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () => setState(() => _isEditing = true),
-            )
-          else ...[
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => setState(() => _isEditing = false),
-            ),
-          ],
-        ],
       ),
       body: driverAsync.when(
         data: (driver) {
-          if (!_isEditing) {
-            _initializeControllers(driver);
-          }
-
           return TabBarView(
             controller: _tabController,
             children: [
@@ -238,245 +172,217 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   Widget _buildPersonalInfoTab(Driver driver, ColorScheme colorScheme, TextTheme textTheme) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Header
-            Center(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: colorScheme.secondary.withValues(alpha: 0.1),
-                    backgroundImage: driver.photo != null && driver.photo!.isNotEmpty
-                        ? NetworkImage(driver.photo!)
-                        : null,
-                    child: driver.photo == null || driver.photo!.isEmpty
-                        ? Text(
-                            ('${driver.firstName?.isNotEmpty == true ? driver.firstName![0] : ''}'
-                                    '${driver.lastName?.isNotEmpty == true ? driver.lastName![0] : ''}')
-                                .toUpperCase(),
-                            style: textTheme.headlineMedium?.copyWith(
-                              color: colorScheme.secondary,
-                              fontWeight: FontWeight.bold,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Profile Header
+          Center(
+            child: Column(
+              children: [
+                GestureDetector(
+                  onTap: () => _showProfilePictureDialog(driver),
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: colorScheme.secondary.withValues(alpha: 0.1),
+                        backgroundImage: driver.photo != null && driver.photo!.isNotEmpty
+                            ? NetworkImage(driver.photo!)
+                            : null,
+                        child: driver.photo == null || driver.photo!.isEmpty
+                            ? Text(
+                                ('${driver.firstName?.isNotEmpty == true ? driver.firstName![0] : ''}'
+                                        '${driver.lastName?.isNotEmpty == true ? driver.lastName![0] : ''}')
+                                    .toUpperCase(),
+                                style: textTheme.headlineMedium?.copyWith(
+                                  color: colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
+                            : null,
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.secondary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: colorScheme.surface,
+                              width: 2,
                             ),
-                          )
-                        : null,
+                          ),
+                          child: Icon(
+                            Icons.camera_alt_rounded,
+                            size: 16,
+                            color: colorScheme.onSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  if (!_isEditing) ...[
-                    Text(
-                      '${driver.firstName ?? ''} ${driver.lastName ?? ''}'.trim(),
-                      style: textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  '${driver.firstName ?? ''} ${driver.lastName ?? ''}'.trim(),
+                  style: textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (driver.email?.isNotEmpty == true)
+                  Text(
+                    driver.email!,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
-                    const SizedBox(height: 4),
-                    if (driver.email?.isNotEmpty == true)
-                      Text(
-                        driver.email!,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    const SizedBox(height: 8),
-                    // Verification Status Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _getVerificationStatusColor(driver.verificationStatus, colorScheme).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
-                        ),
-                      ),
+                  ),
+                const SizedBox(height: 8),
+                // Verification Status Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _getVerificationStatusColor(driver.verificationStatus, colorScheme).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
+                    ),
+                  ),
+                  child: Text(
+                    _getVerificationStatusText(driver.verificationStatus),
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          _EditableInfoTile(
+            icon: Icons.phone_rounded,
+            title: 'Phone Number',
+            subtitle: driver.phoneNumber.isEmpty ? 'Not set' : driver.phoneNumber,
+            onEdit: null, // Phone number cannot be edited
+          ),
+          const SizedBox(height: 16),
+
+          // Profile Info with Edit Buttons
+          _EditableInfoTile(
+            icon: Icons.person_rounded,
+            title: 'First Name',
+            subtitle: driver.firstName ?? 'Not set',
+            onEdit: () => _showEditDialog(
+              context,
+              'First Name',
+              driver.firstName ?? '',
+              (value) => _updateFirstName(value),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          _EditableInfoTile(
+            icon: Icons.person_rounded,
+            title: 'Last Name',
+            subtitle: driver.lastName ?? 'Not set',
+            onEdit: () => _showEditDialog(
+              context,
+              'Last Name',
+              driver.lastName ?? '',
+              (value) => _updateLastName(value),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          _EditableInfoTile(
+            icon: Icons.email_rounded,
+            title: 'Email',
+            subtitle: driver.email ?? 'Not linked',
+            onEdit: () => _showEmailLinkDialog(driver),
+            isLinked: driver.email?.isNotEmpty == true,
+          ),
+          const SizedBox(height: 16),
+
+           _EditableInfoTile(
+              icon: Icons.phone_android_rounded,
+              title: 'Alternate Phone',
+              subtitle: driver.alternatePhone == null || driver.alternatePhone!.isEmpty ? 'Not set' : driver.alternatePhone!,
+              onEdit: () => _showEditDialog(
+                context,
+                'Alternate Phone',
+                driver.alternatePhone ?? '',
+                (value) => _updateAlternatePhone(value),
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          if (driver.referalCode?.isNotEmpty == true) ...[
+            _EditableInfoTile(
+              icon: Icons.card_giftcard_rounded,
+              title: 'Referral Code',
+              subtitle: driver.referalCode!,
+              onEdit: null, // Referral code cannot be edited
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          _EditableInfoTile(
+            icon: Icons.verified_user_rounded,
+            title: 'Account Status',
+            subtitle: driver.isActive ? 'Active' : 'Inactive',
+            onEdit: null, // Account status cannot be edited
+          ),
+          const SizedBox(height: 16),
+
+          _EditableInfoTile(
+            icon: Icons.calendar_today_rounded,
+            title: 'Member Since',
+            subtitle: '${driver.createdAt.day}/${driver.createdAt.month}/${driver.createdAt.year}',
+            onEdit: null, // Member since cannot be edited
+          ),
+
+          // Logout Button
+          const SizedBox(height: 32),
+          OutlinedButton(
+            onPressed: () async {
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('CANCEL'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
                       child: Text(
-                        _getVerificationStatusText(driver.verificationStatus),
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
-                          fontWeight: FontWeight.w500,
-                        ),
+                        'LOGOUT',
+                        style: TextStyle(color: colorScheme.error),
                       ),
                     ),
                   ],
-                ],
-              ),
+                ),
+              );
+
+              if (shouldLogout == true && mounted) {
+                await ref.read(apiProvider).value!.signOut();
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: colorScheme.error,
+              minimumSize: const Size(double.infinity, 50),
+              side: BorderSide(color: colorScheme.error),
             ),
-            const SizedBox(height: 32),
-
-            if (_isEditing) ...[
-              // Edit Form
-              TextFormField(
-                controller: _firstNameController,
-                decoration: const InputDecoration(
-                  labelText: 'First Name',
-                  hintText: 'Enter your first name',
-                ),
-                enabled: _isEditing && !_isLoading,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'First name is required';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _lastNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Last Name (Optional)',
-                  hintText: 'Enter your last name',
-                ),
-                enabled: _isEditing && !_isLoading,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  hintText: 'Enter your email address',
-                  filled: true,
-                  fillColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
-                ),
-                enabled: false,
-                keyboardType: TextInputType.emailAddress,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return null;
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _alternatePhoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Alternate Phone (Optional)',
-                  hintText: 'Enter alternate phone number',
-                ),
-                enabled: _isEditing && !_isLoading,
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return null;
-                  }
-                  if (value.length < 10) {
-                    return 'Phone number must be at least 10 digits';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 32),
-
-              ElevatedButton(
-                onPressed: _isLoading ? null : _updateProfile,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.secondary,
-                  foregroundColor: colorScheme.onSecondary,
-                  minimumSize: const Size(double.infinity, 50),
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : const Text('Save Changes'),
-              ),
-            ] else ...[
-              // Profile Info
-              _InfoTile(
-                icon: Icons.phone,
-                title: 'Phone Number',
-                subtitle: driver.phoneNumber.isEmpty ? 'Not set' : driver.phoneNumber,
-              ),
-              const SizedBox(height: 16),
-
-              if (driver.alternatePhone?.isNotEmpty == true)
-                _InfoTile(
-                  icon: Icons.phone_android,
-                  title: 'Alternate Phone',
-                  subtitle: driver.alternatePhone!,
-                ),
-              if (driver.alternatePhone?.isNotEmpty == true) const SizedBox(height: 16),
-
-              if (driver.referalCode?.isNotEmpty == true)
-                _InfoTile(
-                  icon: Icons.card_giftcard,
-                  title: 'Referral Code',
-                  subtitle: driver.referalCode!,
-                ),
-              if (driver.referalCode?.isNotEmpty == true) const SizedBox(height: 16),
-
-              _InfoTile(
-                icon: Icons.verified_user,
-                title: 'Account Status',
-                subtitle: driver.isActive ? 'Active' : 'Inactive',
-              ),
-              const SizedBox(height: 16),
-
-              _InfoTile(
-                icon: Icons.calendar_today,
-                title: 'Member Since',
-                subtitle: '${driver.createdAt.day}/${driver.createdAt.month}/${driver.createdAt.year}',
-              ),
-            ],
-
-            // Logout Button
-            if (!_isEditing) ...[
-              const SizedBox(height: 32),
-              OutlinedButton(
-                onPressed: () async {
-                  final shouldLogout = await showDialog<bool>(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('CANCEL'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          child: Text(
-                            'LOGOUT',
-                            style: TextStyle(color: colorScheme.error),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (shouldLogout == true && mounted) {
-                    await ref.read(apiProvider).value!.signOut();
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: colorScheme.error,
-                  minimumSize: const Size(double.infinity, 50),
-                  side: BorderSide(color: colorScheme.error),
-                ),
-                child: const Text('Logout'),
-              ),
-            ],
-          ],
-        ),
+            child: const Text('Logout'),
+          ),
+        ],
       ),
     );
   }
@@ -785,8 +691,100 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
-}
 
+  // Dialog methods
+  void _showEditDialog(BuildContext context, String title, String currentValue, Function(String) onSave) {
+    showDialog(
+      context: context,
+      builder: (context) => ProfileEditDialog(
+        title: title,
+        currentValue: currentValue,
+        onSave: onSave,
+      ),
+    );
+  }
+
+  void _showProfilePictureDialog(Driver driver) {
+    showDialog(
+      context: context,
+      builder: (ctx) => ProfilePictureDialog(
+        currentPhotoUrl: driver.photo,
+        onSuccess: () {
+          ref.invalidate(driverProvider);
+          SnackBars.success(context, 'Profile picture updated successfully');
+        },
+      ),
+    );
+  }
+
+  void _showEmailLinkDialog(Driver driver) {
+    showDialog(
+      context: context,
+      builder: (ctx) => EmailLinkDialog(
+        currentEmail: driver.email,
+        onSuccess: () {
+          ref.invalidate(driverProvider);
+          SnackBars.success(context, 'Email linked successfully');
+        },
+      ),
+    );
+  }
+
+  // Update methods
+  Future<void> _updateFirstName(String value) async {
+    try {
+      final api = ref.read(apiProvider).value!;
+      await driver_api.updateDriverProfile(
+        api,
+        firstName: value.trim(),
+      );
+      ref.invalidate(driverProvider);
+      if (mounted) {
+        SnackBars.success(context, 'First name updated successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBars.error(context, 'Failed to update first name: $e');
+      }
+    }
+  }
+
+  Future<void> _updateLastName(String value) async {
+    try {
+      final api = ref.read(apiProvider).value!;
+      await driver_api.updateDriverProfile(
+        api,
+        lastName: value.trim(),
+      );
+      ref.invalidate(driverProvider);
+      if (mounted) {
+        SnackBars.success(context, 'Last name updated successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBars.error(context, 'Failed to update last name: $e');
+      }
+    }
+  }
+
+  Future<void> _updateAlternatePhone(String value) async {
+    try {
+      final api = ref.read(apiProvider).value!;
+      await driver_api.updateDriverProfile(
+        api,
+        alternatePhone: value.trim(),
+      );
+      ref.invalidate(driverProvider);
+      if (mounted) {
+        SnackBars.success(context, 'Alternate phone updated successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBars.error(context, 'Failed to update alternate phone: $e');
+      }
+    }
+  }
+}
 
 class _InfoTile extends StatelessWidget {
   final IconData icon;
@@ -844,6 +842,93 @@ class _InfoTile extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EditableInfoTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback? onEdit;
+  final bool isLinked;
+
+  const _EditableInfoTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.onEdit,
+    this.isLinked = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.secondary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: colorScheme.secondary),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      title,
+                      style: textTheme.titleSmall?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    if (isLinked) ...[
+                      const SizedBox(width: 8),
+                      Icon(
+                        Icons.verified_rounded,
+                        size: 16,
+                        color: Colors.green,
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (onEdit != null)
+            IconButton(
+              onPressed: onEdit,
+              icon: Icon(
+                Icons.edit_rounded,
+                color: colorScheme.secondary,
+                size: 20,
+              ),
+            ),
         ],
       ),
     );
