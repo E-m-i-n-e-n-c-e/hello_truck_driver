@@ -4,7 +4,6 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/utils/api/documents_api.dart' as documents_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -103,16 +102,9 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
       // Upload to Firebase Storage
       final fileExtension = _selectedFile!.path.split('.').last.toLowerCase();
       final fileName = '${widget.documentType}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('driver-documents/$fileName');
-
-      final uploadTask = storageRef.putFile(_selectedFile!);
-      final snapshot = await uploadTask;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
-
-      // Update document in backend
+      final filePath = 'driver-documents/$fileName';
       final api = ref.read(apiProvider).value!;
+      final downloadUrl = await api.uploadFile(_selectedFile!, filePath, fileExtension);
 
       await documents_api.updateDriverDocuments(
         api,

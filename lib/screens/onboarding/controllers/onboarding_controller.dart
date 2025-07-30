@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hello_truck_driver/models/documents.dart';
 import 'dart:io';
@@ -352,6 +353,7 @@ class OnboardingController {
     required String documentType,
     required Function(String) onError,
     required Function(String) onSuccess,
+    required WidgetRef ref,
   }) async {
     File? selectedFile;
 
@@ -384,13 +386,9 @@ class OnboardingController {
       // Get file extension from the actual file
       final fileExtension = selectedFile.path.split('.').last.toLowerCase();
       final fileName = '${documentType}_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('driver-documents/$fileName');
-
-      final uploadTask = storageRef.putFile(selectedFile);
-      final snapshot = await uploadTask;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
+      final filePath = 'driver-documents/$fileName';
+      final api = ref.read(apiProvider).value!;
+      final downloadUrl = await api.uploadFile(selectedFile, filePath, fileExtension);
 
       switch (documentType) {
         case 'license':
@@ -481,6 +479,7 @@ class OnboardingController {
   Future<void> uploadImage({
     required Function(String) onError,
     required Function(String) onSuccess,
+    required WidgetRef ref,
   }) async {
     if (_selectedImage == null) return;
 
@@ -488,13 +487,9 @@ class OnboardingController {
 
     try {
       final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('driver-profiles/$fileName');
-
-      final uploadTask = storageRef.putFile(_selectedImage!);
-      final snapshot = await uploadTask;
-      final downloadUrl = await snapshot.ref.getDownloadURL();
+      final filePath = 'driver-profiles/$fileName';
+      final api = ref.read(apiProvider).value!;
+      final downloadUrl = await api.uploadFile(_selectedImage!, filePath, 'image/jpeg');
 
       _uploadedImageUrl = downloadUrl;
       setUploadingImage(false);

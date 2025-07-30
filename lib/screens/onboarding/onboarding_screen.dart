@@ -91,6 +91,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           await _controller.uploadImage(
             onError: _showError,
             onSuccess: _showSuccess,
+            ref: ref,
           );
         }
         return _controller.uploadedImageUrl != null || _controller.selectedImage == null;

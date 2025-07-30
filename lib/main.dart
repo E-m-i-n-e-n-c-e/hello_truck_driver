@@ -1,7 +1,5 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hello_truck_driver/firebase_options.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/hello_truck.dart';
 import 'package:hello_truck_driver/login_page.dart';
@@ -12,9 +10,6 @@ void main() async {
   // Preserve splash screen until app is fully loaded
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-
-  // Initialize Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const ProviderScope(child: MyApp()));
 }

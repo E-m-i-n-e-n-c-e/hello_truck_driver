@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:http_cache_hive_store/http_cache_hive_store.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/auth/api_exception.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class API {
   final Dio _dio = Dio();
@@ -83,16 +84,34 @@ class API {
     queryParameters: queryParameters,
   );
 
-  Future<Response> getFile(String url, {CachePolicy? policy}) {
-    return _dio.get(
-      url,
-      options: _cacheOptions
-          .copyWith(policy: policy ?? _cacheOptions.policy)
-          .toOptions()
-          .copyWith(
-            responseType: ResponseType.bytes, // Force binary response for files
-          ),
+  Future<String> uploadFile(File file, String filePath, String type) async {
+    final prefix = ['png', 'jpg', 'jpeg'].contains(type.split('/').last) ? 'image' : 'application';
+    final fileType = '$prefix/${type.split('/').last}';
+    try {
+      final signedUrlResponse = await _dio.get(
+        '$baseUrl/driver/documents/upload-url?filePath=$filePath&type=$fileType',
+      );
+
+    final signedUrl = signedUrlResponse.data['signedUrl'];
+    final publicUrl = signedUrlResponse.data['publicUrl'];
+    final token = signedUrlResponse.data['token'];
+
+    await _dio.put(
+      signedUrl,
+      data: file.readAsBytesSync(),
+      options: Options(
+        contentType: fileType,
+        headers: {
+          'x-goog-meta-firebasestoragedownloadtokens': token,
+        },
+      ),
     );
+
+      return publicUrl;
+    } catch (e) {
+      print('Error uploading file: $e');
+      rethrow;
+    }
   }
 
   Future<Response> post(String path, {dynamic data}) =>
@@ -145,7 +164,6 @@ class API {
       storage.write(key: 'accessToken', value: response.data['accessToken']),
     ]);
 
-    await FirebaseAuth.instance.signInWithCustomToken(response.data['firebaseToken']);
 
     ref.read(authClientProvider).emitSignIn(
       accessToken: response.data['accessToken'],
@@ -168,7 +186,6 @@ class API {
           storage.delete(key: 'refreshToken'),
           storage.delete(key: 'accessToken'),
         ]);
-        await FirebaseAuth.instance.signOut();
         ref.read(authClientProvider).emitSignOut();
       }
     }

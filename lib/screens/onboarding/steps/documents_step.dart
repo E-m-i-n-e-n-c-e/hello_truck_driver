@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
 
-class DocumentsStep extends StatelessWidget {
+class DocumentsStep extends ConsumerWidget {
   final OnboardingController controller;
   final VoidCallback onNext;
   final Function(String) onError;
@@ -16,13 +17,13 @@ class DocumentsStep extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
         children: [
           const SizedBox(height: 40),
-
           // Step Icon
           OnboardingStepIcon(
             controller: controller,
@@ -64,6 +65,7 @@ class DocumentsStep extends StatelessWidget {
           // Document Upload Cards
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'Driving License',
             subtitle: 'Upload your valid driving license',
             icon: Icons.drive_eta_rounded,
@@ -79,6 +81,7 @@ class DocumentsStep extends StatelessWidget {
 
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'RC Book',
             subtitle: 'Upload your vehicle registration certificate',
             icon: Icons.local_shipping_rounded,
@@ -91,6 +94,7 @@ class DocumentsStep extends StatelessWidget {
 
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'FC Certificate',
             subtitle: 'Upload your fitness certificate',
             icon: Icons.verified_rounded,
@@ -106,6 +110,7 @@ class DocumentsStep extends StatelessWidget {
 
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'Insurance Certificate',
             subtitle: 'Upload your vehicle insurance certificate',
             icon: Icons.security_rounded,
@@ -121,6 +126,7 @@ class DocumentsStep extends StatelessWidget {
 
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'Aadhar Card',
             subtitle: 'Upload your Aadhar card',
             icon: Icons.person_rounded,
@@ -133,6 +139,7 @@ class DocumentsStep extends StatelessWidget {
 
           _buildDocumentCard(
             context,
+            ref: ref,
             title: 'Electricity Bill',
             subtitle: 'Upload your address proof (electricity bill)',
             icon: Icons.receipt_long_rounded,
@@ -149,6 +156,7 @@ class DocumentsStep extends StatelessWidget {
 
   Widget _buildDocumentCard(
     BuildContext context, {
+    required WidgetRef ref,
     required String title,
     required String subtitle,
     required IconData icon,
@@ -249,7 +257,7 @@ class DocumentsStep extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: isUploading
                     ? null
-                    : () => _handleDocumentUpload(documentType),
+                    : () => _handleDocumentUpload(documentType, ref),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   side: BorderSide(
@@ -336,7 +344,7 @@ class DocumentsStep extends StatelessWidget {
     );
   }
 
-  Future<void> _handleDocumentUpload(String documentType) async {
+  Future<void> _handleDocumentUpload(String documentType, WidgetRef ref) async {
     // First pick the document
     final success = await controller.pickDocument(
       documentType: documentType,
@@ -350,6 +358,7 @@ class DocumentsStep extends StatelessWidget {
       onSuccess: (message) {
         // Success message will be handled by the parent
       },
+      ref: ref,
     );
   }
 
