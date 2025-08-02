@@ -53,9 +53,6 @@ class OnboardingController {
   String? _uploadedInsuranceUrl;
   String? _uploadedAadharUrl;
   String? _uploadedEbBillUrl;
-  DateTime? _licenseExpiry;
-  DateTime? _fcExpiry;
-  DateTime? _insuranceExpiry;
   final Set<String> _uploadingDocuments = <String>{};
 
   // State change notifiers
@@ -86,9 +83,6 @@ class OnboardingController {
   String? get uploadedInsuranceUrl => _uploadedInsuranceUrl;
   String? get uploadedAadharUrl => _uploadedAadharUrl;
   String? get uploadedEbBillUrl => _uploadedEbBillUrl;
-  DateTime? get licenseExpiry => _licenseExpiry;
-  DateTime? get fcExpiry => _fcExpiry;
-  DateTime? get insuranceExpiry => _insuranceExpiry;
 
   OnboardingController({required TickerProvider vsync}) {
     _initializeAnimations(vsync);
@@ -254,17 +248,12 @@ class OnboardingController {
 
     // Check if all required documents are uploaded
     if (_uploadedLicenseUrl == null) return 'Please upload your driving license';
-    if (_licenseExpiry == null) return 'Please select license expiry date';
     if (_uploadedRcBookUrl == null) return 'Please upload your RC book';
     if (_uploadedFcUrl == null) return 'Please upload your FC certificate';
-    if (_fcExpiry == null) return 'Please select FC expiry date';
     if (_uploadedInsuranceUrl == null) return 'Please upload your insurance certificate';
-    if (_insuranceExpiry == null) return 'Please select insurance expiry date';
     if (_uploadedAadharUrl == null) return 'Please upload your Aadhar card';
     if (_uploadedEbBillUrl == null) return 'Please upload your electricity bill';
     if (panNumberController.text.trim().isEmpty) return 'Please enter your PAN number';
-
-
 
     return null;
   }
@@ -277,21 +266,6 @@ class OnboardingController {
   }
 
   // Document methods
-  void setLicenseExpiry(DateTime date) {
-    _licenseExpiry = date;
-    _notifyStateChange();
-  }
-
-  void setFcExpiry(DateTime date) {
-    _fcExpiry = date;
-    _notifyStateChange();
-  }
-
-  void setInsuranceExpiry(DateTime date) {
-    _insuranceExpiry = date;
-    _notifyStateChange();
-  }
-
   Future<bool> pickDocument({
     required String documentType,
     required Function(String) onError,
@@ -425,21 +399,15 @@ class OnboardingController {
         _uploadedFcUrl == null ||
         _uploadedInsuranceUrl == null ||
         _uploadedAadharUrl == null ||
-        _uploadedEbBillUrl == null ||
-        _licenseExpiry == null ||
-        _fcExpiry == null ||
-        _insuranceExpiry == null) {
+        _uploadedEbBillUrl == null) {
       return null;
     }
 
     return DriverDocuments(
       licenseUrl: _uploadedLicenseUrl!,
-      licenseExpiry: _licenseExpiry!,
       rcBookUrl: _uploadedRcBookUrl!,
       fcUrl: _uploadedFcUrl!,
-      fcExpiry: _fcExpiry!,
       insuranceUrl: _uploadedInsuranceUrl!,
-      insuranceExpiry: _insuranceExpiry!,
       aadharUrl: _uploadedAadharUrl!,
       panNumber: panNumberController.text.trim(),
       ebBillUrl: _uploadedEbBillUrl!,

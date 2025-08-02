@@ -7,11 +7,13 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 class DocumentViewer extends ConsumerWidget {
   final String documentType;
   final String title;
+  final String? documentUrl; // Optional URL for onboarding scenarios
 
   const DocumentViewer({
     super.key,
     required this.documentType,
     required this.title,
+    this.documentUrl,
   });
 
   @override
@@ -25,60 +27,72 @@ class DocumentViewer extends ConsumerWidget {
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        body: ref.watch(driverProvider).when(
-          data: (driver) {
-            if (driver.documents == null) {
-              return _buildErrorState(
-                context,
-                ref,
-                'Documents not found',
-                'The documents may not be uploaded yet.',
-              );
-            }
+        body: _buildDocumentContent(context, ref),
+      ),
+    );
+  }
 
-            final String documentUrl = _getDocumentUrl(driver.documents!, documentType);
-            if (documentUrl.isEmpty) {
-              return _buildErrorState(
-                context,
-                ref,
-                'Document not found',
-                'This document has not been uploaded yet.',
-              );
-            }
+  Widget _buildDocumentContent(BuildContext context, WidgetRef ref) {
+    // If documentUrl is provided (onboarding scenario), use it directly
+    if (documentUrl != null && documentUrl!.isNotEmpty) {
+      final bool isPdf = documentUrl!.toLowerCase().contains('.pdf');
+      return isPdf
+          ? _buildPdfViewer(context, ref, documentUrl!)
+          : _buildImageViewer(context, ref, documentUrl!);
+    }
 
-            final bool isPdf = documentUrl.toLowerCase().contains('.pdf');
+    // Otherwise, try to get from driver profile (profile scenario)
+    return ref.watch(driverProvider).when(
+      data: (driver) {
+        if (driver.documents == null) {
+          return _buildErrorState(
+            context,
+            ref,
+            'Documents not found',
+            'The documents may not be uploaded yet.',
+          );
+        }
 
-            return isPdf
-              ? _buildPdfViewer(context, ref, documentUrl)
-              : _buildImageViewer(context, ref, documentUrl);
-          },
-          loading: () => const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Loading document...'),
-              ],
-            ),
-          ),
-          error: (error, stack) {
-            return _buildErrorState(
-              context,
-              ref,
-              'Failed to load document',
-              'Check your internet connection and try again.\n\nError: $error',
-            );
-          },
+        final String url = _getDocumentUrl(driver.documents!, documentType);
+        if (url.isEmpty) {
+          return _buildErrorState(
+            context,
+            ref,
+            'Document not found',
+            'This document has not been uploaded yet.',
+          );
+        }
+
+        final bool isPdf = url.toLowerCase().contains('.pdf');
+        return isPdf
+            ? _buildPdfViewer(context, ref, url)
+            : _buildImageViewer(context, ref, url);
+      },
+      loading: () => const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text('Loading document...'),
+          ],
         ),
       ),
+      error: (error, stack) {
+        return _buildErrorState(
+          context,
+          ref,
+          'Failed to load document',
+          'Check your internet connection and try again.\n\nError: $error',
+        );
+      },
     );
   }
 
   String _getDocumentUrl(DriverDocuments documents, String documentType) {
     switch (documentType) {
       case 'license':
-        return documents.licenseUrl ;
+        return documents.licenseUrl;
       case 'rcBook':
         return documents.rcBookUrl;
       case 'fc':
@@ -217,12 +231,14 @@ void showDocumentViewer(
   BuildContext context, {
   required String documentType,
   required String title,
+  String? documentUrl,
 }) {
   showDialog(
     context: context,
     builder: (context) => DocumentViewer(
       documentType: documentType,
       title: title,
+      documentUrl: documentUrl,
     ),
   );
 }

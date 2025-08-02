@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/screens/profile/document_upload_screen.dart';
-import 'package:hello_truck_driver/utils/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/screens/profile/dialogs/document_upload_dialog.dart';
+import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
-import 'package:hello_truck_driver/screens/profile/document_viewer.dart';
-import 'package:hello_truck_driver/screens/profile/profile_edit_dialogs.dart';
-import 'package:hello_truck_driver/screens/profile/profile_picture_dialog.dart';
-import 'package:hello_truck_driver/screens/profile/email_link_dialog.dart';
+import 'package:hello_truck_driver/widgets/document_viewer.dart';
+import 'package:hello_truck_driver/screens/profile/dialogs/profile_edit_dialogs.dart';
+import 'package:hello_truck_driver/screens/profile/dialogs/profile_picture_dialog.dart';
+import 'package:hello_truck_driver/screens/profile/dialogs/email_link_dialog.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -436,7 +436,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildDocumentCard(
             context,
             title: 'Driving License',
-            subtitle: 'Valid until ${_formatDate(documents.licenseExpiry)}',
+            subtitle: documents.licenseExpiry != null
+                ? 'Valid until ${_formatDate(documents.licenseExpiry!)}'
+                : 'Verification pending - Admin will set expiry date',
             icon: Icons.drive_eta_rounded,
             documentType: 'license',
             currentUrl: documents.licenseUrl,
@@ -460,7 +462,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildDocumentCard(
             context,
             title: 'FC Certificate',
-            subtitle: 'Valid until ${_formatDate(documents.fcExpiry)}',
+            subtitle: documents.fcExpiry != null
+                ? 'Valid until ${_formatDate(documents.fcExpiry!)}'
+                : 'Verification pending - Admin will set expiry date',
             icon: Icons.verified_rounded,
             documentType: 'fc',
             currentUrl: documents.fcUrl,
@@ -473,7 +477,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
           _buildDocumentCard(
             context,
             title: 'Insurance Certificate',
-            subtitle: 'Valid until ${_formatDate(documents.insuranceExpiry)}',
+            subtitle: documents.insuranceExpiry != null
+                ? 'Valid until ${_formatDate(documents.insuranceExpiry!)}'
+                : 'Verification pending - Admin will set expiry date',
             icon: Icons.security_rounded,
             documentType: 'insurance',
             currentUrl: documents.insuranceUrl,

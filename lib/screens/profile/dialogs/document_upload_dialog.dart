@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/utils/api/documents_api.dart' as documents_api;
+import 'package:hello_truck_driver/api/documents_api.dart' as documents_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -29,16 +29,8 @@ class DocumentReUploadDialog extends ConsumerStatefulWidget {
 class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog> {
   File? _selectedFile;
   Uint8List? _selectedFileBytes;
-  DateTime? _selectedExpiry;
   bool _isUploading = false;
   final _panController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Don't use current expiry - force user to select a new expiry date
-    _selectedExpiry = null;
-  }
 
   @override
   void dispose() {
@@ -46,16 +38,9 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
     super.dispose();
   }
 
-  bool get _hasExpiryDate => [
-    'license',
-    'fc',
-    'insurance'
-  ].contains(widget.documentType);
-
   bool get _needsPanNumber => widget.documentType == 'aadhar';
 
   bool get _canSave => _selectedFile != null &&
-    (!_hasExpiryDate || _selectedExpiry != null) &&
     (!_needsPanNumber || _panController.text.trim().isNotEmpty);
 
   Future<void> _pickDocument() async {
@@ -109,12 +94,9 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
       await documents_api.updateDriverDocuments(
         api,
         licenseUrl: widget.documentType == 'license' ? downloadUrl : null,
-        licenseExpiry: widget.documentType == 'license' ? _selectedExpiry : null,
         rcBookUrl: widget.documentType == 'rcBook' ? downloadUrl : null,
         fcUrl: widget.documentType == 'fc' ? downloadUrl : null,
-        fcExpiry: widget.documentType == 'fc' ? _selectedExpiry : null,
         insuranceUrl: widget.documentType == 'insurance' ? downloadUrl : null,
-        insuranceExpiry: widget.documentType == 'insurance' ? _selectedExpiry : null,
         aadharUrl: widget.documentType == 'aadhar' ? downloadUrl : null,
         panNumber: widget.documentType == 'aadhar' ? _panController.text.trim() : null,
         ebBillUrl: widget.documentType == 'ebBill' ? downloadUrl : null,
@@ -133,33 +115,6 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
         setState(() => _isUploading = false);
       }
     }
-  }
-
-  Future<void> _selectExpiryDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now().add(const Duration(days: 365)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-              primary: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      setState(() => _selectedExpiry = picked);
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
   @override
@@ -279,42 +234,6 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
 
                     const SizedBox(height: 20),
 
-                    // Expiry date picker (for documents that need it)
-                    if (_hasExpiryDate) ...[
-                      Text(
-                        'Expiry Date',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: _isUploading ? null : _selectExpiryDate,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: colorScheme.secondary),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: Icon(
-                            Icons.calendar_today_rounded,
-                            color: colorScheme.secondary,
-                          ),
-                          label: Text(
-                            _selectedExpiry != null
-                                ? 'Expires: ${_formatDate(_selectedExpiry!)}'
-                                : 'Select expiry date',
-                            style: TextStyle(
-                              color: colorScheme.secondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-
                     // PAN number (for Aadhar)
                     if (_needsPanNumber) ...[
                       Text(
@@ -343,6 +262,36 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
                       ),
                       const SizedBox(height: 20),
                     ],
+
+                    // Info text about admin verification
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 20,
+                            color: colorScheme.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Document will be verified by admin. Expiry dates will be set during verification.',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

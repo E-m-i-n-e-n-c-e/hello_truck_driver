@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/utils/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_header.dart';
