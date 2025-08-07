@@ -11,6 +11,8 @@ import 'package:hello_truck_driver/screens/onboarding/steps/photo_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/email_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/phone_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/documents_step.dart';
+import 'package:hello_truck_driver/screens/onboarding/steps/address_step.dart';
+import 'package:hello_truck_driver/screens/onboarding/steps/vehicle_step.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -113,7 +115,25 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         }
         return true;
 
-      case 4: // Phone step
+      case 4: // Address step
+        final addressError = _controller.validateAddress();
+        if (addressError != null) {
+          _showError(addressError);
+          _controller.shake();
+          return false;
+        }
+        return true;
+
+      case 5: // Vehicle step
+        final vehicleError = _controller.validateVehicle();
+        if (vehicleError != null) {
+          _showError(vehicleError);
+          _controller.shake();
+          return false;
+        }
+        return true;
+
+      case 6: // Phone step
         final error = _controller.validatePhoneDetails();
         if (error != null) {
           _showError(error);
@@ -134,9 +154,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     try {
       final api = await ref.read(apiProvider.future);
       final documents = _controller.getDriverDocuments();
+      final address = _controller.getAddress();
+      final vehicle = _controller.getVehicle();
 
       if (documents == null) {
         _showError('Please complete all document uploads');
+        _controller.setLoading(false);
+        return;
+      }
+
+      if (address == null) {
+        _showError('Please complete address details');
+        _controller.setLoading(false);
+        return;
+      }
+
+      if (vehicle == null) {
+        _showError('Please complete vehicle details');
         _controller.setLoading(false);
         return;
       }
@@ -153,6 +187,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         photo: _controller.uploadedImageUrl,
         googleIdToken: _controller.googleIdToken,
         documents: documents,
+        address: address,
+        vehicle: vehicle,
       );
 
       if (mounted) {
@@ -205,7 +241,19 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         onError: _showError,
       ),
 
-      // Step 4: Phone      // Step 3: Phone
+      // Step 4: Address
+      AddressStep(
+        controller: _controller,
+        onNext: _nextStep,
+      ),
+
+      // Step 5: Vehicle
+      VehicleStep(
+        controller: _controller,
+        onNext: _nextStep,
+      ),
+
+      // Step 6: Phone
       PhoneStep(
         controller: _controller,
         onNext: _nextStep,

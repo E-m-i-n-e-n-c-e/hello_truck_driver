@@ -1,6 +1,8 @@
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/models/address.dart';
+import 'package:hello_truck_driver/models/vehicle.dart';
 
 /// Create driver profile
 Future<void> createDriverProfile(
@@ -12,6 +14,8 @@ Future<void> createDriverProfile(
   String? referalCode,
   String? googleIdToken,
   required DriverDocuments documents,
+  required Address address,
+  required Vehicle vehicle,
 }) async {
   await api.post('/driver/profile', data: {
     'firstName': firstName,
@@ -21,6 +25,8 @@ Future<void> createDriverProfile(
     if (referalCode?.isNotEmpty ?? false) 'referalCode': referalCode,
     if (googleIdToken?.isNotEmpty ?? false) 'googleIdToken': googleIdToken,
     'documents': documents.toJson(),
+    'address': address.toJson(),
+    'vehicle': vehicle.toJson(),
   });
 }
 

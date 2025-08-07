@@ -5,6 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/models/address.dart';
+import 'package:hello_truck_driver/models/vehicle.dart';
+import 'package:hello_truck_driver/models/vehicle_owner.dart';
 import 'dart:io';
 
 class OnboardingController {
@@ -23,15 +26,67 @@ class OnboardingController {
   final alternatePhoneController = TextEditingController();
   final panNumberController = TextEditingController();
 
-  // Focus Nodes
+  // Address Controllers
+  final addressLine1Controller = TextEditingController();
+  final landmarkController = TextEditingController();
+  final pincodeController = TextEditingController();
+  final cityController = TextEditingController();
+  final districtController = TextEditingController();
+  final stateController = TextEditingController();
+
+  // Vehicle Controllers
+  final vehicleNumberController = TextEditingController();
+  final vehicleBodyLengthController = TextEditingController();
+
+  // Vehicle Owner Controllers
+  final ownerNameController = TextEditingController();
+  final ownerContactController = TextEditingController();
+  final ownerAddressLine1Controller = TextEditingController();
+  final ownerLandmarkController = TextEditingController();
+  final ownerPincodeController = TextEditingController();
+  final ownerCityController = TextEditingController();
+  final ownerDistrictController = TextEditingController();
+  final ownerStateController = TextEditingController();
+
+  // Vehicle Owner Document
+  File? _selectedOwnerAadhar;
+  String? _uploadedOwnerAadharUrl;
+
+  // Vehicle Image
+  File? _selectedVehicleImage;
+  String? _uploadedVehicleImageUrl;
+
+  // Focus Nodes - Basic Info
   final firstNameFocus = FocusNode();
   final lastNameFocus = FocusNode();
   final alternatePhoneFocus = FocusNode();
   final panNumberFocus = FocusNode();
 
+  // Address Focus Nodes
+  final addressLine1Focus = FocusNode();
+  final landmarkFocus = FocusNode();
+  final pincodeFocus = FocusNode();
+  final cityFocus = FocusNode();
+  final districtFocus = FocusNode();
+  final stateFocus = FocusNode();
+
+  // Vehicle Focus Nodes
+  final vehicleNumberFocus = FocusNode();
+  final vehicleBodyLengthFocus = FocusNode();
+
+  // Vehicle Owner Focus Nodes
+  final ownerNameFocus = FocusNode();
+  final ownerContactFocus = FocusNode();
+  final ownerAddressLine1Focus = FocusNode();
+  final ownerLandmarkFocus = FocusNode();
+  final ownerPincodeFocus = FocusNode();
+  final ownerCityFocus = FocusNode();
+  final ownerDistrictFocus = FocusNode();
+  final ownerStateFocus = FocusNode();
+
   // State Variables
   int _currentStep = 0;
-  final int totalSteps = 5; // Name, Photo, Email, Phone, Documents
+  final int totalSteps = 7; // Name, Photo, Email, Documents, Address, Vehicle, Phone
   bool _isLoading = false;
   bool _isUploadingImage = false;
   bool _isPickingImage = false;
@@ -39,6 +94,16 @@ class OnboardingController {
   String? _uploadedImageUrl;
   String? _googleIdToken;
   String? _userEmail;
+
+  // Address Location
+  double? _selectedLatitude;
+  double? _selectedLongitude;
+
+  // Vehicle State
+  String? _selectedVehicleType;
+  String? _selectedVehicleBodyType;
+  String? _selectedFuelType;
+  bool _sameAsDriver = false; // For vehicle owner
 
   // Document-related state
   File? _selectedLicense;
@@ -83,6 +148,14 @@ class OnboardingController {
   String? get uploadedInsuranceUrl => _uploadedInsuranceUrl;
   String? get uploadedAadharUrl => _uploadedAadharUrl;
   String? get uploadedEbBillUrl => _uploadedEbBillUrl;
+
+  // Vehicle Owner Document getters
+  File? get selectedOwnerAadhar => _selectedOwnerAadhar;
+  String? get uploadedOwnerAadharUrl => _uploadedOwnerAadharUrl;
+
+  // Vehicle Image getters
+  File? get selectedVehicleImage => _selectedVehicleImage;
+  String? get uploadedVehicleImageUrl => _uploadedVehicleImageUrl;
 
   OnboardingController({required TickerProvider vsync}) {
     _initializeAnimations(vsync);
@@ -238,6 +311,102 @@ class OnboardingController {
     return null;
   }
 
+  String? validateAddress() {
+    if (addressLine1Controller.text.trim().isEmpty) {
+      return 'Please enter address line 1';
+    }
+    if (pincodeController.text.trim().isEmpty) {
+      return 'Please enter pincode';
+    }
+    if (!RegExp(r'^[0-9]{6}$').hasMatch(pincodeController.text.trim())) {
+      return 'Please enter a valid 6-digit pincode';
+    }
+    if (cityController.text.trim().isEmpty) {
+      return 'Please enter city';
+    }
+    if (districtController.text.trim().isEmpty) {
+      return 'Please enter district';
+    }
+    if (stateController.text.trim().isEmpty) {
+      return 'Please enter state';
+    }
+    return null;
+  }
+
+  String? validateVehicle() {
+    if (vehicleNumberController.text.trim().isEmpty) {
+      return 'Please enter vehicle number';
+    }
+    if (vehicleBodyLengthController.text.trim().isEmpty) {
+      return 'Please enter vehicle body length';
+    }
+
+    // Validate vehicle body length is a valid number
+    try {
+      final length = double.parse(vehicleBodyLengthController.text.trim());
+      if (length <= 0) {
+        return 'Vehicle body length must be greater than 0';
+      }
+    } catch (e) {
+      return 'Please enter a valid vehicle body length';
+    }
+
+    // Validate vehicle type selection
+    if (_selectedVehicleType == null) {
+      return 'Please select vehicle type';
+    }
+
+    // Validate vehicle body type selection
+    if (_selectedVehicleBodyType == null) {
+      return 'Please select vehicle body type';
+    }
+
+    // Validate fuel type selection
+    if (_selectedFuelType == null) {
+      return 'Please select fuel type';
+    }
+
+    // Validate vehicle image
+    if (_uploadedVehicleImageUrl == null) {
+      return 'Please upload vehicle image';
+    }
+
+    // Validate owner details if not same as driver
+    if (!_sameAsDriver) {
+      if (ownerNameController.text.trim().isEmpty) {
+        return 'Please enter owner name';
+      }
+      if (ownerContactController.text.trim().isEmpty) {
+        return 'Please enter owner contact number';
+      }
+      if (!RegExp(r'^[0-9]{10}$').hasMatch(ownerContactController.text.trim())) {
+        return 'Please enter a valid 10-digit owner contact number';
+      }
+      if (ownerAddressLine1Controller.text.trim().isEmpty) {
+        return 'Please enter owner address';
+      }
+      if (ownerPincodeController.text.trim().isEmpty) {
+        return 'Please enter owner pincode';
+      }
+      if (!RegExp(r'^[0-9]{6}$').hasMatch(ownerPincodeController.text.trim())) {
+        return 'Please enter a valid 6-digit owner pincode';
+      }
+      if (ownerCityController.text.trim().isEmpty) {
+        return 'Please enter owner city';
+      }
+      if (ownerDistrictController.text.trim().isEmpty) {
+        return 'Please enter owner district';
+      }
+      if (ownerStateController.text.trim().isEmpty) {
+        return 'Please enter owner state';
+      }
+      if (_uploadedOwnerAadharUrl == null) {
+        return 'Please upload owner Aadhar card';
+      }
+    }
+    return null;
+  }
+
   String? validateDocuments() {
 
     // Validate PAN number format
@@ -312,6 +481,14 @@ class OnboardingController {
             _selectedEbBill = file;
             _uploadedEbBillUrl = null;
             break;
+          case 'ownerAadhar':
+            _selectedOwnerAadhar = file;
+            _uploadedOwnerAadharUrl = null;
+            break;
+          case 'vehicleImage':
+            _selectedVehicleImage = file;
+            _uploadedVehicleImageUrl = null;
+            break;
         }
 
         _notifyStateChange();
@@ -350,6 +527,12 @@ class OnboardingController {
       case 'ebBill':
         selectedFile = _selectedEbBill;
         break;
+      case 'ownerAadhar':
+        selectedFile = _selectedOwnerAadhar;
+        break;
+      case 'vehicleImage':
+        selectedFile = _selectedVehicleImage;
+        break;
     }
 
     if (selectedFile == null) return;
@@ -383,6 +566,12 @@ class OnboardingController {
         case 'ebBill':
           _uploadedEbBillUrl = downloadUrl;
           break;
+        case 'ownerAadhar':
+          _uploadedOwnerAadharUrl = downloadUrl;
+          break;
+        case 'vehicleImage':
+          _uploadedVehicleImageUrl = downloadUrl;
+          break;
       }
 
       setUploadingDocument(documentType, false);
@@ -411,6 +600,84 @@ class OnboardingController {
       aadharUrl: _uploadedAadharUrl!,
       panNumber: panNumberController.text.trim(),
       ebBillUrl: _uploadedEbBillUrl!,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Address? getAddress() {
+    if (addressLine1Controller.text.trim().isEmpty ||
+        pincodeController.text.trim().isEmpty ||
+        cityController.text.trim().isEmpty ||
+        districtController.text.trim().isEmpty ||
+        stateController.text.trim().isEmpty) {
+      return null;
+    }
+
+    return Address(
+      addressLine1: addressLine1Controller.text.trim(),
+      landmark: landmarkController.text.trim().isEmpty
+          ? null
+          : landmarkController.text.trim(),
+      pincode: pincodeController.text.trim(),
+      city: cityController.text.trim(),
+      district: districtController.text.trim(),
+      state: stateController.text.trim(),
+      latitude: _selectedLatitude,
+      longitude: _selectedLongitude,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  Vehicle? getVehicle() {
+    if (vehicleNumberController.text.trim().isEmpty ||
+        vehicleBodyLengthController.text.trim().isEmpty ||
+        _selectedVehicleType == null ||
+        _selectedVehicleBodyType == null ||
+        _selectedFuelType == null ||
+        _uploadedVehicleImageUrl == null) {
+      return null;
+    }
+
+    // Validate owner details if not same as driver
+    if (!_sameAsDriver) {
+      if (ownerNameController.text.trim().isEmpty ||
+          ownerContactController.text.trim().isEmpty ||
+          ownerAddressLine1Controller.text.trim().isEmpty ||
+          ownerPincodeController.text.trim().isEmpty ||
+          ownerCityController.text.trim().isEmpty ||
+          ownerDistrictController.text.trim().isEmpty ||
+          ownerStateController.text.trim().isEmpty ||
+          _uploadedOwnerAadharUrl == null) {
+        return null;
+      }
+    }
+
+    return Vehicle(
+      vehicleNumber: vehicleNumberController.text.trim(),
+      vehicleType: _selectedVehicleType!,
+      vehicleBodyLength: double.parse(vehicleBodyLengthController.text.trim()),
+      vehicleBodyType: _selectedVehicleBodyType!,
+      fuelType: _selectedFuelType!,
+      vehicleImageUrl: _uploadedVehicleImageUrl!,
+      owner: _sameAsDriver
+          ? null
+          : VehicleOwner(
+              name: ownerNameController.text.trim(),
+              aadharUrl: _uploadedOwnerAadharUrl!,
+              contactNumber: ownerContactController.text.trim(),
+              addressLine1: ownerAddressLine1Controller.text.trim(),
+              landmark: ownerLandmarkController.text.trim().isEmpty
+                  ? null
+                  : ownerLandmarkController.text.trim(),
+              pincode: ownerPincodeController.text.trim(),
+              city: ownerCityController.text.trim(),
+              district: ownerDistrictController.text.trim(),
+              state: ownerStateController.text.trim(),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -497,18 +764,102 @@ class OnboardingController {
     }
   }
 
+  // Address Methods
+  void updateSelectedLocation(double latitude, double longitude) {
+    _selectedLatitude = latitude;
+    _selectedLongitude = longitude;
+    _notifyStateChange();
+  }
+
+  double? get selectedLatitude => _selectedLatitude;
+  double? get selectedLongitude => _selectedLongitude;
+
+  // Vehicle Methods
+  String? get selectedVehicleType => _selectedVehicleType;
+  String? get selectedVehicleBodyType => _selectedVehicleBodyType;
+  String? get selectedFuelType => _selectedFuelType;
+  bool get sameAsDriver => _sameAsDriver;
+
+  void updateVehicleType(String type) {
+    _selectedVehicleType = type;
+    _notifyStateChange();
+  }
+
+  void updateVehicleBodyType(String type) {
+    _selectedVehicleBodyType = type;
+    _notifyStateChange();
+  }
+
+  void updateFuelType(String type) {
+    _selectedFuelType = type;
+    _notifyStateChange();
+  }
+
+  void updateSameAsDriver(bool value) {
+    _sameAsDriver = value;
+    _notifyStateChange();
+  }
+
   void dispose() {
     pageController.dispose();
     _animationController.dispose();
     _slideAnimationController.dispose();
     _scaleAnimationController.dispose();
+
+    // Basic Info Controllers
     firstNameController.dispose();
     lastNameController.dispose();
     alternatePhoneController.dispose();
     panNumberController.dispose();
+
+    // Address Controllers
+    addressLine1Controller.dispose();
+    landmarkController.dispose();
+    pincodeController.dispose();
+    cityController.dispose();
+    districtController.dispose();
+    stateController.dispose();
+
+    // Vehicle Controllers
+    vehicleNumberController.dispose();
+    vehicleBodyLengthController.dispose();
+
+    // Vehicle Owner Controllers
+    ownerNameController.dispose();
+    ownerContactController.dispose();
+    ownerAddressLine1Controller.dispose();
+    ownerLandmarkController.dispose();
+    ownerPincodeController.dispose();
+    ownerCityController.dispose();
+    ownerDistrictController.dispose();
+    ownerStateController.dispose();
+
+    // Basic Info Focus Nodes
     firstNameFocus.dispose();
     lastNameFocus.dispose();
     alternatePhoneFocus.dispose();
     panNumberFocus.dispose();
+
+    // Address Focus Nodes
+    addressLine1Focus.dispose();
+    landmarkFocus.dispose();
+    pincodeFocus.dispose();
+    cityFocus.dispose();
+    districtFocus.dispose();
+    stateFocus.dispose();
+
+    // Vehicle Focus Nodes
+    vehicleNumberFocus.dispose();
+    vehicleBodyLengthFocus.dispose();
+
+    // Vehicle Owner Focus Nodes
+    ownerNameFocus.dispose();
+    ownerContactFocus.dispose();
+    ownerAddressLine1Focus.dispose();
+    ownerLandmarkFocus.dispose();
+    ownerPincodeFocus.dispose();
+    ownerCityFocus.dispose();
+    ownerDistrictFocus.dispose();
+    ownerStateFocus.dispose();
   }
 }

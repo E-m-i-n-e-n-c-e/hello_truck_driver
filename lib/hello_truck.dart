@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/screens/home_screen.dart';
 import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
@@ -39,7 +40,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       if (!_hasSetupListener) {
         // Preload providers
         ref.read(driverProvider);
-
+        ref.read(currentPositionStreamProvider);
         // Show offline snackbar if user is offline
         if (authState.value?.isOffline == true) {
           SnackBars.error(context, 'You are offline. Please check your internet connection.');

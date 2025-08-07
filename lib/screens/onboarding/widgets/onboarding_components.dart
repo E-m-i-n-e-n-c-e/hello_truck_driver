@@ -308,3 +308,229 @@ class _OnboardingTextFieldState extends State<OnboardingTextField>
     );
   }
 }
+
+class OnboardingDropdown extends StatefulWidget {
+  final OnboardingController controller;
+  final String label;
+  final IconData icon;
+  final String? value;
+  final List<DropdownMenuItem<String>> items;
+  final Function(String?) onChanged;
+
+  const OnboardingDropdown({
+    super.key,
+    required this.controller,
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  State<OnboardingDropdown> createState() => _OnboardingDropdownState();
+}
+
+class _OnboardingDropdownState extends State<OnboardingDropdown> {
+  OverlayEntry? dropdownOverlay;
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    dropdownOverlay?.remove();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _showDropdownMenu(BuildContext context) {
+    if (widget.items.isEmpty) return;
+
+    final RenderBox buttonBox = context.findRenderObject() as RenderBox;
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+    final Size buttonSize = buttonBox.size;
+    const double itemHeight = 48.0;
+    const double maxHeight = 200.0;
+    final double calculatedHeight = (widget.items.length * itemHeight).clamp(0.0, maxHeight);
+
+    dropdownOverlay?.remove();
+    final ScrollController scrollController = ScrollController();
+
+    dropdownOverlay = OverlayEntry(
+      builder: (overlayContext) {
+        return Stack(
+          children: [
+            // Transparent overlay to handle taps outside
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {
+                  dropdownOverlay?.remove();
+                  dropdownOverlay = null;
+                },
+                child: Container(
+                  color: Colors.transparent,
+                ),
+              ),
+            ),
+            // Dropdown menu
+            Positioned(
+              left: buttonPosition.dx,
+              top: buttonPosition.dy + buttonSize.height*0.9, // Moved up by 4 pixels
+              width: buttonSize.width,
+              child: Material(
+                color: Theme.of(context).colorScheme.surface,
+                elevation: 8,
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  constraints: BoxConstraints(maxHeight: calculatedHeight),
+                  child: ScrollConfiguration(
+                    behavior: ScrollConfiguration.of(context).copyWith(
+                      scrollbars: false,
+                    ),
+                    child: ListView.builder(
+                      controller: scrollController,
+                      padding: EdgeInsets.zero,
+                      itemCount: widget.items.length,
+                      itemExtent: itemHeight,
+                      itemBuilder: (context, index) {
+                        final item = widget.items[index];
+                        final isSelected = item.value == widget.value;
+
+                        return InkWell(
+                          onTap: () {
+                            dropdownOverlay?.remove();
+                            dropdownOverlay = null;
+                            widget.onChanged(item.value);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 12.0,
+                            ),
+                            width: double.infinity,
+                            color: isSelected
+                                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+                                : null,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.child.toString().replaceAll('Text("', '').replaceAll('")', ''),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isSelected
+                                          ? Theme.of(context).colorScheme.primary
+                                          : Theme.of(context).colorScheme.onSurface,
+                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                                if (isSelected)
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context).insert(dropdownOverlay!);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.jumpTo(0);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    String displayText;
+
+    if (widget.value == null || widget.value!.isEmpty) {
+      displayText = 'Select ${widget.label.toLowerCase()}';
+    } else {
+      final selectedItem = widget.items.firstWhere(
+        (item) => item.value == widget.value,
+        orElse: () => widget.items.first,
+      );
+      displayText = selectedItem.child.toString()
+          .replaceAll('Text("', '')
+          .replaceAll('")', '');
+    }
+
+    return AnimatedBuilder(
+      animation: widget.controller.slideAnimation,
+      builder: (context, _) {
+        return GestureDetector(
+          onTap: () => _showDropdownMenu(context),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outline.withValues(alpha: 0.3),
+              ),
+              color: colorScheme.surface,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    widget.icon,
+                    color: colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          displayText,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: widget.value == null || widget.value!.isEmpty
+                                ? colorScheme.onSurface.withValues(alpha: 0.5)
+                                : colorScheme.onSurface,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
