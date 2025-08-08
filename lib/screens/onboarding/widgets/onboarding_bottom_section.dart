@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 
 class OnboardingBottomSection extends StatelessWidget {
@@ -23,7 +22,7 @@ class OnboardingBottomSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isLastStep = controller.currentStep == controller.totalSteps - 1;
+    final isLastStep = controller.currentStep == controller.getTotalSteps() - 1;
     final isFirstStep = controller.currentStep == 0;
 
     return AnimatedBuilder(
@@ -71,7 +70,7 @@ class OnboardingBottomSection extends StatelessWidget {
                             const SizedBox(width: 4),
                             Text(
                               'Back',
-                              style: GoogleFonts.dmSans(
+                              style: TextStyle(
                                 color: colorScheme.onSurface.withValues(alpha: 0.7),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -115,7 +114,7 @@ class OnboardingBottomSection extends StatelessWidget {
                                   isLastStep
                                       ? 'Complete Profile'
                                       : (nextButtonText ?? controller.getButtonText()),
-                                  style: GoogleFonts.dmSans(
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
                                   ),
