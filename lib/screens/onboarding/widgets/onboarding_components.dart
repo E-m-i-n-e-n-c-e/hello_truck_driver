@@ -342,6 +342,15 @@ class _OnboardingDropdownState extends State<OnboardingDropdown> {
     super.dispose();
   }
 
+  String _extractTextFromDropdownItem(DropdownMenuItem<String> item) {
+    if (item.child is Text) {
+      return (item.child as Text).data ?? '';
+    } else if (item.child is String) {
+      return item.child as String;
+    }
+    return item.child.toString();
+  }
+
   void _showDropdownMenu(BuildContext context) {
     if (widget.items.isEmpty) return;
 
@@ -415,7 +424,7 @@ class _OnboardingDropdownState extends State<OnboardingDropdown> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    item.child.toString().replaceAll('Text("', '').replaceAll('")', ''),
+                                    _extractTextFromDropdownItem(item),
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: isSelected
@@ -467,9 +476,7 @@ class _OnboardingDropdownState extends State<OnboardingDropdown> {
         (item) => item.value == widget.value,
         orElse: () => widget.items.first,
       );
-      displayText = selectedItem.child.toString()
-          .replaceAll('Text("', '')
-          .replaceAll('")', '');
+      displayText = _extractTextFromDropdownItem(selectedItem);
     }
 
     return AnimatedBuilder(
