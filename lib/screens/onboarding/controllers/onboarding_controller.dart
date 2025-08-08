@@ -9,6 +9,8 @@ import 'package:hello_truck_driver/models/address.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/vehicle_owner.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
+import 'package:hello_truck_driver/models/enums/payout_enums.dart';
+import 'package:hello_truck_driver/models/payout_details.dart';
 import 'dart:io';
 
 class OnboardingController {
@@ -49,6 +51,12 @@ class OnboardingController {
   final ownerDistrictController = TextEditingController();
   final ownerStateController = TextEditingController();
 
+  // Payout Controllers
+  final accountHolderNameController = TextEditingController();
+  final accountNumberController = TextEditingController();
+  final ifscCodeController = TextEditingController();
+  final vpaController = TextEditingController();
+
   // Vehicle Owner Document
   File? _selectedOwnerAadhar;
   String? _uploadedOwnerAadharUrl;
@@ -85,9 +93,15 @@ class OnboardingController {
   final ownerDistrictFocus = FocusNode();
   final ownerStateFocus = FocusNode();
 
+  // Payout Focus Nodes
+  final accountHolderNameFocus = FocusNode();
+  final accountNumberFocus = FocusNode();
+  final ifscCodeFocus = FocusNode();
+  final vpaFocus = FocusNode();
+
   // State Variables
   int _currentStep = 0;
-  final int totalSteps = 7; // Name, Photo, Email, Documents, Address, Vehicle, Phone
+  final int totalSteps = 8; // Name, Photo, Email, Documents, Address, Vehicle, Payout, Phone
   bool _isLoading = false;
   bool _isUploadingImage = false;
   bool _isPickingImage = false;
@@ -105,6 +119,9 @@ class OnboardingController {
   VehicleBodyType? _selectedVehicleBodyType;
   FuelType? _selectedFuelType;
   bool _sameAsDriver = false; // For vehicle owner
+
+  // Payout State
+  PayoutMethod _selectedPayoutMethod = PayoutMethod.vpa;
 
   // Document-related state
   File? _selectedLicense;
@@ -409,7 +426,6 @@ class OnboardingController {
   }
 
   String? validateDocuments() {
-
     // Validate PAN number format
     if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(panNumberController.text.trim())) {
       return 'Please enter a valid PAN number';
@@ -426,6 +442,24 @@ class OnboardingController {
     if (panNumberController.text.trim().isEmpty) return 'Please enter your PAN number';
 
     return null;
+  }
+
+  String? validatePayout() {
+    if (_selectedPayoutMethod == PayoutMethod.bankAccount) {
+      if (accountHolderNameController.text.trim().isEmpty) return 'Please enter account holder name';
+      if (accountNumberController.text.trim().isEmpty) return 'Please enter account number';
+      if (ifscCodeController.text.trim().isEmpty) return 'Please enter IFSC code';
+      if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(ifscCodeController.text.trim().toUpperCase())) {
+        return 'Please enter a valid IFSC code';
+      }
+      return null;
+    } else {
+      if (vpaController.text.trim().isEmpty) return 'Please enter UPI ID (VPA)';
+      if (!RegExp(r'^[a-zA-Z0-9\.\-_]{2,256}@[a-zA-Z0-9\.\-_]{2,64}$', caseSensitive: false).hasMatch(vpaController.text.trim())) {
+        return 'Please enter a valid UPI ID';
+      }
+      return null;
+    }
   }
 
   String getButtonText() {
@@ -684,6 +718,25 @@ class OnboardingController {
     );
   }
 
+  PayoutDetails? getPayoutDetails() {
+    final error = validatePayout();
+    if (error != null) return null;
+    if (_selectedPayoutMethod == PayoutMethod.bankAccount) {
+      return PayoutDetails(
+        payoutMethod: PayoutMethod.bankAccount,
+        bankDetails: BankDetails(
+          accountHolderName: accountHolderNameController.text.trim(),
+          accountNumber: accountNumberController.text.trim(),
+          ifscCode: ifscCodeController.text.trim().toUpperCase(),
+        ),
+      );
+    }
+    return PayoutDetails(
+      payoutMethod: PayoutMethod.vpa,
+      vpaDetails: VpaDetails(vpa: vpaController.text.trim()),
+    );
+  }
+
   Future<void> pickImage({
     required Function(String) onError,
   }) async {
@@ -807,6 +860,14 @@ class OnboardingController {
     _notifyStateChange();
   }
 
+    // Payout Methods
+  PayoutMethod get selectedPayoutMethod => _selectedPayoutMethod;
+
+  void updatePayoutMethod(PayoutMethod method) {
+    _selectedPayoutMethod = method;
+    _notifyStateChange();
+  }
+
   void dispose() {
     pageController.dispose();
     _animationController.dispose();
@@ -868,5 +929,15 @@ class OnboardingController {
     ownerCityFocus.dispose();
     ownerDistrictFocus.dispose();
     ownerStateFocus.dispose();
+
+    // Payout controllers & focuses
+    accountHolderNameController.dispose();
+    accountNumberController.dispose();
+    ifscCodeController.dispose();
+    vpaController.dispose();
+    accountHolderNameFocus.dispose();
+    accountNumberFocus.dispose();
+    ifscCodeFocus.dispose();
+    vpaFocus.dispose();
   }
 }

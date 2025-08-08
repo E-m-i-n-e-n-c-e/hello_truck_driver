@@ -3,6 +3,7 @@ import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/models/address.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
+import 'package:hello_truck_driver/models/payout_details.dart';
 
 /// Create driver profile
 Future<void> createDriverProfile(
@@ -16,6 +17,7 @@ Future<void> createDriverProfile(
   required DriverDocuments documents,
   required Address address,
   required Vehicle vehicle,
+  required PayoutDetails payoutDetails,
 }) async {
   await api.post('/driver/profile', data: {
     'firstName': firstName,
@@ -27,6 +29,7 @@ Future<void> createDriverProfile(
     'documents': documents.toJson(),
     'address': address.toJson(),
     'vehicle': vehicle.toJson(),
+    'payoutDetails': payoutDetails.toJson(),
   });
 }
 

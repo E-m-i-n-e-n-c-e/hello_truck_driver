@@ -13,6 +13,7 @@ import 'package:hello_truck_driver/screens/onboarding/steps/phone_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/documents_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/address_step.dart';
 import 'package:hello_truck_driver/screens/onboarding/steps/vehicle_step.dart';
+import 'package:hello_truck_driver/screens/onboarding/steps/payout_step.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -132,8 +133,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           return false;
         }
         return true;
-
-      case 6: // Phone step
+      case 6: // Payout step
+        final payoutError = _controller.validatePayout();
+        if (payoutError != null) {
+          _showError(payoutError);
+          _controller.shake();
+          return false;
+        }
+        return true;
+      case 7: // Phone step
         final error = _controller.validatePhoneDetails();
         if (error != null) {
           _showError(error);
@@ -156,6 +164,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       final documents = _controller.getDriverDocuments();
       final address = _controller.getAddress();
       final vehicle = _controller.getVehicle();
+      final payoutDetails = _controller.getPayoutDetails();
 
       if (documents == null) {
         _showError('Please complete all document uploads');
@@ -175,6 +184,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         return;
       }
 
+      if (payoutDetails == null) {
+        _showError('Please complete payout details');
+        _controller.setLoading(false);
+        return;
+      }
+
       await driver_api.createDriverProfile(
         api,
         firstName: _controller.firstNameController.text.trim(),
@@ -189,6 +204,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         documents: documents,
         address: address,
         vehicle: vehicle,
+        payoutDetails: payoutDetails,
       );
 
       if (mounted) {
@@ -253,7 +269,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         onNext: _nextStep,
       ),
 
-      // Step 6: Phone
+      // Step 6: Payout
+      PayoutStep(
+        controller: _controller,
+        onNext: _nextStep,
+      ),
+
+      // Step 7: Phone
       PhoneStep(
         controller: _controller,
         onNext: _nextStep,

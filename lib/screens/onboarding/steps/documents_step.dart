@@ -58,6 +58,7 @@ class DocumentsStep extends ConsumerWidget {
             icon: Icons.credit_card_rounded,
             isRequired: true,
             keyboardType: TextInputType.text,
+            inputFormatters: [UpperCaseTextFormatter()],
           ),
 
           const SizedBox(height: 24),
