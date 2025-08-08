@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_con
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/document_upload_card.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 
 class VehicleStep extends ConsumerStatefulWidget {
   final OnboardingController controller;
@@ -96,11 +97,13 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           label: 'Vehicle Type',
           icon: Icons.directions_car_rounded,
-          value: widget.controller.selectedVehicleType,
-          items: const [
-            DropdownMenuItem(value: 'THREE_WHEELER', child: Text('Three Wheeler')),
-            DropdownMenuItem(value: 'FOUR_WHEELER', child: Text('Four Wheeler')),
-          ],
+          value: widget.controller.selectedVehicleType?.value,
+          items: VehicleType.values.map((type) =>
+            DropdownMenuItem(
+              value: type.value,
+              child: Text(type.value.split('_').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' '))
+            )
+          ).toList(),
           onChanged: (value) {
             if (value != null) {
               widget.controller.updateVehicleType(value);
@@ -166,11 +169,12 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           label: 'Vehicle Body Type',
           icon: Icons.inventory_2_rounded,
-          value: widget.controller.selectedVehicleBodyType,
-          items: const [
-            DropdownMenuItem(value: 'OPEN', child: Text('Open')),
-            DropdownMenuItem(value: 'CLOSED', child: Text('Closed')),
-          ],
+          value: widget.controller.selectedVehicleBodyType?.value,
+          items: VehicleBodyType.values.map((type) =>
+            DropdownMenuItem(
+              value: type.value,
+              child: Text(type.value.split('_').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ')))
+          ).toList(),
           onChanged: (value) {
             if (value != null) {
               widget.controller.updateVehicleBodyType(value);
@@ -185,13 +189,13 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           label: 'Fuel Type',
           icon: Icons.local_gas_station_rounded,
-          value: widget.controller.selectedFuelType,
-          items: const [
-            DropdownMenuItem(value: 'DIESEL', child: Text('Diesel')),
-            DropdownMenuItem(value: 'PETROL', child: Text('Petrol')),
-            DropdownMenuItem(value: 'EV', child: Text('Electric')),
-            DropdownMenuItem(value: 'CNG', child: Text('CNG')),
-          ],
+          value: widget.controller.selectedFuelType?.value,
+          items: FuelType.values.map((type) =>
+            DropdownMenuItem(
+              value: type.value,
+              child: Text(type.value.split('_').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' '))
+            )
+          ).toList(),
           onChanged: (value) {
             if (value != null) {
               widget.controller.updateFuelType(value);

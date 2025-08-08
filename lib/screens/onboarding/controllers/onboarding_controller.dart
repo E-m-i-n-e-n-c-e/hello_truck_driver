@@ -8,6 +8,7 @@ import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/models/address.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/vehicle_owner.dart';
+import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 import 'dart:io';
 
 class OnboardingController {
@@ -100,9 +101,9 @@ class OnboardingController {
   double? _selectedLongitude;
 
   // Vehicle State
-  String? _selectedVehicleType;
-  String? _selectedVehicleBodyType;
-  String? _selectedFuelType;
+  VehicleType? _selectedVehicleType;
+  VehicleBodyType? _selectedVehicleBodyType;
+  FuelType? _selectedFuelType;
   bool _sameAsDriver = false; // For vehicle owner
 
   // Document-related state
@@ -775,23 +776,29 @@ class OnboardingController {
   double? get selectedLongitude => _selectedLongitude;
 
   // Vehicle Methods
-  String? get selectedVehicleType => _selectedVehicleType;
-  String? get selectedVehicleBodyType => _selectedVehicleBodyType;
-  String? get selectedFuelType => _selectedFuelType;
+  VehicleType? get selectedVehicleType => _selectedVehicleType;
+  VehicleBodyType? get selectedVehicleBodyType => _selectedVehicleBodyType;
+  FuelType? get selectedFuelType => _selectedFuelType;
   bool get sameAsDriver => _sameAsDriver;
 
   void updateVehicleType(String type) {
-    _selectedVehicleType = type;
+    _selectedVehicleType = VehicleType.values.firstWhere(
+      (e) => e.value == type
+    );
     _notifyStateChange();
   }
 
   void updateVehicleBodyType(String type) {
-    _selectedVehicleBodyType = type;
+    _selectedVehicleBodyType = VehicleBodyType.values.firstWhere(
+      (e) => e.value == type
+    );
     _notifyStateChange();
   }
 
   void updateFuelType(String type) {
-    _selectedFuelType = type;
+    _selectedFuelType = FuelType.values.firstWhere(
+      (e) => e.value == type
+    );
     _notifyStateChange();
   }
 

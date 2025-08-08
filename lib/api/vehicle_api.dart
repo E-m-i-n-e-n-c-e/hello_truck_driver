@@ -1,3 +1,4 @@
+import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/vehicle_owner.dart';
 
@@ -11,10 +12,10 @@ Future<Vehicle> getVehicle(dynamic api) async {
 Future<Vehicle> createVehicle(
   dynamic api, {
   required String vehicleNumber,
-  required String vehicleType,
+  required VehicleType vehicleType,
   required double vehicleBodyLength,
-  required String vehicleBodyType,
-  required String fuelType,
+  required VehicleBodyType vehicleBodyType,
+  required FuelType fuelType,
   required String vehicleImageUrl,
   VehicleOwner? owner,
 }) async {
@@ -22,10 +23,10 @@ Future<Vehicle> createVehicle(
     '/driver/vehicle',
     data: {
       'vehicleNumber': vehicleNumber,
-      'vehicleType': vehicleType,
+      'vehicleType': vehicleType.value,
       'vehicleBodyLength': vehicleBodyLength,
-      'vehicleBodyType': vehicleBodyType,
-      'fuelType': fuelType,
+      'vehicleBodyType': vehicleBodyType.value,
+      'fuelType': fuelType.value,
       'vehicleImageUrl': vehicleImageUrl,
       if (owner != null) 'owner': owner.toJson(),
     },
@@ -37,20 +38,20 @@ Future<Vehicle> createVehicle(
 Future<Vehicle> updateVehicle(
   dynamic api, {
   String? vehicleNumber,
-  String? vehicleType,
+  VehicleType? vehicleType,
   double? vehicleBodyLength,
-  String? vehicleBodyType,
-  String? fuelType,
+  VehicleBodyType? vehicleBodyType,
+  FuelType? fuelType,
   String? vehicleImageUrl,
 }) async {
   final response = await api.put(
     '/driver/vehicle',
     data: {
       if (vehicleNumber != null) 'vehicleNumber': vehicleNumber,
-      if (vehicleType != null) 'vehicleType': vehicleType,
+      if (vehicleType != null) 'vehicleType': vehicleType.value,
       if (vehicleBodyLength != null) 'vehicleBodyLength': vehicleBodyLength,
-      if (vehicleBodyType != null) 'vehicleBodyType': vehicleBodyType,
-      if (fuelType != null) 'fuelType': fuelType,
+      if (vehicleBodyType != null) 'vehicleBodyType': vehicleBodyType.value,
+      if (fuelType != null) 'fuelType': fuelType.value,
       if (vehicleImageUrl != null) 'vehicleImageUrl': vehicleImageUrl,
     },
   );
