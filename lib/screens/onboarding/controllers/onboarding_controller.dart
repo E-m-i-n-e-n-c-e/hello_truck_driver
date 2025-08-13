@@ -449,13 +449,13 @@ class OnboardingController {
       if (accountHolderNameController.text.trim().isEmpty) return 'Please enter account holder name';
       if (accountNumberController.text.trim().isEmpty) return 'Please enter account number';
       if (ifscCodeController.text.trim().isEmpty) return 'Please enter IFSC code';
-      if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(ifscCodeController.text.trim().toUpperCase())) {
+      if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(ifscCodeController.text.trim())) {
         return 'Please enter a valid IFSC code';
       }
       return null;
     } else {
       if (vpaController.text.trim().isEmpty) return 'Please enter UPI ID (VPA)';
-      if (!RegExp(r'^[a-zA-Z0-9\.\-_]{2,256}@[a-zA-Z0-9\.\-_]{2,64}$', caseSensitive: false).hasMatch(vpaController.text.trim())) {
+      if (!RegExp(r'^[a-zA-Z0-9\.\-_]{2,256}@[a-zA-Z0-9\.\-_]{2,64}$').hasMatch(vpaController.text.trim())) {
         return 'Please enter a valid UPI ID';
       }
       return null;
