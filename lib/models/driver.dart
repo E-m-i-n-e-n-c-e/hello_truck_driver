@@ -1,4 +1,5 @@
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 
 class Driver {
   final String phoneNumber;
@@ -8,7 +9,7 @@ class Driver {
   final String? alternatePhone;
   final String? referalCode;
   final String? photo;
-  final String verificationStatus;
+  final VerificationStatus verificationStatus;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -38,7 +39,7 @@ class Driver {
       alternatePhone: json['alternatePhone'],
       referalCode: json['referalCode'],
       photo: json['photo'],
-      verificationStatus: json['verificationStatus'] ?? 'PENDING',
+      verificationStatus: VerificationStatus.fromString(json['verificationStatus'] ?? 'PENDING'),
       isActive: json['isActive'] ?? true,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),

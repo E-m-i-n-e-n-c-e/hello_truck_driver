@@ -244,16 +244,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getVerificationStatusColor(driver.verificationStatus, colorScheme).withValues(alpha: 0.1),
+                    color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
+                      color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme),
                     ),
                   ),
                   child: Text(
-                    _getVerificationStatusText(driver.verificationStatus),
+                    _getVerificationStatusText(driver.verificationStatus.value),
                     style: textTheme.bodyMedium?.copyWith(
-                      color: _getVerificationStatusColor(driver.verificationStatus, colorScheme),
+                      color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
