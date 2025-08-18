@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
+import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class DocumentViewer extends ConsumerWidget {
@@ -121,19 +122,9 @@ class DocumentViewer extends ConsumerWidget {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             Navigator.of(context).pop();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Failed to load PDF: ${details.description}'),
-                backgroundColor: Theme.of(context).colorScheme.error,
-                duration: Duration(seconds: 5),
-                action: SnackBarAction(
-                  label: 'Retry',
-                  onPressed: () {
-                    ref.invalidate(driverProvider);
-                  },
-                ),
-              ),
-            );
+            SnackBars.retry(context, 'Failed to load PDF: ${details.description}', () {
+              ref.invalidate(driverProvider);
+            });
           }
         });
       },
