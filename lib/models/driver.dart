@@ -9,7 +9,9 @@ class Driver {
   final String? alternatePhone;
   final String? referalCode;
   final String? photo;
+  final int score;
   final VerificationStatus verificationStatus;
+  final DriverStatus driverStatus;
   final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -24,6 +26,8 @@ class Driver {
     this.referalCode,
     this.photo,
     required this.verificationStatus,
+    required this.driverStatus,
+    required this.score,
     required this.isActive,
     required this.createdAt,
     required this.updatedAt,
@@ -40,6 +44,8 @@ class Driver {
       referalCode: json['referalCode'],
       photo: json['photo'],
       verificationStatus: VerificationStatus.fromString(json['verificationStatus'] ?? 'PENDING'),
+      driverStatus: DriverStatus.fromString(json['driverStatus'] ?? 'OFFLINE'),
+      score: json['score'] ?? 0,
       isActive: json['isActive'] ?? true,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),

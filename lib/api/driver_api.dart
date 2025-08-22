@@ -2,6 +2,7 @@ import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/models/address.dart';
+import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/payout_details.dart';
 
@@ -56,5 +57,12 @@ Future<void> updateDriverProfile(
     if (alternatePhone?.isNotEmpty ?? false) 'alternatePhone': alternatePhone,
     if (photo?.isNotEmpty ?? false) 'photo': photo,
     if (googleIdToken?.isNotEmpty ?? false) 'googleIdToken': googleIdToken,
+  });
+}
+
+/// Update driver status
+Future<void> updateDriverStatus(API api, {required DriverStatus status}) async {
+  await api.put('/driver/status', data: {
+    'status': status.value,
   });
 }
