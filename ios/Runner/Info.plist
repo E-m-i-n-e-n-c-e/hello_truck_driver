@@ -24,10 +24,38 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+
+		<!-- Camera and Photo Library permissions -->
 		<key>NSCameraUsageDescription</key>
 		<string>This app needs camera access to take profile pictures</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app needs photo library access to select profile pictures</string>
+
+		<!-- Location permissions for driver tracking -->
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>This app needs location access to track your position and find nearby bookings</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>This app needs location access to track your position and find nearby bookings</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>This app needs location access to track your position and find nearby bookings</string>
+
+		<!-- Network security for WebSocket connections -->
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSExceptionDomains</key>
+			<dict>
+				<key>hello-truck-server.fly.dev</key>
+				<dict>
+					<key>NSExceptionAllowsInsecureHTTPLoads</key>
+					<false/>
+					<key>NSExceptionMinimumTLSVersion</key>
+					<string>TLSv1.2</string>
+					<key>NSExceptionRequiresForwardSecrecy</key>
+					<true/>
+				</dict>
+			</dict>
+		</dict>
+
 		<key>UIRequiredDeviceCapabilities</key>
 		<array>
 			<string>arm64</string>
@@ -57,5 +85,16 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>FirebaseAppDelegateProxyEnabled</key>
+		<false/>
+
+		<!-- Background modes for WebSocket persistence and location tracking -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+			<string>background-processing</string>
+			<string>background-fetch</string>
+			<string>location</string>
+		</array>
 	</dict>
 </plist>

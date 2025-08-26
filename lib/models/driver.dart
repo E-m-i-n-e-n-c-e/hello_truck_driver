@@ -12,7 +12,6 @@ class Driver {
   final int score;
   final VerificationStatus verificationStatus;
   final DriverStatus driverStatus;
-  final bool isActive;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DriverDocuments? documents;
@@ -28,7 +27,6 @@ class Driver {
     required this.verificationStatus,
     required this.driverStatus,
     required this.score,
-    required this.isActive,
     required this.createdAt,
     required this.updatedAt,
     this.documents,
@@ -44,9 +42,8 @@ class Driver {
       referalCode: json['referalCode'],
       photo: json['photo'],
       verificationStatus: VerificationStatus.fromString(json['verificationStatus'] ?? 'PENDING'),
-      driverStatus: DriverStatus.fromString(json['driverStatus'] ?? 'OFFLINE'),
+      driverStatus: DriverStatus.fromString(json['driverStatus']),
       score: json['score'] ?? 0,
-      isActive: json['isActive'] ?? true,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
       documents: json['documents'] != null ? DriverDocuments.fromJson(json['documents']) : null,

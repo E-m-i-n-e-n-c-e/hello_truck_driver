@@ -5,11 +5,21 @@ import 'package:hello_truck_driver/hello_truck.dart';
 import 'package:hello_truck_driver/login_page.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hello_truck_driver/screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:hello_truck_driver/services/fcm_service.dart';
 
 void main() async {
   // Preserve splash screen until app is fully loaded
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(FCMService.firebaseMessagingBackgroundHandler);
 
   runApp(const ProviderScope(child: MyApp()));
 }

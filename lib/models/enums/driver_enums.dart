@@ -9,16 +9,15 @@ enum VerificationStatus {
   static VerificationStatus fromString(String value) {
     return VerificationStatus.values.firstWhere(
       (status) => status.value == value,
-      orElse: () => VerificationStatus.pending,
     );
   }
 }
 
 enum DriverStatus {
   available('AVAILABLE'),
-  online('ONLINE'),
-  offline('OFFLINE'),
-  onRide('ON_RIDE');
+  unavailable('UNAVAILABLE'),
+  onRide('ON_RIDE'),
+  rideOffered('RIDE_OFFERED');
 
   const DriverStatus(this.value);
   final String value;
@@ -26,7 +25,6 @@ enum DriverStatus {
   static DriverStatus fromString(String value) {
     return DriverStatus.values.firstWhere(
       (status) => status.value == value,
-      orElse: () => DriverStatus.available,
     );
   }
 

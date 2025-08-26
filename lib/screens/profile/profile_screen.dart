@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
+import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/document_upload_dialog.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
@@ -332,9 +333,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
           _EditableInfoTile(
             icon: Icons.verified_user_rounded,
-            title: 'Account Status',
-            subtitle: driver.isActive ? 'Active' : 'Inactive',
-            onEdit: null, // Account status cannot be edited
+            title: 'Status',
+            subtitle: driver.driverStatus == DriverStatus.available ? 'Available' : 'Unavailable',
+            onEdit: null,
           ),
           const SizedBox(height: 16),
 
