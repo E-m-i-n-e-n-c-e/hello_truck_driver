@@ -79,8 +79,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   Future<bool> _validateCurrentStep() async {
     switch (_controller.currentStep) {
       case 0: // Name step
-        if (!_controller.validatePersonalInfo()) {
-          _showError('Please enter your first name');
+        final nameError = _controller.validatePersonalInfo();
+        if (nameError != null) {
+          _showError(nameError);
           _controller.shake();
           return false;
         }

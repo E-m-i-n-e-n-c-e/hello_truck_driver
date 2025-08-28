@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/auth_state.dart';
+import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/providers/location_providers.dart';
-import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/screens/home_screen.dart';
-import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
 import 'package:hello_truck_driver/screens/map_screen.dart';
 import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
-import 'package:hello_truck_driver/providers/fcm_providers.dart';
 
 class HelloTruck extends ConsumerStatefulWidget {
   const HelloTruck({super.key});
@@ -40,14 +38,6 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
 
   void _setupListeners(AsyncValue<AuthState> authState) {
       if (!_hasSetupListener) {
-        // initialize providers
-        ref.read(driverProvider);
-        ref.read(currentPositionStreamProvider);
-
-        // Initialize FCM service
-        ref.read(fcmServiceProvider);
-        ref.read(socketServiceProvider);
-
         // Show offline snackbar if user is offline
         if (authState.value?.isOffline == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -70,24 +60,16 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final api = ref.watch(apiProvider);
     final authState = ref.watch(authStateProvider);
 
     _setupListeners(authState);
 
-    if (authState.isLoading || api.isLoading) {
-      return Scaffold(
-        backgroundColor: colorScheme.surface,
-        body: Center(
-          child: CircularProgressIndicator(color: colorScheme.secondary),
-        ),
-      );
-    }
-
     if (authState.value?.hasCompletedOnboarding!=true) {
       return const OnboardingScreen();
     }
+
+    // Run app initializer and watch it to keep it running
+    ref.watch(appInitializerProvider);
 
     _loadScreen(_selectedIndex);
 

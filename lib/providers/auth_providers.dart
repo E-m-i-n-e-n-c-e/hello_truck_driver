@@ -3,6 +3,7 @@ import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/auth/auth_client.dart';
 import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/providers/connectivity_providers.dart';
+import '../utils/logger.dart';
 
 final authClientProvider = Provider<AuthClient>((ref) {
   final client = AuthClient();
@@ -30,12 +31,12 @@ final apiProvider = FutureProvider<API>((ref) async {
     accessToken: ref.read(authStateProvider).value?.token,
     ref: ref,
   );
-  print("API initialized with token: ${api.accessToken}");
+  AppLogger.log("API initialized with token: ${api.accessToken}");
 
   // Listen to auth state changes and update token
   ref.listen(authStateProvider, (_, next) {
     api.updateToken(next.value?.token);
-    print("Token updated: ${next.value?.token}");
+    AppLogger.log("Token updated: ${next.value?.token}");
   });
 
   // Initialize the API

@@ -43,7 +43,7 @@ class Driver {
       photo: json['photo'],
       verificationStatus: VerificationStatus.fromString(json['verificationStatus'] ?? 'PENDING'),
       driverStatus: DriverStatus.fromString(json['driverStatus']),
-      score: json['score'] ?? 0,
+      score: json['score'],
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
       documents: json['documents'] != null ? DriverDocuments.fromJson(json['documents']) : null,

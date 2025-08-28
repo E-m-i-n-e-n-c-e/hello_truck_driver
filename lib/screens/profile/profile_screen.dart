@@ -6,7 +6,7 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/document_upload_dialog.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
-import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/document_viewer.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/profile_edit_dialogs.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/profile_picture_dialog.dart';

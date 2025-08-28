@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/documents.dart';
-import 'package:hello_truck_driver/screens/profile/profile_providers.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 

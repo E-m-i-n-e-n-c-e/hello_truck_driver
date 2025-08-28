@@ -62,7 +62,7 @@ Future<void> updateDriverProfile(
 
 /// Update driver status
 Future<void> updateDriverStatus(API api, {required DriverStatus status}) async {
-  await api.put('/driver/status', data: {
+  await api.put('/driver/profile/status', data: {
     'status': status.value,
   });
 }

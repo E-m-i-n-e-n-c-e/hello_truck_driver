@@ -1,13 +1,14 @@
 // lib/services/ fcm_service.dart
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/enums/fcm_enums.dart';
 
+import '../utils/logger.dart';
+
 class FCMService {
-  final API _api;
+  late API _api;
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
@@ -19,11 +20,11 @@ class FCMService {
   // Stream to listen to FCM events
   Stream<FcmEventType> get eventStream => _eventController.stream;
 
-  FCMService(this._api);
+  FCMService();
 
-
-  Future<void> initialize() async {
-    if (_isInitialized || _api.accessToken == null) return;
+  Future<void> initialize(API api) async {
+    if (_isInitialized) return;
+    _api = api;
 
     // Initialize local notifications first
     await _initializeNotifications(_localNotifications);
@@ -40,12 +41,12 @@ class FCMService {
       sound: true,
     );
 
-    if (kDebugMode) debugPrint('FCM permission status: ${settings.authorizationStatus}');
+    AppLogger.log('FCM permission status: ${settings.authorizationStatus}');
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional) {
       final token = await _messaging.getToken();
-      if (kDebugMode) debugPrint('FCM token: $token');
+      AppLogger.log('FCM token: $token');
 
       if (token != null) {
         await _upsertToken(token);
@@ -56,7 +57,7 @@ class FCMService {
       });
 
       _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        if (kDebugMode) debugPrint('FCM foreground message: ${message.notification?.title} - ${message.notification?.body}');
+        AppLogger.log('FCM foreground message: ${message.notification?.title} - ${message.notification?.body}');
         if(message.data['event'] != null) {
           _eventController.add(FcmEventType.fromString(message.data['event']!));
         }
@@ -67,9 +68,9 @@ class FCMService {
       });
 
       _isInitialized = true;
-      if (kDebugMode) debugPrint('FCM initialized');
+      AppLogger.log('FCM initialized');
     } else {
-      if (kDebugMode) debugPrint('FCM permission denied');
+      AppLogger.log('FCM permission denied');
     }
   }
 
@@ -82,21 +83,17 @@ class FCMService {
     _foregroundMessageSubscription = null;
     _isInitialized = false;
 
-    if (kDebugMode) debugPrint('FCM stopped');
+    AppLogger.log('FCM stopped');
   }
 
   bool get isInitialized => _isInitialized;
 
   Future<void> _upsertToken(String fcmToken) async {
     try {
-      if (_api.accessToken == null) {
-        if (kDebugMode) debugPrint('FCM upsert skipped: API not ready');
-        return;
-      }
-      await _api.put('/customer/profile/fcm-token', data: { 'fcmToken': fcmToken });
-      if (kDebugMode) debugPrint('FCM token upserted successfully');
+      await _api.put('/driver/profile/fcm-token', data: { 'fcmToken': fcmToken });
+      AppLogger.log('FCM token upserted successfully');
     } catch (e) {
-      if (kDebugMode) debugPrint('Failed to upsert FCM token: $e');
+      AppLogger.log('Failed to upsert FCM token: $e');
     }
   }
 
@@ -120,7 +117,7 @@ class FCMService {
     await localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        if (kDebugMode) debugPrint('Local notification tapped: ${response.payload}');
+        AppLogger.log('Local notification tapped: ${response.payload}');
         // Handle notification tap here
       },
     );

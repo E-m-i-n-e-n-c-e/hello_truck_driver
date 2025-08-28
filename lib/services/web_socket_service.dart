@@ -1,63 +1,67 @@
 import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/utils/constants.dart';
+import 'package:hello_truck_driver/utils/logger.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-class WebSocketService {
-  static WebSocketService? _instance;
+class SocketService {
+  static SocketService? _instance;
+  factory SocketService() => _instance ??= SocketService._();
+  SocketService._();
 
-  factory WebSocketService(API api) {
-    _instance = WebSocketService._(api);
-    return _instance!;
-  }
-
-  WebSocketService._(this._api);
-
-  final API? _api;
+  final secureStorage = FlutterSecureStorage();
+  late API _api;
   late io.Socket _socket;
   bool _isConnected = false;
+
+  Future<String?> readAccessToken() async {
+    return await secureStorage.read(key: 'accessToken');
+  }
 
   // Map to store listeners for different channels
   final Map<String, List<Function(dynamic)>> _listeners = {};
 
-  Future<void> connect() async {
+  Future<void> connect(API api) async {
+    if (_isConnected) return;
+    _api = api;
     _socket = io.io('$baseUrl/driver', {
       'transports': ['websocket'],
       'autoConnect': false,
       'reconnection': true,
     });
-    print('🔌 Socket connecting');
-    _socket.auth = {'token': _api?.accessToken};
-    print('🔌 Socket auth: ${_socket.auth}');
+    AppLogger.log('🔌 Socket connecting');
+    _socket.auth = {'token': _api.accessToken ?? await readAccessToken()};
+    AppLogger.log('🔌 Socket auth: ${_socket.auth}');
     _socket.connect();
 
     _socket.onConnect((_) {
-      print('🔌 Socket connected');
+      AppLogger.log('🔌 Socket connected');
       _isConnected = true;
     });
 
     _socket.onDisconnect((_) {
-      print('🔌 Socket disconnected');
+      AppLogger.log('🔌 Socket disconnected');
       _isConnected = false;
     });
 
     _socket.onReconnect((_) {
-      print('🔌 Socket reconnected');
+      AppLogger.log('🔌 Socket reconnected');
       _isConnected = true;
     });
 
     _socket.onReconnectAttempt((_) async {
-      print('🔌 Socket reconnecting');
-      _socket.auth = {'token': _api?.accessToken};
+      AppLogger.log('🔌 Socket reconnecting');
+      _socket.auth = {'token': _api.accessToken ?? await readAccessToken()};
     });
   }
 
   void sendMessage(String channel, dynamic data) {
     if (_isConnected) {
       _socket.emit(channel, data);
-      print('📤 Sent to $channel: $data');
+      AppLogger.log('📤 Sent to $channel: $data');
     } else {
-      print('⚠️ WebSocket not connected, message not sent: $channel');
+      AppLogger.log('⚠️ WebSocket not connected, message not sent: $channel');
     }
   }
 
@@ -87,6 +91,7 @@ class WebSocketService {
 
 
   void dispose() {
+    _isConnected = false;
     _listeners.clear();
     _socket.dispose();
   }

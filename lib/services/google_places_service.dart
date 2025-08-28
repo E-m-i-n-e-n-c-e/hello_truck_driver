@@ -4,6 +4,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:convert';
 import '../models/place_prediction.dart';
+import '../utils/logger.dart';
 
 class GooglePlacesService {
   static const String _googleApiKey = 'AIzaSyBqTOs9JWbrHqOIO10oGKpLhuvou37S6Aw';
@@ -31,7 +32,7 @@ class GooglePlacesService {
         }
       }
     } catch (e) {
-      print('Error searching places: $e');
+      AppLogger.log('Error searching places: $e');
     }
     return [];
   }
@@ -53,7 +54,7 @@ class GooglePlacesService {
         }
       }
     } catch (e) {
-      print('Error getting place details: $e');
+      AppLogger.log('Error getting place details: $e');
     }
     return null;
   }
@@ -125,7 +126,7 @@ class GooglePlacesService {
         }
       }
     } catch (e) {
-      print('Error getting route polyline: $e');
+      AppLogger.log('Error getting route polyline: $e');
     }
     return null;
   }

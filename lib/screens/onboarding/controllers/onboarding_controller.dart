@@ -308,8 +308,15 @@ class OnboardingController {
   }
 
   // Validation
-  bool validatePersonalInfo() {
-    return firstNameController.text.trim().isNotEmpty;
+  String? validatePersonalInfo() {
+    final firstName = firstNameController.text.trim();
+    if (firstName.isEmpty) {
+      return 'Please enter your first name';
+    }
+    if (firstName.length < 3) {
+      return 'First name must be at least 3 characters long';
+    }
+    return null;
   }
 
   bool validateEmail() {

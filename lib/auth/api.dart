@@ -10,6 +10,8 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/auth/api_exception.dart';
 import 'package:hello_truck_driver/utils/constants.dart';
 
+import '../utils/logger.dart';
+
 class API {
   final Dio _dio = Dio();
   String? accessToken;
@@ -108,7 +110,7 @@ class API {
 
       return publicUrl;
     } catch (e) {
-      print('Error uploading file: $e');
+      AppLogger.log('Error uploading file: $e');
       rethrow;
     }
   }
