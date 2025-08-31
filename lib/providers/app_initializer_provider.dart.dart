@@ -23,14 +23,9 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
     fcmEventStreamProvider,
   ];
 
-  final List<FutureProvider<void>> serviceProvidersToEagerInit = [
-    locationUpdatesProvider,
-  ];
-
   final List<ProviderListenable> providersToEagerInit = [
     ...futureProvidersToEagerInit,
     ...streamProvidersToEagerInit,
-    ...serviceProvidersToEagerInit,
   ];
 
   for (final provider in providersToEagerInit) {

@@ -16,17 +16,15 @@ final locationServiceProvider = Provider<LocationService>((ref) {
 });
 
 // Configurable position stream provider using family
-final positionStreamProvider = StreamProvider.family<Position, ({Duration? throttle, Duration? timeout})>((ref, config) async* {
+final positionStreamProvider = StreamProvider.family<Position, ({Duration? throttle})>((ref, config) async* {
   final locationService = ref.watch(locationServiceProvider);
 
   Position? initialPosition;
 
   while (initialPosition == null) {
     try {
-      AppLogger.log('initialPosition: $initialPosition');
       initialPosition = await locationService.getCurrentPosition();
     } catch (e) {
-      AppLogger.log('error: $e');
       await Future.delayed(const Duration(seconds: 1));
     }
   }
@@ -39,31 +37,28 @@ final positionStreamProvider = StreamProvider.family<Position, ({Duration? throt
     stream = stream.throttleTime(config.throttle!);
   }
 
-  if (config.timeout != null) {
-    stream = stream.timeout(config.timeout!, onTimeout: (sink) {
-      locationService.getCurrentPosition().then((position) => sink.add(position));
-    });
-  }
-
   yield* stream;
 });
 
 final currentPositionStreamProvider = positionStreamProvider((
   throttle: null,
-  timeout: null,
 ));
 
-final locationUpdateStreamProvider = positionStreamProvider((
+final throttlePositionStreamProvider = positionStreamProvider((
   throttle: const Duration(seconds: 5),
-  timeout: null,
 ));
 
 final locationUpdatesProvider = FutureProvider<void>((ref) async {
   final socketService = ref.read(socketServiceProvider);
-  final currentPositionAsync = ref.watch(locationUpdateStreamProvider);
+  final locationService = ref.read(locationServiceProvider);
+
+  final currentPositionAsync = ref.watch(throttlePositionStreamProvider);
+
+  locationService.checkAndRequestPermissions();
   Timer? timer;
 
   void sendLocation(Position position) {
+    AppLogger.log('sendLocation: $position');
     if (ref.read(driverProvider).value == null || ref.read(driverProvider).value!.driverStatus == DriverStatus.unavailable) return;
     socketService.sendMessage('update-location', {
       'latitude': position.latitude,
@@ -75,7 +70,7 @@ final locationUpdatesProvider = FutureProvider<void>((ref) async {
     data: (position) {
       sendLocation(position);
       timer?.cancel();
-      timer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      timer = Timer.periodic(const Duration(seconds: 10), (timer) {
         sendLocation(position);
       });
     },
