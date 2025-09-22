@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hello_truck_driver/models/documents.dart';
-import 'package:hello_truck_driver/models/address.dart';
+import 'package:hello_truck_driver/models/driver_address.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/vehicle_owner.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
@@ -647,7 +647,7 @@ class OnboardingController {
     );
   }
 
-  Address? getAddress() {
+  DriverAddress? getAddress() {
     if (addressLine1Controller.text.trim().isEmpty ||
         pincodeController.text.trim().isEmpty ||
         cityController.text.trim().isEmpty ||
@@ -656,7 +656,7 @@ class OnboardingController {
       return null;
     }
 
-    return Address(
+    return DriverAddress(
       addressLine1: addressLine1Controller.text.trim(),
       landmark: landmarkController.text.trim().isEmpty
           ? null

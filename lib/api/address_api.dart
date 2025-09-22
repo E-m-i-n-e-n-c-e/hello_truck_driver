@@ -1,13 +1,13 @@
-import 'package:hello_truck_driver/models/address.dart';
+import 'package:hello_truck_driver/models/driver_address.dart';
 
 /// Get address for the current driver
-Future<Address> getAddress(dynamic api) async {
+Future<DriverAddress> getAddress(dynamic api) async {
   final response = await api.get('/driver/address');
-  return Address.fromJson(response.data);
+  return DriverAddress.fromJson(response.data);
 }
 
 /// Create address for the current driver
-Future<Address> createAddress(
+Future<DriverAddress> createAddress(
   dynamic api, {
   required String addressLine1,
   String? landmark,
@@ -31,11 +31,11 @@ Future<Address> createAddress(
       if (longitude != null) 'longitude': longitude,
     },
   );
-  return Address.fromJson(response.data);
+  return DriverAddress.fromJson(response.data);
 }
 
 /// Update address for the current driver
-Future<Address> updateAddress(
+Future<DriverAddress> updateAddress(
   dynamic api, {
   String? addressLine1,
   String? landmark,
@@ -59,7 +59,7 @@ Future<Address> updateAddress(
       if (longitude != null) 'longitude': longitude,
     },
   );
-  return Address.fromJson(response.data);
+  return DriverAddress.fromJson(response.data);
 }
 
 /// Delete address for the current driver

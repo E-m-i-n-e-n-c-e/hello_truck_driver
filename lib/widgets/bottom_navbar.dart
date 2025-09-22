@@ -16,20 +16,19 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
     return SafeArea(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 350),
-        // Shut up i want grey
-        color: Colors.grey.shade200,
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 8),
+        constraints: const BoxConstraints(maxWidth: 420),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.7),
+          border: Border(top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1))),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildNavItem(icon: Icons.home, index: 0, colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.map, index: 1, colorScheme: colorScheme),
-            _buildNavItem(
-              icon: Icons.person,
-              index: 2,
-              colorScheme: colorScheme,
-            ),
+            _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: 'Home', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.local_shipping_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: 'Payments', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.menu_rounded, index: 3, label: 'Menu', colorScheme: colorScheme),
           ],
         ),
       ),
@@ -39,31 +38,35 @@ class CustomBottomNavigationBar extends StatelessWidget {
   Widget _buildNavItem({
     required IconData icon,
     required int index,
+    String? label,
     required ColorScheme colorScheme,
   }) {
     bool isSelected = selectedIndex == index;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        padding: const EdgeInsets.all(0),
-      ),
-      onPressed: () => onItemSelected(index),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 26,
-            color: isSelected ? colorScheme.primary : colorScheme.onSurface,
-          ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: 2,
-            width: isSelected ? 20 : 0,
-            color: isSelected ? colorScheme.primary : Colors.transparent,
-          ),
-        ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () => onItemSelected(index),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 24,
+              color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 4),
+            if (label != null)
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

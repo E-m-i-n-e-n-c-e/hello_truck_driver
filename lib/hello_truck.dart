@@ -5,10 +5,11 @@ import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
-import 'package:hello_truck_driver/screens/home_screen.dart';
+import 'package:hello_truck_driver/screens/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
-import 'package:hello_truck_driver/screens/map_screen.dart';
+import 'package:hello_truck_driver/screens/rides_screen.dart';
+import 'package:hello_truck_driver/screens/payments_screen.dart';
 import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
@@ -23,8 +24,8 @@ class HelloTruck extends ConsumerStatefulWidget {
 
 class _HelloTruckState extends ConsumerState<HelloTruck> {
   int _selectedIndex = 0;
-  final List<Widget> _screens = List.filled(3, const SizedBox.shrink());
-  final List<bool> _screenLoaded = List.filled(3, false); // Track loaded state
+  final List<Widget> _screens = List.filled(4, const SizedBox.shrink());
+  final List<bool> _screenLoaded = List.filled(4, false); // Track loaded state
   bool _hasSetupListener = false;
 
   @override
@@ -131,9 +132,10 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
   void _loadScreen(int index) {
     if (!_screenLoaded[index]) {
       _screens[index] = switch (index) {
-        0 => const HomeScreen(),
-        1 => const MapScreen(),
-        2 => const ProfileScreen(),
+        0 => const DashboardScreen(),
+        1 => const RidesScreen(),
+        2 => const PaymentsScreen(),
+        3 => const ProfileScreen(),
         _ => const SizedBox.shrink(),
       };
       _screenLoaded[index] = true;
@@ -188,7 +190,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemSelected: (index) {
-          if (index == 2) {
+          if (index == 3 || index == 1) {
             ref.invalidate(driverProvider);
           }
           setState(() {
