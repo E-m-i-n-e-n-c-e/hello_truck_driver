@@ -23,6 +23,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
     _slide = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
   }
 
   @override
