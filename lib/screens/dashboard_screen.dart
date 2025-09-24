@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
+import 'package:hello_truck_driver/screens/booking/booking_request_screen.dart';
+import 'package:hello_truck_driver/utils/dummy_bookings.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -195,7 +197,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         _toolCard(context, Icons.assignment_rounded, 'My Orders', 'View deliveries', cs.primary),
         _toolCard(context, Icons.navigation_rounded, 'Navigation', 'Routes & maps', cs.secondary),
         _toolCard(context, Icons.account_balance_wallet_rounded, 'Earnings', 'Payment details', Colors.green),
-        _toolCard(context, Icons.support_agent_rounded, 'Support', 'We\'re here to help', Colors.orange),
+        _testBookingCard(context), // Temporary test button
       ],
     );
   }
@@ -233,6 +235,89 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _testBookingCard(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showTestBookingRequest(context),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.deepOrange.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.deepOrange.withValues(alpha: 0.18),
+                    ),
+                    child: const Icon(Icons.local_shipping_rounded, color: Colors.deepOrange),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Test Booking', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 4),
+                  Text('Demo ride request', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showTestBookingRequest(BuildContext context) {
+    final randomBooking = DummyBookings.getRandomBooking();
+
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => BookingRequestScreen(
+          booking: randomBooking,
+          onTimeExpired: () {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Booking request expired'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          },
+          onBookingResponse: (accepted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(accepted ? 'Booking accepted!' : 'Booking declined'),
+                backgroundColor: accepted ? Colors.green : Colors.red,
+              ),
+            );
+          },
+        ),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+            child: child,
+          );
+        },
       ),
     );
   }
