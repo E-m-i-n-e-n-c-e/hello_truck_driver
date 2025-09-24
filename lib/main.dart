@@ -10,6 +10,7 @@ import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hello_truck_driver/services/fcm_service.dart';
 
+
 void main() async {
   // Preserve splash screen until app is fully loaded
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

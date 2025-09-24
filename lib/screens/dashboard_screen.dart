@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
-import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/widgets/ready_modal.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -12,30 +12,24 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<Offset> _slide;
-  late final Animation<double> _fade;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
-    _slide = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool _hasShownModalThisSession = false;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final showReadyPrompt = ref.watch(showReadyPromptProvider);
+
+    // Show modal when ready prompt should be displayed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (showReadyPrompt.hasValue &&
+          showReadyPrompt.value == true &&
+          !_hasShownModalThisSession &&
+          mounted) {
+        _hasShownModalThisSession = true;
+        showReadyModal(context);
+      }
+    });
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -68,9 +62,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ),
             ),
           ),
-
-          // Bottom floating prompt (non-intrusive)
-          if (showReadyPrompt.value ?? false) _readyPrompt(context),
         ],
       ),
     );
@@ -246,78 +237,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     );
   }
 
-  Widget _readyPrompt(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Positioned(
-      left: 16,
-      right: 16,
-      bottom: 16,
-      child: SlideTransition(
-        position: _slide,
-        child: FadeTransition(
-          opacity: _fade,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 16, offset: const Offset(0, 8)),
-                  ],
-                  border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: cs.primary.withValues(alpha: 0.12),
-                      ),
-                      child: Icon(Icons.play_arrow_rounded, color: cs.primary),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Ready to take rides today?', style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 2),
-                          Text('You can change this anytime from the Rides tab.', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          final api = await ref.read(apiProvider.future);
-                          await driver_api.updateDriverStatus(api, isAvailable: true);
-                          ref.invalidate(driverProvider);
-                        } catch (_) {}
-                        await markAsReadyPromptSeen(ref);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text("I'm ready"),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 
