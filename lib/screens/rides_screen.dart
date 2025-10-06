@@ -2,12 +2,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
+import 'package:hello_truck_driver/models/package.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
+import 'package:hello_truck_driver/models/enums/booking_enums.dart';
+import 'package:hello_truck_driver/utils/dummy_bookings.dart';
+import 'package:hello_truck_driver/widgets/action_modal.dart';
 
 class RidesScreen extends ConsumerStatefulWidget {
   const RidesScreen({super.key});
@@ -24,6 +28,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final driverAsync = ref.watch(driverProvider);
+    final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -54,10 +59,18 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
                   driverAsync.when(
                     loading: () => _availabilitySkeleton(context),
                     error: (_, _) => _availabilitySkeleton(context),
-                    data: (driver) => _availabilityCard(
-                      context,
-                      isAvailable: driver.driverStatus == DriverStatus.available,
-                    ),
+                    data: (driver) {
+                      final hasActiveRide = currentAssignmentAsync.hasValue &&
+                          currentAssignmentAsync.value?.status == AssignmentStatus.accepted;
+                      final isOnRide = driver.driverStatus == DriverStatus.onRide;
+                      if (hasActiveRide || isOnRide) {
+                        return const SizedBox.shrink();
+                      }
+                      return _availabilityCard(
+                        context,
+                        isAvailable: driver.driverStatus == DriverStatus.available,
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
                   Expanded(child: _ridesBody(context, textTheme)),
@@ -305,6 +318,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
     final tt = Theme.of(context).textTheme;
     final cs = Theme.of(context).colorScheme;
     final booking = assignment.booking;
+    final package = booking.package;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -319,6 +334,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Row(
                 children: [
                   Container(
@@ -341,39 +357,242 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
                       ],
                     ),
                   ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: cs.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                    ),
+                    child: Text(
+                      booking.status.value.replaceAll('_', ' '),
+                      style: tt.labelSmall?.copyWith(
+                        color: cs.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ],
               ),
+              const SizedBox(height: 16),
+
+              // Package Details Section
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: cs.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _getPackageIcon(package),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getPackageTitle(package),
+                                style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _getFormattedWeight(package),
+                                style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_getPackageDescription(package).isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _getPackageDescription(package),
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
               const SizedBox(height: 12),
+
+              // Pickup Location
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.my_location, size: 18, color: cs.primary),
+                  Icon(Icons.trip_origin_rounded, size: 18, color: Colors.green),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(booking.pickupAddress.formattedAddress, style: tt.bodyMedium)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Pickup', style: tt.labelSmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6))),
+                        Text(booking.pickupAddress.formattedAddress, style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
+
+              // Drop Location
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.flag, size: 18, color: cs.secondary),
+                  Icon(Icons.location_on_rounded, size: 18, color: Colors.red),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(booking.dropAddress.formattedAddress, style: tt.bodyMedium)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Drop', style: tt.labelSmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6))),
+                        Text(booking.dropAddress.formattedAddress, style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
+
+              // Distance and Cost Chips
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
                   _chip(context, icon: Icons.straighten, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
-                  const SizedBox(width: 8),
-                  _chip(context, icon: Icons.payments, label: booking.finalCost?.toStringAsFixed(2) ?? booking.estimatedCost.toStringAsFixed(2)),
+                  _chip(context, icon: Icons.payments, label: '₹${booking.finalCost?.toStringAsFixed(2) ?? booking.estimatedCost.toStringAsFixed(2)}'),
+                  if (booking.scheduledAt != null)
+                    _chip(context, icon: Icons.schedule, label: booking.formattedPickupTime),
                 ],
               ),
+              const SizedBox(height: 16),
+
+              // Dynamic Action Button
+              _buildActionButton(context, assignment, tt),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildActionButton(BuildContext context, BookingAssignment assignment, TextTheme tt) {
+    final booking = assignment.booking;
+
+    // Determine button properties based on booking status
+    String buttonText;
+    IconData buttonIcon;
+    Color buttonColor;
+
+    switch (booking.status) {
+      case BookingStatus.confirmed:
+      case BookingStatus.pickupArrived:
+        buttonText = 'Navigate to Pickup';
+        buttonIcon = Icons.navigation_rounded;
+        buttonColor = Colors.green;
+        break;
+      case BookingStatus.pickupVerified:
+      case BookingStatus.inTransit:
+      case BookingStatus.dropArrived:
+        buttonText = 'Navigate to Drop';
+        buttonIcon = Icons.navigation_rounded;
+        buttonColor = Colors.blue;
+        break;
+      case BookingStatus.dropVerified:
+        buttonText = 'Complete Ride';
+        buttonIcon = Icons.check_circle_rounded;
+        buttonColor = Colors.purple;
+        break;
+      default:
+        // For other statuses, don't show button
+        return const SizedBox.shrink();
+    }
+
+    return ElevatedButton(
+      onPressed: () => showActionModal(context, assignment),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: buttonColor,
+        foregroundColor: Colors.white,
+        elevation: 2,
+        shadowColor: buttonColor.withValues(alpha: 0.3),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(buttonIcon, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            buttonText,
+            style: tt.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getPackageIcon(Package package) {
+    if (package.productType.value == 'AGRICULTURAL') {
+      return '🌾';
+    } else {
+      return '📦';
+    }
+  }
+
+  String _getPackageTitle(Package package) {
+    if (package.productType.value == 'AGRICULTURAL') {
+      return package.productName ?? 'Agricultural Product';
+    } else {
+      return package.description ?? 'Package Delivery';
+    }
+  }
+
+  String _getFormattedWeight(Package package) {
+    if (package.productType.value == 'AGRICULTURAL') {
+      final weight = package.approximateWeight ?? 0;
+      final unit = package.weightUnit?.value ?? 'KG';
+      return '$weight $unit';
+    } else {
+      final weight = package.averageWeight ?? 0;
+      return '$weight KG';
+    }
+  }
+
+  String _getPackageDescription(Package package) {
+    if (package.productType.value == 'AGRICULTURAL') {
+      return 'Agricultural product for ${package.packageType.value.toLowerCase()} use';
+    } else {
+      final dimensions = package.length != null &&
+              package.width != null &&
+              package.height != null
+          ? '${package.length}×${package.width}×${package.height} ${package.dimensionUnit?.value ?? 'CM'}'
+          : '';
+      return dimensions.isNotEmpty ? 'Dimensions: $dimensions' : '';
+    }
   }
 
   Widget _historyList(BuildContext context, List<BookingAssignment> items) {

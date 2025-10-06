@@ -33,3 +33,34 @@ Future<void> acceptAssignment(API api, String assignmentId) async {
 Future<void> rejectAssignment(API api, String assignmentId) async {
   await api.post('/bookings/driver/reject/$assignmentId');
 }
+
+/// Mark Pickup as arrived
+Future<void> pickupArrived(API api) async {
+  final response = await api.post('/bookings/driver/pickup/arrived');
+  AppLogger.log("pickupArrived: ${response.data}");
+}
+
+/// Mark Drop as arrived
+Future<void> dropArrived(API api) async {
+  await api.post('/bookings/driver/drop/arrived');
+}
+
+/// Verify pickup OTP (transitions booking to PICKUP_VERIFIED)
+Future<void> verifyPickupOtp(API api, String otp) async {
+  await api.post('/bookings/driver/pickup/verify', data: { 'otp': otp });
+}
+
+/// Verify drop OTP (transitions booking to DROP_VERIFIED)
+Future<void> verifyDropOtp(API api, String otp) async {
+  await api.post('/bookings/driver/drop/verify', data: { 'otp': otp });
+}
+
+/// Start ride (PICKUP_VERIFIED -> IN_TRANSIT)
+Future<void> startRide(API api) async {
+  await api.post('/bookings/driver/start');
+}
+
+/// Finish ride (DROP_VERIFIED -> COMPLETED)
+Future<void> finishRide(API api) async {
+  await api.post('/bookings/driver/finish');
+}

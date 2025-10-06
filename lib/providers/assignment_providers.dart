@@ -16,4 +16,5 @@ final assignmentHistoryProvider = FutureProvider<List<BookingAssignment>>((ref) 
   return assignment_api.getAssignmentHistory(api);
 });
 
+final hasShownActionModalProvider = StateProvider((ref) => false);
 

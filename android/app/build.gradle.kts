@@ -8,6 +8,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Exclude Google Play Services Maps since Navigation SDK bundles Maps classes,
+// to avoid duplicate class errors with google_maps_flutter.
+configurations.all {
+    exclude(group = "com.google.android.gms", module = "play-services-maps")
+}
+
 android {
     namespace = "com.example.hello_truck_driver"
     compileSdk = flutter.compileSdkVersion

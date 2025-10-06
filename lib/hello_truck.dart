@@ -19,6 +19,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/screens/booking/booking_request_screen.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
+import 'package:hello_truck_driver/widgets/action_modal.dart';
 
 class HelloTruck extends ConsumerStatefulWidget {
   const HelloTruck({super.key});
@@ -172,6 +173,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
+    final hasShownActionModalThisSession = ref.watch(hasShownActionModalProvider);
 
     _setupListeners(authState);
 
@@ -222,10 +224,24 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             }
           } finally {
             // This will cause the UI to transition away when status becomes on_ride/available
+            ref.read(hasShownActionModalProvider.notifier).state = false;
             ref.invalidate(currentAssignmentProvider);
           }
         },
       );
+    }
+
+    // Show pickup navigation modal when assignment is accepted (once per session)
+    if (currentAssignment.hasValue &&
+        currentAssignment.value != null &&
+        currentAssignment.value!.status == AssignmentStatus.accepted &&
+        !hasShownActionModalThisSession) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(hasShownActionModalProvider.notifier).state = true;
+          showActionModal(context, currentAssignment.value!);
+        }
+      });
     }
 
     _loadScreen(_selectedIndex);

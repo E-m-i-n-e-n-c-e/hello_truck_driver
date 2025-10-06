@@ -16,10 +16,8 @@ final fcmEventsHandlerProvider = Provider<void>((ref) {
 
   ref.listen<AsyncValue<FcmEventType>>(fcmEventStreamProvider, (previous, next) {
     next.whenData((event) {
-      print(event);
       if (event == FcmEventType.driverAssignmentOffered ||
           event == FcmEventType.driverAssignmentTimeout) {
-        print("Invalidating current assignment");
         ref.invalidate(currentAssignmentProvider);
       }
     });

@@ -229,34 +229,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     // Fit to bounds with delay
     Future.delayed(const Duration(milliseconds: 800), () {
       if (_mapController != null && mounted) {
-        print('Animating camera to bounds...');
         _mapController!.animateCamera(
           CameraUpdate.newLatLngBounds(bounds, 100.0),
         );
       }
     });
-  }
-
-  List<LatLng> _generateIntermediatePoints(LatLng start, LatLng end) {
-    final List<LatLng> points = [];
-    const int numberOfPoints = 5; // More points for smoother, more visible curve
-
-    for (int i = 1; i <= numberOfPoints; i++) {
-      final double ratio = i / (numberOfPoints + 1);
-
-      // Linear interpolation
-      final double lat = start.latitude + (end.latitude - start.latitude) * ratio;
-      final double lng = start.longitude + (end.longitude - start.longitude) * ratio;
-
-      // Add more pronounced curve to make route clearly visible
-      final double curveOffset = 0.008 * (4 * ratio * (1 - ratio)); // Larger parabolic curve
-      final double offsetLat = lat + curveOffset;
-      final double offsetLng = lng + (curveOffset * 0.5); // Slight longitude offset too
-
-      points.add(LatLng(offsetLat, offsetLng));
-    }
-
-    return points;
   }
 
   @override
