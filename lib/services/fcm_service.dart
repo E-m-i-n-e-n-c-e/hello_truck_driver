@@ -43,36 +43,31 @@ class FCMService {
 
     AppLogger.log('FCM permission status: ${settings.authorizationStatus}');
 
-    if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional) {
-      final token = await _messaging.getToken();
-      AppLogger.log('FCM token: $token');
+    final token = await _messaging.getToken();
+    AppLogger.log('FCM token: $token');
 
-      if (token != null) {
-        await _upsertToken(token);
-      }
-
-      _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((newToken) {
-        _upsertToken(newToken);
-      });
-
-      _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        AppLogger.log('FCM event received: ${message.data['event']}');
-        AppLogger.log('FCM foreground messagessssss: ${message.notification?.title} - ${message.notification?.body}');
-        if(message.data['event'] != null) {
-          _eventController.add(FcmEventType.fromString(message.data['event']!));
-        }
-        else {
-          // Show local notification for foreground messages
-          _showNotification(message, _localNotifications);
-        }
-      });
-
-      _isInitialized = true;
-      AppLogger.log('FCM initialized');
-    } else {
-      AppLogger.log('FCM permission denied');
+    if (token != null) {
+      await _upsertToken(token);
     }
+
+    _tokenRefreshSubscription = _messaging.onTokenRefresh.listen((newToken) {
+      _upsertToken(newToken);
+    });
+
+    _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      AppLogger.log('FCM event received: ${message.data['event']}');
+      AppLogger.log('FCM foreground messagessssss: ${message.notification?.title} - ${message.notification?.body}');
+      if(message.data['event'] != null) {
+        _eventController.add(FcmEventType.fromString(message.data['event']!));
+      }
+      else {
+        // Show local notification for foreground messages
+        _showNotification(message, _localNotifications);
+      }
+    });
+
+    _isInitialized = true;
+    AppLogger.log('FCM initialized');
   }
 
   Future<void> stop() async {

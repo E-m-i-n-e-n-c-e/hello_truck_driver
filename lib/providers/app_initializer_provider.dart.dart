@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
@@ -13,6 +14,8 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
   await socketService.connect(api);
   final fcmService = ref.read(fcmServiceProvider);
   await fcmService.initialize(api);
+
+  ref.invalidate(currentAssignmentProvider);
 
   final List<FutureProvider<Object>> futureProvidersToEagerInit = [
     driverProvider,

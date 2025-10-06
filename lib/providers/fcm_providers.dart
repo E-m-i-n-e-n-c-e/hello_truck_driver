@@ -13,7 +13,6 @@ final fcmEventStreamProvider = StreamProvider<FcmEventType>((ref) async* {
 });
 
 final fcmEventsHandlerProvider = Provider<void>((ref) {
-
   ref.listen<AsyncValue<FcmEventType>>(fcmEventStreamProvider, (previous, next) {
     next.whenData((event) {
       if (event == FcmEventType.driverAssignmentOffered ||
@@ -21,7 +20,5 @@ final fcmEventsHandlerProvider = Provider<void>((ref) {
         ref.invalidate(currentAssignmentProvider);
       }
     });
-
   });
-
 });
