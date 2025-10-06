@@ -91,7 +91,7 @@ class BookingInfoCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            '${booking.estimatedCost.toStringAsFixed(2)}',
+            booking.estimatedCost.toStringAsFixed(2),
             style: textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

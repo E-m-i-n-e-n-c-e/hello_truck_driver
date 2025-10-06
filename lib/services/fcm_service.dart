@@ -57,7 +57,8 @@ class FCMService {
       });
 
       _foregroundMessageSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        AppLogger.log('FCM foreground message: ${message.notification?.title} - ${message.notification?.body}');
+        AppLogger.log('FCM event received: ${message.data['event']}');
+        AppLogger.log('FCM foreground messagessssss: ${message.notification?.title} - ${message.notification?.body}');
         if(message.data['event'] != null) {
           _eventController.add(FcmEventType.fromString(message.data['event']!));
         }

@@ -6,6 +6,8 @@ import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/models/booking_assignment.dart';
 
 class RidesScreen extends ConsumerStatefulWidget {
   const RidesScreen({super.key});
@@ -58,7 +60,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Expanded(child: _ridesPlaceholder(context, textTheme)),
+                  Expanded(child: _ridesBody(context, textTheme)),
                 ],
               ),
             ),
@@ -185,22 +187,73 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
     );
   }
 
-  Widget _ridesPlaceholder(BuildContext context, TextTheme textTheme) {
+  Widget _ridesBody(BuildContext context, TextTheme textTheme) {
     final cs = Theme.of(context).colorScheme;
-    return ListView(
-      children: [
-        _frostedTile(context,
-            title: 'Active Ride',
-            subtitle: 'No active rides',
-            icon: Icons.directions_car_filled_rounded,
-            accent: cs.primary),
-        const SizedBox(height: 12),
-        _frostedTile(context,
-            title: 'Ride History',
-            subtitle: 'Your past rides will appear here',
-            icon: Icons.history_rounded,
-            accent: cs.secondary),
-      ],
+    final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
+    final historyAsync = ref.watch(assignmentHistoryProvider);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(currentAssignmentProvider);
+        ref.invalidate(assignmentHistoryProvider);
+        await Future.wait([
+          ref.read(currentAssignmentProvider.future).catchError((_) => null),
+          ref.read(assignmentHistoryProvider.future).catchError((_) => <BookingAssignment>[]),
+        ]);
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          // Active Ride
+          currentAssignmentAsync.when(
+            loading: () => _frostedTile(context,
+                title: 'Active Ride',
+                subtitle: 'Loading active ride...',
+                icon: Icons.directions_car_filled_rounded,
+                accent: cs.primary),
+            error: (_, _) => _frostedTile(context,
+                title: 'Active Ride',
+                subtitle: 'Could not load active ride',
+                icon: Icons.directions_car_filled_rounded,
+                accent: cs.error),
+            data: (assignment) {
+              if (assignment == null) {
+                return _frostedTile(context,
+                    title: 'Active Ride',
+                    subtitle: 'No active rides',
+                    icon: Icons.directions_car_filled_rounded,
+                    accent: cs.primary);
+              }
+              return _activeRideTile(context, assignment);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // History
+          historyAsync.when(
+            loading: () => _frostedTile(context,
+                title: 'Ride History',
+                subtitle: 'Loading history...',
+                icon: Icons.history_rounded,
+                accent: cs.secondary),
+            error: (_, _) => _frostedTile(context,
+                title: 'Ride History',
+                subtitle: 'Could not load history',
+                icon: Icons.history_rounded,
+                accent: cs.error),
+            data: (items) {
+              if (items.isEmpty) {
+                return _frostedTile(context,
+                    title: 'Ride History',
+                    subtitle: 'Your past rides will appear here',
+                    icon: Icons.history_rounded,
+                    accent: cs.secondary);
+              }
+              return _historyList(context, items);
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -244,6 +297,164 @@ class _RidesScreenState extends ConsumerState<RidesScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _activeRideTile(BuildContext context, BookingAssignment assignment) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final booking = assignment.booking;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: cs.primary.withValues(alpha: 0.06),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: cs.primary.withValues(alpha: 0.15),
+                    ),
+                    child: Icon(Icons.directions_car_filled_rounded, color: cs.primary),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Active Ride', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 4),
+                        Text('Booking • ${booking.id}', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.my_location, size: 18, color: cs.primary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(booking.pickupAddress.formattedAddress, style: tt.bodyMedium)),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.flag, size: 18, color: cs.secondary),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(booking.dropAddress.formattedAddress, style: tt.bodyMedium)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _chip(context, icon: Icons.straighten, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+                  const SizedBox(width: 8),
+                  _chip(context, icon: Icons.payments, label: booking.finalCost?.toStringAsFixed(2) ?? booking.estimatedCost.toStringAsFixed(2)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _historyList(BuildContext context, List<BookingAssignment> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final assignment in items)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _historyTile(context, assignment),
+          ),
+      ],
+    );
+  }
+
+  Widget _historyTile(BuildContext context, BookingAssignment assignment) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final booking = assignment.booking;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: cs.secondary.withValues(alpha: 0.06),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: cs.secondary.withValues(alpha: 0.15),
+                ),
+                child: const Icon(Icons.history_rounded),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Booking • ${booking.id}', style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 4),
+                    Text('${booking.pickupAddress.formattedAddress} → ${booking.dropAddress.formattedAddress}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              _chip(context, icon: Icons.straighten, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _chip(BuildContext context, {required IconData icon, required String label}) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+        ],
       ),
     );
   }

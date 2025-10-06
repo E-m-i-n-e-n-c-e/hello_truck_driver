@@ -1,24 +1,17 @@
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 
-/// Get current pending assignment for the driver
-Future<BookingAssignment?> getDriverAssignment(API api) async {
-  try {
-    final response = await api.get('/bookings/driver/assignment');
-    return BookingAssignment.fromJson(response.data);
-  } catch (e) {
-    // Return null if no assignment found (404)
-    return null;
-  }
-}
+import '../utils/logger.dart';
 
-/// Get current active assignment for the driver
-Future<BookingAssignment?> getActiveAssignment(API api) async {
+/// Get current pending assignment for the driver
+Future<BookingAssignment?> getCurrentAssignment(API api) async {
   try {
-    final response = await api.get('/bookings/driver/active-assignment');
+    final response = await api.get('/bookings/driver/current-assignment');
+    AppLogger.log("getCurrentAssignment: ${response.data}");
     return BookingAssignment.fromJson(response.data);
   } catch (e) {
-    // Return null if no active assignment found (404)
+    AppLogger.log("error: $e");
+    // Return null if no assignment found (404)
     return null;
   }
 }

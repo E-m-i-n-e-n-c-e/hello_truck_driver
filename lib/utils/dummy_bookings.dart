@@ -8,7 +8,7 @@ import '../models/enums/package_enums.dart';
 /// Dummy booking data for testing and development purposes
 class DummyBookings {
   static final List<Booking> _dummyBookings = [
-    // Agricultural product booking - Rice delivery
+    // Booking based on @request.http, pickup is Hyderabad, drop is Kerala
     Booking(
       id: 'booking_001',
       package: Package.agricultural(
@@ -20,20 +20,20 @@ class DummyBookings {
         transportDocUrls: ['https://example.com/transport-doc-001.pdf'],
       ),
       pickupAddress: Address(
-        formattedAddress: 'Cornell Dr & Rustad Ln, Mounds View, MN 55112',
-        addressDetails: 'Near the community center, main gate',
-        latitude: 45.1079,
-        longitude: -93.2105,
+        formattedAddress: 'Rama Bhaathi Nilayam, Plot 122/A, 301, Moti Nagar Phase III, Kalyan Nagar, Moti Nagar, Hyderabad, Telangana 500114, India',
+        addressDetails: '',
+        latitude: 17.4510495,
+        longitude: 78.42151087,
       ),
       dropAddress: Address(
-        formattedAddress: 'Shingle Creek Pkwy & Summit Dr N, Minneapolis, MN 55445',
-        addressDetails: 'Building A, Loading dock 3',
-        latitude: 45.1342,
-        longitude: -93.2775,
+        formattedAddress: 'QJ4X+G6, Vallichira, Nechipuzhoor, Kerala 686635, India',
+        addressDetails: '',
+        latitude: 9.7560312,
+        longitude: 76.6479833,
       ),
-      estimatedCost: 9.86,
-      distanceKm: 10.2,
-      baseFare: 5.00,
+      estimatedCost: 1000,
+      distanceKm: 877,
+      baseFare: 100,
       distanceCharge: 3.06,
       weightMultiplier: 1.2,
       vehicleMultiplier: 1.5,
@@ -42,87 +42,6 @@ class DummyBookings {
       createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
       updatedAt: DateTime.now().subtract(const Duration(minutes: 5)),
       scheduledAt: DateTime.now().add(const Duration(hours: 2)),
-    ),
-
-    // Non-agricultural product booking - Electronics
-    Booking(
-      id: 'booking_002',
-      package: Package.nonAgricultural(
-        packageType: PackageType.personal,
-        averageWeight: 2.5,
-        bundleWeight: 2.5,
-        length: 40.0,
-        width: 30.0,
-        height: 15.0,
-        dimensionUnit: DimensionUnit.cm,
-        numberOfProducts: 1,
-        description: 'Laptop computer in original packaging',
-        packageImageUrl: 'https://example.com/package-image-002.jpg',
-        transportDocUrls: ['https://example.com/transport-doc-002.pdf'],
-      ),
-      pickupAddress: Address(
-        formattedAddress: 'Best Buy, 7601 Penn Ave S, Richfield, MN 55423',
-        addressDetails: 'Customer service desk, order #12345',
-        latitude: 44.8671,
-        longitude: -93.3032,
-      ),
-      dropAddress: Address(
-        formattedAddress: '123 Oak Street, Minneapolis, MN 55404',
-        addressDetails: 'Apartment 4B, Ring doorbell',
-        latitude: 44.9778,
-        longitude: -93.2650,
-      ),
-      estimatedCost: 15.50,
-      distanceKm: 18.5,
-      baseFare: 5.00,
-      distanceCharge: 7.40,
-      weightMultiplier: 1.0,
-      vehicleMultiplier: 1.8,
-      suggestedVehicleType: VehicleType.fourWheeler,
-      status: BookingStatus.pending,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
-      updatedAt: DateTime.now().subtract(const Duration(minutes: 10)),
-    ),
-
-    // Small package booking - Documents
-    Booking(
-      id: 'booking_003',
-      package: Package.nonAgricultural(
-        packageType: PackageType.commercial,
-        averageWeight: 0.5,
-        bundleWeight: 0.5,
-        length: 25.0,
-        width: 18.0,
-        height: 5.0,
-        dimensionUnit: DimensionUnit.cm,
-        numberOfProducts: 1,
-        description: 'Legal documents in sealed envelope',
-        gstBillUrl: 'https://example.com/gst-bill-003.pdf',
-        transportDocUrls: ['https://example.com/transport-doc-003.pdf'],
-      ),
-      pickupAddress: Address(
-        formattedAddress: 'Law Office Building, 150 S 5th St, Minneapolis, MN 55402',
-        addressDetails: 'Suite 1200, Reception desk',
-        latitude: 44.9778,
-        longitude: -93.2650,
-      ),
-      dropAddress: Address(
-        formattedAddress: 'Government Center, 300 S 6th St, Minneapolis, MN 55487',
-        addressDetails: 'County Clerk Office, Floor 2',
-        latitude: 44.9732,
-        longitude: -93.2654,
-      ),
-      estimatedCost: 8.25,
-      distanceKm: 2.1,
-      baseFare: 5.00,
-      distanceCharge: 1.05,
-      weightMultiplier: 1.0,
-      vehicleMultiplier: 1.0,
-      suggestedVehicleType: VehicleType.twoWheeler,
-      status: BookingStatus.pending,
-      createdAt: DateTime.now().subtract(const Duration(minutes: 2)),
-      updatedAt: DateTime.now().subtract(const Duration(minutes: 2)),
-      scheduledAt: DateTime.now().add(const Duration(minutes: 30)),
     ),
   ];
 

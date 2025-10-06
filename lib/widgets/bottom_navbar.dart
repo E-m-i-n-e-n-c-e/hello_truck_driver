@@ -21,14 +21,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.7),
           border: Border(top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1))),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
+        child: NavigationBar(
+          destinations: [
             _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: 'Home', colorScheme: colorScheme),
             _buildNavItem(icon: Icons.local_shipping_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
             _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: 'Payments', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.menu_rounded, index: 3, label: 'Menu', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.person_rounded, index: 3, label: 'Profile', colorScheme: colorScheme),
           ],
         ),
       ),
@@ -43,7 +41,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }) {
     bool isSelected = selectedIndex == index;
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(1000),
       onTap: () => onItemSelected(index),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/screens/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
@@ -14,6 +15,10 @@ import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/screens/booking/booking_request_screen.dart';
+import 'package:hello_truck_driver/models/enums/booking_enums.dart';
+import 'package:hello_truck_driver/api/assignment_api.dart';
 
 class HelloTruck extends ConsumerStatefulWidget {
   const HelloTruck({super.key});
@@ -180,6 +185,49 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     // Start location updates
     ref.watch(locationUpdatesProvider);
 
+    // Handle fcm events
+    ref.watch(fcmEventsHandlerProvider);
+
+    // If there is an offered assignment, show booking request screen directly
+    final currentAssignment = ref.watch(currentAssignmentProvider);
+    if (currentAssignment.hasValue &&
+        currentAssignment.value != null &&
+        currentAssignment.value!.status == AssignmentStatus.offered) {
+      final assignment = currentAssignment.value!;
+      return BookingRequestScreen(
+        booking: assignment.booking,
+        onTimeExpired: () async {
+          try {
+            final api = await ref.read(apiProvider.future);
+            await rejectAssignment(api, assignment.id);
+          } catch (e) {
+            if (context.mounted) {
+              SnackBars.error(context, 'Failed to reject booking: $e');
+            }
+          } finally {
+            ref.invalidate(currentAssignmentProvider);
+          }
+        },
+        onBookingResponse: (accepted) async {
+          try {
+            final api = await ref.read(apiProvider.future);
+            if (accepted) {
+              await acceptAssignment(api, assignment.id);
+            } else {
+              await rejectAssignment(api, assignment.id);
+            }
+          } catch (e) {
+            if (context.mounted) {
+              SnackBars.error(context, 'Failed to process booking: $e');
+            }
+          } finally {
+            // This will cause the UI to transition away when status becomes on_ride/available
+            ref.invalidate(currentAssignmentProvider);
+          }
+        },
+      );
+    }
+
     _loadScreen(_selectedIndex);
 
     return Scaffold(
@@ -192,6 +240,10 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
         onItemSelected: (index) {
           if (index == 3 || index == 1) {
             ref.invalidate(driverProvider);
+            if (index == 1) {
+              ref.invalidate(currentAssignmentProvider);
+              ref.invalidate(assignmentHistoryProvider);
+            }
           }
           setState(() {
             _selectedIndex = index;

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -7,6 +6,8 @@ import '../../models/booking.dart';
 import '../../models/enums/package_enums.dart';
 import '../../models/enums/booking_enums.dart';
 import '../../utils/dummy_bookings.dart';
+
+const int _totalSeconds = 30;
 
 class BookingRequestScreen extends StatefulWidget {
   final Booking booking;
@@ -33,7 +34,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   late Animation<Offset> _slideAnimation;
 
   GoogleMapController? _mapController;
-  int _remainingSeconds = 25;
+  int _remainingSeconds = _totalSeconds;
   bool _isProcessing = false;
   bool _markersSetup = false;
   Set<Marker> _markers = {};
@@ -101,10 +102,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       widget.booking.dropAddress.longitude,
     );
 
-    print('Setting up markers:');
-    print('Pickup marker at: ${pickupLatLng.latitude}, ${pickupLatLng.longitude}');
-    print('Drop marker at: ${dropLatLng.latitude}, ${dropLatLng.longitude}');
-
     _markers = {
       Marker(
         markerId: const MarkerId('pickup'),
@@ -126,7 +123,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       ),
     };
 
-    // Create polyline between pickup and drop with intermediate points for better visibility
     final pickup = LatLng(
       widget.booking.pickupAddress.latitude,
       widget.booking.pickupAddress.longitude,
@@ -135,16 +131,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       widget.booking.dropAddress.latitude,
       widget.booking.dropAddress.longitude,
     );
-
-    // Create intermediate points for a more realistic route
-    final intermediatePoints = _generateIntermediatePoints(pickup, drop);
-
-    print('Creating polyline with ${intermediatePoints.length + 2} points:');
-    print('Start: ${pickup.latitude}, ${pickup.longitude}');
-    for (int i = 0; i < intermediatePoints.length; i++) {
-      print('Point ${i + 1}: ${intermediatePoints[i].latitude}, ${intermediatePoints[i].longitude}');
-    }
-    print('End: ${drop.latitude}, ${drop.longitude}');
 
     _polylines = {
       // Simple, highly visible route line
@@ -158,8 +144,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
         jointType: JointType.round,
       ),
     };
-
-    print('Polyline created with color: cyan, width: 8');
   }
 
   void _startTimer() {
@@ -212,16 +196,12 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     await _slideAnimationController.reverse();
 
     if (mounted) {
-      widget.onBookingResponse(accepted);
+      await widget.onBookingResponse(accepted);
     }
   }
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-
-    // Debug: Print coordinates to verify the route
-    print('Pickup: ${widget.booking.pickupAddress.latitude}, ${widget.booking.pickupAddress.longitude}');
-    print('Drop: ${widget.booking.dropAddress.latitude}, ${widget.booking.dropAddress.longitude}');
 
     _fitMapToRoute();
   }
@@ -231,10 +211,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 
     final pickup = widget.booking.pickupAddress;
     final drop = widget.booking.dropAddress;
-
-    print('Fitting map to route...');
-    print('Pickup: ${pickup.latitude}, ${pickup.longitude}');
-    print('Drop: ${drop.latitude}, ${drop.longitude}');
 
     // Create bounds with generous padding
     final double minLat = pickup.latitude < drop.latitude ? pickup.latitude : drop.latitude;
@@ -249,8 +225,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       southwest: LatLng(minLat - padding, minLng - padding),
       northeast: LatLng(maxLat + padding, maxLng + padding),
     );
-
-    print('Bounds: SW(${minLat - padding}, ${minLng - padding}) NE(${maxLat + padding}, ${maxLng + padding})');
 
     // Fit to bounds with delay
     Future.delayed(const Duration(milliseconds: 800), () {
@@ -285,11 +259,6 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     return points;
   }
 
-  void _adjustMapViewForBottomSheet() {
-    // Simplified - just ensure the route is visible
-    print('Adjusting map view for bottom sheet - keeping current bounds');
-  }
-
   @override
   void dispose() {
     _timer.cancel();
@@ -302,77 +271,79 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          // Background Map
-          AnimatedBuilder(
-            animation: _mapOpacityAnimation,
-            builder: (context, child) => Opacity(
-              opacity: _mapOpacityAnimation.value,
-              child: GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                    widget.booking.pickupAddress.latitude,
-                    widget.booking.pickupAddress.longitude,
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // Background Map
+            AnimatedBuilder(
+              animation: _mapOpacityAnimation,
+              builder: (context, child) => Opacity(
+                opacity: _mapOpacityAnimation.value,
+                child: GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(
+                      widget.booking.pickupAddress.latitude,
+                      widget.booking.pickupAddress.longitude,
+                    ),
+                    zoom: 13,
                   ),
-                  zoom: 13,
+                  markers: _markers,
+                  polylines: _polylines,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  compassEnabled: false,
+                  tiltGesturesEnabled: false,
+                  rotateGesturesEnabled: false,
+                  scrollGesturesEnabled: true,
+                  zoomGesturesEnabled: true,
+                  mapType: MapType.normal,
                 ),
-                markers: _markers,
-                polylines: _polylines,
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-                myLocationButtonEnabled: false,
-                compassEnabled: false,
-                tiltGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                scrollGesturesEnabled: true,
-                zoomGesturesEnabled: true,
-                mapType: MapType.normal,
-                style: _getMapStyle(context),
               ),
             ),
-          ),
 
-          // Dark overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.3),
-                  Colors.black.withValues(alpha: 0.6),
-                ],
-              ),
-            ),
-          ),
-
-          // Unified Bottom Sheet
-          SlideTransition(
-            position: _slideAnimation,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: const EdgeInsets.all(16),
-                child: _buildUnifiedBottomSheet(),
-              ),
-            ),
-          ),
-
-          // Status overlay when processing
-          if (_isProcessing)
+            // Dark overlay
             Container(
-              color: Colors.black.withValues(alpha: 0.5),
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.6),
+                  ],
                 ),
               ),
             ),
-        ],
+
+            // Unified Bottom Sheet
+            SlideTransition(
+              position: _slideAnimation,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  margin: const EdgeInsets.all(16),
+                  child: _buildUnifiedBottomSheet(),
+                ),
+              ),
+            ),
+
+            // Status overlay when processing
+            if (_isProcessing)
+              Container(
+                color: Colors.black.withValues(alpha: 0.5),
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -448,7 +419,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   }
 
   Widget _buildThinTimerBar(ColorScheme colorScheme) {
-    final progress = _remainingSeconds / 25;
+    final progress = _remainingSeconds / _totalSeconds.toDouble();
 
     // Change color based on remaining time
     Color progressColor;
@@ -544,7 +515,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
           ),
           const SizedBox(width: 4),
           Text(
-            '${widget.booking.estimatedCost.toStringAsFixed(2)}',
+            widget.booking.estimatedCost.toStringAsFixed(2),
             style: textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -818,6 +789,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       children: [
         // Reject button
         Expanded(
+          flex: 5,
           child: ElevatedButton(
             onPressed: _isProcessing ? null : () => _handleBookingResponse(false),
             style: ElevatedButton.styleFrom(
@@ -861,7 +833,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 
         // Accept button
         Expanded(
-          flex: 2,
+          flex: 6,
           child: ElevatedButton(
             onPressed: _isProcessing ? null : () => _handleBookingResponse(true),
             style: ElevatedButton.styleFrom(
@@ -982,99 +954,5 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       case VehicleType.fourWheeler:
         return Colors.green;
     }
-  }
-
-  String? _getMapStyle(BuildContext context) {
-    // Dark map style for better visibility
-    return '''
-    [
-      {
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#212121"
-          }
-        ]
-      },
-      {
-        "elementType": "labels.icon",
-        "stylers": [
-          {
-            "visibility": "off"
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#757575"
-          }
-        ]
-      },
-      {
-        "elementType": "labels.text.stroke",
-        "stylers": [
-          {
-            "color": "#212121"
-          }
-        ]
-      },
-      {
-        "featureType": "administrative",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#757575"
-          }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "geometry.fill",
-        "stylers": [
-          {
-            "color": "#2c2c2c"
-          }
-        ]
-      },
-      {
-        "featureType": "road.arterial",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#757575"
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "geometry.fill",
-        "stylers": [
-          {
-            "color": "#3c3c3c"
-          }
-        ]
-      },
-      {
-        "featureType": "road.highway",
-        "elementType": "labels.text.fill",
-        "stylers": [
-          {
-            "color": "#8a8a8a"
-          }
-        ]
-      },
-      {
-        "featureType": "water",
-        "elementType": "geometry",
-        "stylers": [
-          {
-            "color": "#000000"
-          }
-        ]
-      }
-    ]
-    ''';
   }
 }

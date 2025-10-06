@@ -26,11 +26,3 @@ Future<void> markAsReadyPromptSeen(WidgetRef ref) async {
   await prefs.setString(k, today);
   ref.invalidate(showReadyPromptProvider);
 }
-
-// Debug function to clear the ready prompt preference
-Future<void> clearReadyPromptSeen(WidgetRef ref) async {
-  final prefs = await SharedPreferences.getInstance();
-  final k = 'last_ready_prompt_date';
-  await prefs.remove(k);
-  ref.invalidate(showReadyPromptProvider);
-}

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
@@ -236,38 +235,58 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                           // Action buttons
                           Row(
                             children: [
+                              // "Maybe later" button
                               Expanded(
-                                child: TextButton(
+                                flex: 5,
+                                child: ElevatedButton(
                                   onPressed: _isLoading ? null : _handleSkip,
-                                  style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey.shade100,
+                                    foregroundColor: Colors.grey.shade700,
+                                    disabledBackgroundColor: Colors.grey.shade100,
+                                    disabledForegroundColor: Colors.grey.shade400,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(
+                                        color: _isLoading ? Colors.grey.shade300 : Colors.grey.shade400,
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
-                                  child: Text(
-                                    'Maybe later',
-                                    style: tt.titleMedium?.copyWith(
-                                      color: cs.onSurface.withValues(alpha: 0.6),
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Maybe later',
+                                        style: tt.labelLarge?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: _isLoading ? Colors.grey.shade400 : Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(width: 12),
+                              // "I'm ready!" button
                               Expanded(
-                                flex: 2,
+                                flex: 6,
                                 child: ElevatedButton(
                                   onPressed: _isLoading ? null : _handleReady,
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: cs.primary,
                                     foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 18),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
+                                    disabledBackgroundColor: Colors.grey.shade300,
+                                    disabledForegroundColor: Colors.grey.shade500,
+                                    elevation: 4,
                                     shadowColor: cs.primary.withValues(alpha: 0.3),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
                                   ),
                                   child: _isLoading
                                       ? SizedBox(
@@ -275,19 +294,12 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                           width: 20,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                           ),
                                         )
                                       : Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            const Icon(
-                                              Icons.play_arrow_rounded,
-                                              size: 24,
-                                            ),
-                                            const SizedBox(width: 8),
                                             Text(
                                               "I'm ready!",
                                               style: tt.titleMedium?.copyWith(
