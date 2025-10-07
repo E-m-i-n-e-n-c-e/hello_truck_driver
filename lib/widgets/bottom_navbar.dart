@@ -24,7 +24,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         child: NavigationBar(
           destinations: [
             _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: 'Home', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.local_shipping_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.directions_car_filled_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
             _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: 'Payments', colorScheme: colorScheme),
             _buildNavItem(icon: Icons.person_rounded, index: 3, label: 'Profile', colorScheme: colorScheme),
           ],

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class PaymentsScreen extends StatelessWidget {
@@ -40,25 +39,36 @@ class PaymentsScreen extends StatelessWidget {
   Widget _frostedHeader(BuildContext context, String title) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: cs.secondary.withValues(alpha: 0.08),
-            border: Border.all(color: cs.secondary.withValues(alpha: 0.2)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.account_balance_wallet_rounded, color: cs.secondary),
-              const SizedBox(width: 12),
-              Text(title, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface)),
-            ],
-          ),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.secondary.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: cs.primary,
+              ),
+              child: Icon(Icons.account_balance_wallet_rounded, color: cs.onPrimary),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: tt.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: cs.onSecondaryContainer,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -77,25 +87,22 @@ class PaymentsScreen extends StatelessWidget {
   Widget _frostedSmallCard(BuildContext context, String title, String value) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-              const SizedBox(height: 6),
-              Text(value, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-            ],
-          ),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+            const SizedBox(height: 6),
+            Text(value, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurface)),
+          ],
         ),
       ),
     );
@@ -104,41 +111,38 @@ class PaymentsScreen extends StatelessWidget {
   Widget _paymentTile(BuildContext context, {required String title, required String subtitle, required Color accent}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.06),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: accent.withValues(alpha: 0.18),
-                ),
-                child: Icon(Icons.receipt_long_rounded, color: accent),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: accent.withValues(alpha: 0.18),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                    const SizedBox(height: 4),
-                    Text(subtitle, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                  ],
-                ),
-              )
-            ],
-          ),
+              child: Icon(Icons.receipt_long_rounded, color: accent),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: cs.onSurface)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
@@ -35,36 +34,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: Stack(
-        children: [
-          // Background gradient for depth
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [cs.surface, cs.surface.withValues(alpha: 0.95)],
-              ),
-            ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _header(context),
+              const SizedBox(height: 16),
+              _quickStats(context),
+              const SizedBox(height: 16),
+              _toolsGrid(context),
+              const SizedBox(height: 16),
+            ],
           ),
-
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _header(context),
-                  const SizedBox(height: 16),
-                  _quickStats(context),
-                  const SizedBox(height: 16),
-                  _toolsGrid(context),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -72,61 +56,63 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _header(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: cs.primary.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.white.withValues(alpha: 0.7),
-                ),
-                child: Icon(Icons.local_shipping_rounded, color: cs.primary, size: 28),
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: cs.secondary.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: cs.primary,
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Dashboard', style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 4),
-                    Text('Stay ready. Earn more.', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                  ],
-                ),
+              child: Icon(Icons.local_shipping_rounded, color: cs.onPrimary, size: 28),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Dashboard', style: tt.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onPrimaryContainer,
+                  )),
+                  const SizedBox(height: 4),
+                  Text('Stay ready. Earn more.', style: tt.bodySmall?.copyWith(
+                    color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                  )),
+                ],
               ),
-              IconButton(
-                onPressed: () async {
-                  final shouldLogout = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Logout', style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold)),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
-                        ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('LOGOUT')),
-                      ],
-                    ),
-                  );
-                  if (shouldLogout == true && mounted) {
-                    final api = ref.read(apiProvider).value!;
-                    await api.signOut();
-                  }
-                },
-                icon: const Icon(Icons.logout_rounded),
-              ),
-            ],
-          ),
+            ),
+            IconButton(
+              onPressed: () async {
+                final shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Logout', style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold)),
+                    content: const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
+                      ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('LOGOUT')),
+                    ],
+                  ),
+                );
+                if (shouldLogout == true && mounted) {
+                  final api = ref.read(apiProvider).value!;
+                  await api.signOut();
+                }
+              },
+              icon: Icon(Icons.logout_rounded, color: cs.onPrimaryContainer),
+            ),
+          ],
         ),
       ),
     );
@@ -145,41 +131,41 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _statCard(BuildContext context, String title, String value, IconData icon) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: cs.primary.withValues(alpha: 0.12),
-                ),
-                child: Icon(icon, color: cs.primary),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: cs.primaryContainer,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              child: Icon(icon, color: cs.surface, size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                     Text(title, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                    const SizedBox(height: 4),
-                    Text(value, style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                  ],
-                ),
+                  const SizedBox(height: 4),
+                  Text(value, style: tt.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
+                  )),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -205,35 +191,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _toolCard(BuildContext context, IconData icon, String title, String subtitle, Color accent) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: accent.withValues(alpha: 0.18),
-                ),
-                child: Icon(icon, color: accent),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainer,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                  color: accent.withValues(alpha: 0.15),
               ),
-              const SizedBox(height: 12),
-              Text(title, style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-            ],
-          ),
+              child: Icon(icon, color: accent, size: 20),
+            ),
+            const SizedBox(height: 12),
+            Text(title, style: tt.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: cs.onSurface,
+            )),
+            const SizedBox(height: 4),
+            Text(subtitle, style: tt.bodySmall?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.7),
+            )),
+          ],
         ),
       ),
     );
@@ -242,39 +230,42 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _testBookingCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _showTestBookingRequest(context),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.deepOrange.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: cs.outline.withValues(alpha: 0.12)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.deepOrange.withValues(alpha: 0.18),
-                    ),
-                    child: const Icon(Icons.local_shipping_rounded, color: Colors.deepOrange),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showTestBookingRequest(context),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.deepOrange.withValues(alpha: 0.15),
                   ),
-                  const SizedBox(height: 12),
-                  Text('Test Booking', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                  const SizedBox(height: 4),
-                  Text('Demo ride request', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                ],
-              ),
+                  child: const Icon(Icons.local_shipping_rounded, color: Colors.deepOrange, size: 20),
+                ),
+                const SizedBox(height: 12),
+                Text('Test Booking', style: tt.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                )),
+                const SizedBox(height: 4),
+                Text('Demo ride request', style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.7),
+                )),
+              ],
             ),
           ),
         ),
