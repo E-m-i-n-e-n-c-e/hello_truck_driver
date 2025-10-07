@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/widgets/snackbars.dart';
 
 class ReadyModal extends ConsumerStatefulWidget {
   const ReadyModal({super.key});
@@ -62,9 +63,13 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
 
       if (mounted) {
         Navigator.of(context).pop();
+        SnackBars.success(context, 'You are now available for rides');
       }
     } catch (e) {
-      // Handle error silently as per original implementation
+      if(mounted) {
+        Navigator.of(context).pop();
+        SnackBars.error(context, 'Failed to mark driver as ready: $e');
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -83,9 +88,9 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
         Navigator.of(context).pop();
       }
     } catch (e) {
-      // Handle error silently and still close the modal
       if (mounted) {
         Navigator.of(context).pop();
+        SnackBars.error(context, 'Failed to mark prompt as seen: $e');
       }
     } finally {
       if (mounted) {
