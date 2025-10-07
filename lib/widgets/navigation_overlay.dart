@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
@@ -109,38 +110,41 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   Widget _buildExpandedOverlay(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 280,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Expanded(child: _buildStatusHeader(context, status, tt, cs)),
-                IconButton(
-                  onPressed: () => setState(() => _isExpanded = false),
-                  icon: Icon(Icons.close_rounded, size: 20, color: cs.onSurface.withValues(alpha: 0.6)),
-                  constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (status != BookingStatus.dropVerified) _buildActionButton(context, status, tt, cs),
-          ],
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        child: Container(
+          width: 280,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cs.surface.withValues(alpha: 0.95),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: _buildStatusHeader(context, status, tt, cs)),
+                  IconButton(
+                    onPressed: () => setState(() => _isExpanded = false),
+                    icon: Icon(Icons.close_rounded, size: 20, color: cs.onSurface.withValues(alpha: 0.6)),
+                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (status != BookingStatus.dropVerified) _buildActionButton(context, status, tt, cs),
+            ],
+          ),
         ),
       ),
     );

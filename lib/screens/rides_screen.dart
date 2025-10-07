@@ -154,7 +154,6 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(currentAssignmentProvider);
-            await ref.read(currentAssignmentProvider.future).catchError((_) => null);
           },
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -204,7 +203,6 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
         return RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(assignmentHistoryProvider);
-            await ref.read(assignmentHistoryProvider.future).catchError((_) => <BookingAssignment>[]);
           },
           child: ListView.separated(
             padding: const EdgeInsets.all(16),
