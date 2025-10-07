@@ -62,7 +62,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: cs.secondary.withValues(alpha: 0.7),
+          color: cs.secondary.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -72,7 +72,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               height: 44,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color: cs.primary,
+                color: cs.primary.withValues(alpha: 0.8),
               ),
               child: Icon(Icons.local_shipping_rounded, color: cs.onPrimary, size: 28),
             ),
@@ -181,7 +181,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       crossAxisSpacing: 12,
       children: [
         _toolCard(context, Icons.assignment_rounded, 'My Orders', 'View deliveries', cs.primary),
-        _toolCard(context, Icons.navigation_rounded, 'Navigation', 'Routes & maps', cs.secondary),
+        _toolCard(context, Icons.navigation_rounded, 'Navigation', 'Routes & maps', cs.secondary.withValues(alpha: 0.8)),
         _toolCard(context, Icons.account_balance_wallet_rounded, 'Earnings', 'Payment details', Colors.green),
         _testBookingCard(context), // Temporary test button
       ],

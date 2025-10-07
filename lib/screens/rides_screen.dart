@@ -47,7 +47,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
       appBar: AppBar(
         title: Container(
           decoration: BoxDecoration(
-            color: colorScheme.secondary.withValues(alpha: 0.7),
+            color: colorScheme.secondary.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),

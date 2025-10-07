@@ -46,7 +46,7 @@ class PaymentsScreen extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: cs.secondary.withValues(alpha: 0.7),
+          color: cs.secondary.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -56,7 +56,7 @@ class PaymentsScreen extends StatelessWidget {
               height: 44,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: cs.primary,
+                color: cs.primary.withValues(alpha: 0.8),
               ),
               child: Icon(Icons.account_balance_wallet_rounded, color: cs.onPrimary),
             ),

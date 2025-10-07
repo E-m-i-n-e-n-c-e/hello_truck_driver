@@ -114,7 +114,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: colorScheme.secondary.withValues(alpha: 0.7),
+        backgroundColor: colorScheme.secondary.withValues(alpha: 0.8),
         bottom: TabBar(
           controller: _tabController,
           labelColor: colorScheme.onSecondary,

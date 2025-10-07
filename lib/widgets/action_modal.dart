@@ -66,7 +66,7 @@ void showActionModal(BuildContext context, BookingAssignment assignment) {
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: Container(
         margin: const EdgeInsets.all(16),
         decoration: BoxDecoration(
