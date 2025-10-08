@@ -56,10 +56,10 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
     setState(() => _isLoading = true);
 
     try {
+      await markAsReadyPromptSeen(ref);
       final api = await ref.read(apiProvider.future);
       await driver_api.updateDriverStatus(api, isAvailable: true);
       ref.invalidate(driverProvider);
-      await markAsReadyPromptSeen(ref);
 
       if (mounted) {
         Navigator.of(context).pop();

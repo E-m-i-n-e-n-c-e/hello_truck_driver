@@ -7,7 +7,6 @@ import 'package:hello_truck_driver/models/package.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/services/navigation_service.dart';
 import 'package:hello_truck_driver/screens/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/widgets/finish_ride_modal.dart';
 
@@ -291,8 +290,6 @@ class _NavigationContent extends ConsumerWidget {
                 } else {
                   // Close modal and open in-app Google Maps navigation screen
                   Navigator.pop(context);
-                  // Stop any existing headless guidance to avoid stuck notification
-                  await NavigationService.stopNavigation();
                   // Start ride if pickup is verified
                   if(assignment.booking.status == BookingStatus.pickupVerified) {
                     final api = await ref.read(apiProvider.future);
