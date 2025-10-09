@@ -14,7 +14,25 @@ import '../utils/logger.dart';
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final FlutterLocalNotificationsPlugin localNotifications = FlutterLocalNotificationsPlugin();
   await FCMService._initializeNotifications(localNotifications);
-  await FCMService._showNotification(message, localNotifications);
+
+  // Show notification only if the default notification payload is null
+  // and data contains title & body
+  final hasNotification = message.notification != null;
+  final hasDataTitle = message.data['title'] != null;
+  final hasDataBody = message.data['body'] != null;
+
+  if (!hasNotification && hasDataTitle && hasDataBody) {
+    await FCMService._showNotification(
+      RemoteMessage(
+        data: message.data,
+        notification: RemoteNotification(
+          title: message.data['title'],
+          body: message.data['body'],
+        ),
+      ),
+      localNotifications,
+    );
+  }
 
   developer.log('🔥 Background FCM received: ${message.data}');
   final event = message.data['event'];
