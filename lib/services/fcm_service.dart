@@ -1,11 +1,31 @@
 // lib/services/ fcm_service.dart
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/enums/fcm_enums.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/logger.dart';
+
+// Background FCM handler must be a top-level function and annotated for AOT
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final FlutterLocalNotificationsPlugin localNotifications = FlutterLocalNotificationsPlugin();
+  await FCMService._initializeNotifications(localNotifications);
+  await FCMService._showNotification(message, localNotifications);
+
+  developer.log('🔥 Background FCM received: ${message.data}');
+  final event = message.data['event'];
+  if (event != null) {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // Ensure latest values from disk
+    final pendingEvents = prefs.getStringList('pending_events') ?? [];
+    await prefs.setStringList('pending_events', [...pendingEvents, event]);
+    developer.log('FCM background message pending events: $pendingEvents');
+  }
+}
 
 class FCMService {
   late API _api;
@@ -19,6 +39,11 @@ class FCMService {
 
   // Stream to listen to FCM events
   Stream<FcmEventType> get eventStream => _eventController.stream;
+
+  // Function to allow others to add events to the controller
+  void addEvent(FcmEventType event) {
+    _eventController.add(event);
+  }
 
   FCMService();
 
@@ -157,14 +182,5 @@ class FCMService {
         ),
       );
     }
-  }
-
-  /// Static background handler to be registered in main()
-  static Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    final FlutterLocalNotificationsPlugin localNotifications = FlutterLocalNotificationsPlugin();
-
-    await _initializeNotifications(localNotifications);
-
-    await _showNotification(message, localNotifications);
   }
 }

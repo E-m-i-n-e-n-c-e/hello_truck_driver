@@ -89,8 +89,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             data: (driver) {
               final hasActiveRide = currentAssignmentAsync.hasValue &&
                   currentAssignmentAsync.value?.status == AssignmentStatus.accepted;
-              final isOnRide = driver.driverStatus == DriverStatus.onRide;
-              if (hasActiveRide || isOnRide) {
+              final isOnRideOrAssigned = driver.driverStatus == DriverStatus.onRide || driver.driverStatus == DriverStatus.rideOffered;
+              if (hasActiveRide || isOnRideOrAssigned) {
                 return const SizedBox.shrink();
               }
               return Padding(
@@ -551,12 +551,12 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
       case BookingStatus.dropArrived:
         buttonText = 'Navigate to Drop';
         buttonIcon = Icons.navigation_rounded;
-        buttonColor = Colors.blue;
+        buttonColor = Colors.red;
         break;
       case BookingStatus.dropVerified:
         buttonText = 'Complete Ride';
         buttonIcon = Icons.check_circle_rounded;
-        buttonColor = Colors.purple;
+        buttonColor = Colors.green;
         break;
       default:
         // For other statuses, don't show button

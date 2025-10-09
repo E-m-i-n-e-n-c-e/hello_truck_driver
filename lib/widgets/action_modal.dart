@@ -20,7 +20,6 @@ class NavigationInfo {
   final Color color;
   final bool isPickup;
   final bool showButton;
-  final bool isCompleteAction;
 
   const NavigationInfo({
     required this.title,
@@ -32,7 +31,6 @@ class NavigationInfo {
     required this.color,
     required this.isPickup,
     required this.showButton,
-    required this.isCompleteAction,
   });
 }
 
@@ -40,7 +38,7 @@ void showActionModal(BuildContext context, BookingAssignment assignment) {
   final booking = assignment.booking;
 
   // If booking is completed, show finish ride modal instead
-  if (booking.status == BookingStatus.completed) {
+  if (booking.status == BookingStatus.dropVerified) {
     showFinishRideModal(context, assignment);
     return;
   }
@@ -273,23 +271,6 @@ class _NavigationContent extends ConsumerWidget {
           if (navigationInfo.showButton)
             ElevatedButton(
               onPressed: () async {
-                if (navigationInfo.isCompleteAction) {
-                  // Handle complete ride action
-                  Navigator.pop(context);
-                  final api = await ref.read(apiProvider.future);
-                  await finishRide(api);
-                  ref.invalidate(currentAssignmentProvider);
-
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Ride completed Successfully!'),
-                      backgroundColor: navigationInfo.color,
-                    ),
-                  );
-                } else {
-                  // Close modal and open in-app Google Maps navigation screen
-                  Navigator.pop(context);
                   // Start ride if pickup is verified
                   if(assignment.booking.status == BookingStatus.pickupVerified) {
                     final api = await ref.read(apiProvider.future);
@@ -297,6 +278,8 @@ class _NavigationContent extends ConsumerWidget {
                     ref.invalidate(currentAssignmentProvider);
                   }
                   if (!context.mounted) return;
+                  // Close modal and open in-app Google Maps navigation screen
+                  Navigator.pop(context);
                   await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => DriverNavigationScreen(
@@ -304,7 +287,6 @@ class _NavigationContent extends ConsumerWidget {
                       ),
                     ),
                   );
-                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: navigationInfo.color,
@@ -366,7 +348,6 @@ class _NavigationContent extends ConsumerWidget {
           color: Colors.green,
           isPickup: true,
           showButton: true,
-          isCompleteAction: false,
         );
 
       case BookingStatus.pickupVerified:
@@ -379,24 +360,9 @@ class _NavigationContent extends ConsumerWidget {
           buttonText: 'Navigate to Drop',
           buttonIcon: Icons.navigation_rounded,
           icon: Icons.navigation_rounded,
-          color: Colors.blue,
+          color: Colors.red,
           isPickup: false,
           showButton: true,
-          isCompleteAction: false,
-        );
-
-      case BookingStatus.dropVerified:
-        return NavigationInfo(
-          title: 'Complete Ride',
-          locationTitle: 'Drop Location',
-          locationIcon: Icons.location_on_rounded,
-          buttonText: 'Complete Ride',
-          buttonIcon: Icons.check_circle_rounded,
-          icon: Icons.check_circle_rounded,
-          color: Colors.purple,
-          isPickup: false,
-          showButton: true,
-          isCompleteAction: true,
         );
 
       default:
@@ -410,7 +376,6 @@ class _NavigationContent extends ConsumerWidget {
           color: Colors.grey,
           isPickup: true,
           showButton: false,
-          isCompleteAction: false,
         );
     }
   }

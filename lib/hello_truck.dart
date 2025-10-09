@@ -190,6 +190,9 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     // Handle fcm events
     ref.watch(fcmEventsHandlerProvider);
 
+    // Handle app lifecycle events
+    ref.watch(appLifecycleHandlerProvider);
+
     // If there is an offered assignment, show booking request screen directly
     final currentAssignment = ref.watch(currentAssignmentProvider);
     if (currentAssignment.hasValue &&
@@ -208,6 +211,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             }
           } finally {
             ref.invalidate(currentAssignmentProvider);
+            ref.invalidate(driverProvider);
           }
         },
         onBookingResponse: (accepted) async {
@@ -226,6 +230,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             // This will cause the UI to transition away when status becomes on_ride/available
             ref.read(hasShownActionModalProvider.notifier).state = false;
             ref.invalidate(currentAssignmentProvider);
+            ref.invalidate(driverProvider);
           }
         },
       );

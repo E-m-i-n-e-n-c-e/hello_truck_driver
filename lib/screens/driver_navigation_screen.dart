@@ -85,7 +85,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
           travelMode: NavigationTravelMode.driving,
         ),
         displayOptions: NavigationDisplayOptions(
-          showDestinationMarkers: true,
+          showDestinationMarkers: false,
           showStopSigns: true,
           showTrafficLights: true,
         ),
@@ -95,6 +95,30 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     _setupListeners();
 
     if (status == NavigationRouteStatus.statusOk) {
+      // Add simple pickup/drop markers using default icons and info windows.
+      await c.addMarkers([
+        if (isPickup)
+          MarkerOptions(
+            position: LatLng(
+              latitude: booking.pickupAddress.latitude,
+              longitude: booking.pickupAddress.longitude,
+            ),
+            infoWindow: const InfoWindow(
+              title: 'Pickup Location',
+            ),
+          ),
+        if(!isPickup)
+        MarkerOptions(
+          position: LatLng(
+            latitude: booking.dropAddress.latitude,
+            longitude: booking.dropAddress.longitude,
+          ),
+          infoWindow: const InfoWindow(
+            title: 'Drop Location',
+          ),
+        ),
+      ]);
+
       if(!await GoogleMapsNavigator.isGuidanceRunning()) {
         await GoogleMapsNavigator.startGuidance();
       }
@@ -145,13 +169,13 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
           'latitude': loc?.latitude,
           'longitude': loc?.longitude,
         };
-        AppLogger.log('driver_navigation_update: $payload');
-        socket.sendMessage('driver_navigation_update', payload);
+        AppLogger.log('driver-navigation-update: $payload');
+        socket.sendMessage('driver-navigation-update', payload);
       },
     );
   }
 
-  Future<void> _cleanup() async {
+  Future<void> _cleanupListenersAndCache() async {
     // clear listeners
     await ref.read(_navInfoListenerProvider.notifier).state?.cancel();
     await ref.read(_roadSnappedLocationUpdatedListenerProvider.notifier).state?.cancel();
@@ -172,7 +196,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     try {
       await GoogleMapsNavigator.clearDestinations();
     } catch (_) {}
-    await _cleanup();
+    await _cleanupListenersAndCache();
   }
 
   void _handleNavigationExit() async {
@@ -195,7 +219,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   Widget build(BuildContext context) {
     final booking = widget.assignment.booking;
     final isPickup = booking.status == BookingStatus.confirmed || booking.status == BookingStatus.pickupArrived;
-    final title = isPickup ? 'Navigate to Pickup' : 'Navigate to Drop';
+    final title = isPickup ? 'Navigating to Pickup' : 'Navigating to Drop';
 
     // Watch for assignment updates to get real-time status changes
     final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
@@ -205,8 +229,9 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
       child: Scaffold(
         appBar: AppBar(
           title: Text(title),
-          backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.9),
-          leading: IconButton(
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          actions: [
+          IconButton(
             icon: const Icon(Icons.close_rounded),
             onPressed: () {
               if(_canExitNavigation(currentAssignmentAsync.value?.booking)) {
@@ -216,8 +241,10 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
               }
             },
           ),
-          // leading: const SizedBox.shrink(),
-          // leadingWidth: 10,
+          const SizedBox(width: 12),
+          ],
+          leading: const SizedBox.shrink(),
+          leadingWidth: 12,
         ),
         body: !_ready
             ? const Center(child: CircularProgressIndicator())

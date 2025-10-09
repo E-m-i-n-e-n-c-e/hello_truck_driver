@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
 void showFinishRideModal(BuildContext context, BookingAssignment assignment) {
@@ -267,8 +268,9 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
       final api = await ref.read(apiProvider.future);
       await finishRide(api);
 
-      // Invalidate assignment provider to refresh the state
+      // Invalidate assignment provider and driver provider to refresh the state
       ref.invalidate(currentAssignmentProvider);
+      ref.invalidate(driverProvider);
 
       if (mounted) {
         Navigator.pop(context);
