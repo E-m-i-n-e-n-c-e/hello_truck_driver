@@ -11,6 +11,7 @@ class DummyBookings {
     // Booking based on @request.http, pickup is Hyderabad, drop is Kerala
     Booking(
       id: 'booking_001',
+      bookingNumber: 1,
       package: Package.agricultural(
         packageType: PackageType.commercial,
         productName: 'Basmati Rice',
@@ -20,12 +21,16 @@ class DummyBookings {
         transportDocUrls: ['https://example.com/transport-doc-001.pdf'],
       ),
       pickupAddress: Address(
+        contactName: 'John Doe',
+        contactPhone: '1234567890',
         formattedAddress: 'Rama Bhaathi Nilayam, Plot 122/A, 301, Moti Nagar Phase III, Kalyan Nagar, Moti Nagar, Hyderabad, Telangana 500114, India',
         addressDetails: '',
         latitude: 17.4510495,
         longitude: 78.42151087,
       ),
       dropAddress: Address(
+        contactName: 'Jane Doe',
+        contactPhone: '0987654321',
         formattedAddress: 'QJ4X+G6, Vallichira, Nechipuzhoor, Kerala 686635, India',
         addressDetails: '',
         latitude: 9.7560312,

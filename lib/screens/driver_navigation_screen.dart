@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_navigation_flutter/google_navigation_flutter.dart';
+import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
@@ -16,6 +17,7 @@ final _roadSnappedLocationUpdatedListenerProvider = StateProvider<StreamSubscrip
 final _remainingTimeOrDistanceChangedListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
 final _lastNavInfoProvider = StateProvider<NavInfo?>((ref) => null);
 final _lastRoadSnappedProvider = StateProvider<LatLng?>((ref) => null);
+final _cachedRouteProvider = StateProvider<String?>((ref) => null);
 
 class DriverNavigationScreen extends ConsumerStatefulWidget {
   final BookingAssignment assignment;
@@ -92,6 +94,9 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
       ),
     );
 
+    // Cache the route polyline for sending with location updates
+    await _cacheRoutePolyline();
+
     _setupListeners();
 
     if (status == NavigationRouteStatus.statusOk) {
@@ -130,6 +135,28 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     }
   }
 
+  Future<void> _cacheRoutePolyline() async {
+    try {
+      final routeSegment = await GoogleMapsNavigator.getCurrentRouteSegment();
+      if (routeSegment != null && routeSegment.latLngs != null) {
+        // Get the route coordinates from latLngs
+        final coordinates = routeSegment.latLngs!
+            .where((latLng) => latLng != null)
+            .map((latLng) => LatLng(latitude: latLng!.latitude, longitude: latLng.longitude))
+            .toList();
+
+        if (coordinates.isNotEmpty) {
+          // Encode coordinates using Google polyline algorithm
+          final encodedPolyline = _encodePolyline(coordinates);
+          ref.read(_cachedRouteProvider.notifier).state = encodedPolyline;
+          AppLogger.log('Cached encoded polyline: ${encodedPolyline.length} characters, ${coordinates.length} points');
+        }
+      }
+    } catch (e) {
+      AppLogger.log('Failed to cache route polyline: $e');
+    }
+  }
+
   Future<void> _setupListeners() async {
     final socket = ref.read(socketServiceProvider);
     final container = ProviderScope.containerOf(context);
@@ -154,7 +181,9 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
       (RemainingTimeOrDistanceChangedEvent event) {
         final nav = container.read(_lastNavInfoProvider);
         final loc = container.read(_lastRoadSnappedProvider);
-        // Build consolidated payload using cached NavInfo and location
+        final routePolyline = container.read(_cachedRouteProvider);
+
+        // Build consolidated payload using cached NavInfo, location, and route
         final Map<String, dynamic> payload = {
           // Always include the event-trigger values for telemetry
           'remainingDistance': event.remainingDistance,
@@ -164,12 +193,15 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
           'timeToFinalDestinationSeconds': nav?.timeToFinalDestinationSeconds,
           'distanceToNextDestinationMeters': nav?.distanceToNextDestinationMeters,
           'timeToNextDestinationSeconds': nav?.timeToNextDestinationSeconds,
-
           // Include cached location
           'latitude': loc?.latitude,
           'longitude': loc?.longitude,
+          // Include route polyline
+          'routePolyline': routePolyline,
+          // Include timestamp
+          'sentAt': DateTime.now().toIso8601String(),
         };
-        AppLogger.log('driver-navigation-update: $payload');
+        AppLogger.log('driver-navigation-update: ${payload.keys.join(', ')}');
         socket.sendMessage('driver-navigation-update', payload);
       },
     );
@@ -187,6 +219,17 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     // Clear cached data
     ref.read(_lastNavInfoProvider.notifier).state = null;
     ref.read(_lastRoadSnappedProvider.notifier).state = null;
+    ref.read(_cachedRouteProvider.notifier).state = null;
+  }
+
+  /// Encode a list of coordinates using google_polyline_algorithm
+  String _encodePolyline(List<LatLng> coordinates) {
+    // Convert PointLatLng to List<List<num>> format expected by google_polyline_algorithm
+    final List<List<num>> coords = coordinates
+        .map((point) => [point.latitude, point.longitude])
+        .toList();
+
+    return encodePolyline(coords);
   }
 
   Future<void> _stopAndCleanup() async {
@@ -205,6 +248,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   }
 
   bool _canExitNavigation(Booking? booking) {
+    // return true;
     if(booking == null) return false;
     final disallowedList = [
       BookingStatus.confirmed,

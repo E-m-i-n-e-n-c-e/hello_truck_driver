@@ -1,3 +1,4 @@
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 
@@ -6,7 +7,10 @@ import '../utils/logger.dart';
 /// Get current pending assignment for the driver
 Future<BookingAssignment?> getCurrentAssignment(API api) async {
   try {
-    final response = await api.get('/bookings/driver/current-assignment');
+    final response = await api.get(
+      '/bookings/driver/current-assignment',
+      policy: CachePolicy.noCache,
+    );
     AppLogger.log("getCurrentAssignment: ${response.data}");
     return BookingAssignment.fromJson(response.data);
   } catch (e) {

@@ -92,7 +92,8 @@ class _NavigationContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final booking = assignment.booking;
+    final currentAssigment = ref.watch(currentAssignmentProvider).value ?? assignment;
+    final booking = currentAssigment.booking;
     final package = booking.package;
 
     // Determine navigation type based on booking status
@@ -272,7 +273,7 @@ class _NavigationContent extends ConsumerWidget {
             ElevatedButton(
               onPressed: () async {
                   // Start ride if pickup is verified
-                  if(assignment.booking.status == BookingStatus.pickupVerified) {
+                  if(booking.status == BookingStatus.pickupVerified) {
                     final api = await ref.read(apiProvider.future);
                     await startRide(api);
                     ref.invalidate(currentAssignmentProvider);
@@ -283,7 +284,7 @@ class _NavigationContent extends ConsumerWidget {
                   await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => DriverNavigationScreen(
-                        assignment: assignment,
+                        assignment: currentAssigment,
                       ),
                     ),
                   );

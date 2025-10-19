@@ -33,16 +33,4 @@ class BookingAssignment {
       booking: Booking.fromJson(json['booking']),
     );
   }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'driverId': driverId,
-      'bookingId': bookingId,
-      'status': status.value,
-      'offeredAt': offeredAt.toIso8601String(),
-      'respondedAt': respondedAt?.toIso8601String(),
-      'booking': booking.toJson(),
-    };
-  }
 }
