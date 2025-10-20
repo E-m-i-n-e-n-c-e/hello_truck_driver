@@ -62,3 +62,27 @@ Future<Vehicle> updateVehicle(
 Future<void> deleteVehicle(dynamic api) async {
   await api.delete('/driver/vehicle');
 }
+
+/// Create vehicle owner for the current driver's vehicle
+Future<VehicleOwner> createVehicleOwner(
+  dynamic api, {
+  required VehicleOwner owner,
+}) async {
+  final response = await api.post(
+    '/driver/vehicle/owner',
+    data: owner.toJson(),
+  );
+  return VehicleOwner.fromJson(response.data);
+}
+
+/// Update vehicle owner for the current driver's vehicle
+Future<VehicleOwner> updateVehicleOwner(
+  dynamic api, {
+  required VehicleOwner owner,
+}) async {
+  final response = await api.put(
+    '/driver/vehicle/owner',
+    data: owner.toJson(),
+  );
+  return VehicleOwner.fromJson(response.data);
+}

@@ -19,6 +19,7 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
 
   final List<FutureProvider<Object>> futureProvidersToEagerInit = [
     driverProvider,
+    assignmentHistoryProvider
   ];
 
   final List<StreamProvider<Object>> streamProvidersToEagerInit = [

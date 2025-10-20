@@ -66,3 +66,8 @@ Future<void> updateDriverStatus(API api, {required bool isAvailable}) async {
     'status': isAvailable ? DriverStatus.available.value : DriverStatus.unavailable.value,
   });
 }
+
+// Update payout details
+Future<void> updateDriverPayoutDetails(API api, {required PayoutDetails payoutDetails}) async {
+  await api.put('/driver/profile/payout-details', data: payoutDetails.toJson());
+}
