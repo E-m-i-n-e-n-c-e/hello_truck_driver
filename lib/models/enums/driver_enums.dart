@@ -1,6 +1,6 @@
 enum VerificationStatus {
   pending('PENDING'),
-  approved('VERIFIED'),
+  verified('VERIFIED'),
   rejected('REJECTED');
 
   const VerificationStatus(this.value);

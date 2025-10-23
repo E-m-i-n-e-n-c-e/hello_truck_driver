@@ -105,235 +105,238 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
     final tt = Theme.of(context).textTheme;
     final screenSize = MediaQuery.of(context).size;
 
-    return Material(
-      type: MaterialType.transparency,
-      child: AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) => Transform.translate(
-          offset: Offset(0, (1 - _scaleAnimation.value) * 100),
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                constraints: BoxConstraints(
-                  maxHeight: screenSize.height * 0.85,
-                ),
-                decoration: BoxDecoration(
-                  color: cs.surface,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(32),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) => markAsReadyPromptSeen(ref),
+      child: Material(
+        type: MaterialType.transparency,
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) => Transform.translate(
+            offset: Offset(0, (1 - _scaleAnimation.value) * 100),
+            child: Opacity(
+              opacity: _fadeAnimation.value,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: double.infinity,
+                  constraints: BoxConstraints(
+                    maxHeight: screenSize.height * 0.85,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 40,
-                      offset: const Offset(0, -10),
+                  decoration: BoxDecoration(
+                    color: cs.surface,
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(32),
                     ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Drag indicator
-                    Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(top: 12, bottom: 8),
-                      decoration: BoxDecoration(
-                        color: cs.onSurface.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 40,
+                        offset: const Offset(0, -10),
                       ),
-                    ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Drag indicator
+                      Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(top: 12, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: cs.onSurface.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
 
-                    // Header with gradient background
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(32),
-                      margin: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            cs.primary,
-                            cs.secondary,
+                      // Header with gradient background
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(32),
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              cs.primary,
+                              cs.secondary,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Column(
+                          children: [
+                            // Icon with animated glow effect
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                    blurRadius: 20,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.local_shipping_rounded,
+                                size: 40,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Ready to take rides today?',
+                              style: tt.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Start earning by accepting ride requests from customers near you',
+                              style: tt.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Column(
-                        children: [
-                          // Icon with animated glow effect
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  spreadRadius: 2,
+
+                      // Content section
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
+                        child: Column(
+                          children: [
+                            // Benefits list
+                            _buildBenefitItem(
+                              context,
+                              Icons.notifications_active_rounded,
+                              'Get instant notifications',
+                              'Receive ride requests immediately',
+                            ),
+                            const SizedBox(height: 16),
+                            _buildBenefitItem(
+                              context,
+                              Icons.location_on_rounded,
+                              'Find nearby rides',
+                              'Connect with customers in your area',
+                            ),
+                            const SizedBox(height: 16),
+                            _buildBenefitItem(
+                              context,
+                              Icons.currency_rupee_rounded,
+                              'Start earning today',
+                              'Maximize your daily income potential',
+                            ),
+
+                            const SizedBox(height: 32),
+
+                            // Action buttons
+                            Row(
+                              children: [
+                                // "Maybe later" button
+                                Expanded(
+                                  flex: 5,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading ? null : _handleSkip,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey.shade100,
+                                      foregroundColor: Colors.grey.shade700,
+                                      disabledBackgroundColor: Colors.grey.shade100,
+                                      disabledForegroundColor: Colors.grey.shade400,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        side: BorderSide(
+                                          color: _isLoading ? Colors.grey.shade300 : Colors.grey.shade400,
+                                          width: 1,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Maybe later',
+                                          style: tt.labelLarge?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: _isLoading ? Colors.grey.shade400 : Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                // "I'm ready!" button
+                                Expanded(
+                                  flex: 6,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading ? null : _handleReady,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: cs.primary,
+                                      foregroundColor: Colors.white,
+                                      disabledBackgroundColor: Colors.grey.shade300,
+                                      disabledForegroundColor: Colors.grey.shade500,
+                                      elevation: 4,
+                                      shadowColor: cs.primary.withValues(alpha: 0.3),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "I'm ready!",
+                                                style: tt.titleMedium?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                  ),
                                 ),
                               ],
                             ),
-                            child: const Icon(
-                              Icons.local_shipping_rounded,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'Ready to take rides today?',
-                            style: tt.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Start earning by accepting ride requests from customers near you',
-                            style: tt.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              height: 1.4,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
 
-                    // Content section
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
-                      child: Column(
-                        children: [
-                          // Benefits list
-                          _buildBenefitItem(
-                            context,
-                            Icons.notifications_active_rounded,
-                            'Get instant notifications',
-                            'Receive ride requests immediately',
-                          ),
-                          const SizedBox(height: 16),
-                          _buildBenefitItem(
-                            context,
-                            Icons.location_on_rounded,
-                            'Find nearby rides',
-                            'Connect with customers in your area',
-                          ),
-                          const SizedBox(height: 16),
-                          _buildBenefitItem(
-                            context,
-                            Icons.currency_rupee_rounded,
-                            'Start earning today',
-                            'Maximize your daily income potential',
-                          ),
+                            const SizedBox(height: 16),
 
-                          const SizedBox(height: 32),
-
-                          // Action buttons
-                          Row(
-                            children: [
-                              // "Maybe later" button
-                              Expanded(
-                                flex: 5,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _handleSkip,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.grey.shade100,
-                                    foregroundColor: Colors.grey.shade700,
-                                    disabledBackgroundColor: Colors.grey.shade100,
-                                    disabledForegroundColor: Colors.grey.shade400,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(
-                                        color: _isLoading ? Colors.grey.shade300 : Colors.grey.shade400,
-                                        width: 1,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Maybe later',
-                                        style: tt.labelLarge?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: _isLoading ? Colors.grey.shade400 : Colors.grey.shade700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                            // Footer text
+                            Text(
+                              'You can change this anytime from the Rides tab',
+                              style: tt.bodySmall?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.5),
                               ),
-                              const SizedBox(width: 12),
-                              // "I'm ready!" button
-                              Expanded(
-                                flex: 6,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _handleReady,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: cs.primary,
-                                    foregroundColor: Colors.white,
-                                    disabledBackgroundColor: Colors.grey.shade300,
-                                    disabledForegroundColor: Colors.grey.shade500,
-                                    elevation: 4,
-                                    shadowColor: cs.primary.withValues(alpha: 0.3),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: _isLoading
-                                      ? SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                          ),
-                                        )
-                                      : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "I'm ready!",
-                                              style: tt.titleMedium?.copyWith(
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Footer text
-                          Text(
-                            'You can change this anytime from the Rides tab',
-                            style: tt.bodySmall?.copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.5),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      ],
                     ),
-                    ],
-                  ),
+                ),
               ),
             ),
           ),

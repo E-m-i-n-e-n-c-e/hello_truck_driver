@@ -12,8 +12,10 @@ final driverProvider = FutureProvider<Driver>((ref) async {
 
 final showReadyPromptProvider = FutureProvider<bool>((ref) async {
   final driver = ref.watch(driverProvider);
-  // If driver status is not yet resolved or not unavailable, return false
-  if (driver.value?.driverStatus != DriverStatus.unavailable) return false;
+  final driverStatus = driver.value?.driverStatus;
+  final verificationStatus = driver.value?.verificationStatus;
+  // If driver status is not yet resolved or not unavailable or driver is not verified, return false
+  if (driverStatus != DriverStatus.unavailable || verificationStatus != VerificationStatus.verified) return false;
   final prefs = await SharedPreferences.getInstance();
   final now = DateTime.now();
   final k = 'last_ready_prompt_date';
