@@ -8,7 +8,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
-void showFinishRideModal(BuildContext context, BookingAssignment assignment) {
+void showFinishRideModal(BuildContext context, BookingAssignment assignment, {required VoidCallback whenComplete}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -31,7 +31,9 @@ void showFinishRideModal(BuildContext context, BookingAssignment assignment) {
         child: _FinishRideContent(assignment: assignment),
       ),
     ),
-  );
+  ).whenComplete(() {
+    whenComplete();
+  });
 }
 
 class _FinishRideContent extends ConsumerStatefulWidget {

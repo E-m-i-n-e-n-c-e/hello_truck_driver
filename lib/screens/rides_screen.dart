@@ -564,7 +564,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     }
 
     return ElevatedButton(
-      onPressed: () => showActionModal(context, assignment),
+      onPressed: () => showActionModal(context, assignment, ref),
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
         foregroundColor: Colors.white,

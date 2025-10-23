@@ -244,7 +244,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           ref.read(hasShownActionModalProvider.notifier).state = true;
-          showActionModal(context, currentAssignment.value!);
+          showActionModal(context, currentAssignment.value!, ref);
         }
       });
     }

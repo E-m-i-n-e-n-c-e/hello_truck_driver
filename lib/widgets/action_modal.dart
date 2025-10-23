@@ -10,6 +10,8 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/widgets/finish_ride_modal.dart';
 
+final isActionModalOpenProvider = StateProvider<bool>((ref) => false);
+
 class NavigationInfo {
   final String title;
   final String locationTitle;
@@ -34,12 +36,19 @@ class NavigationInfo {
   });
 }
 
-void showActionModal(BuildContext context, BookingAssignment assignment) {
+void showActionModal(BuildContext context, BookingAssignment assignment, WidgetRef ref) {
   final booking = assignment.booking;
+
+  // Check if modal is already being shown
+  if (ref.read(isActionModalOpenProvider)) {
+    return;
+  }
 
   // If booking is completed, show finish ride modal instead
   if (booking.status == BookingStatus.dropVerified) {
-    showFinishRideModal(context, assignment);
+    showFinishRideModal(context, assignment, whenComplete: () {
+      ref.read(isActionModalOpenProvider.notifier).state = false;
+    });
     return;
   }
 
@@ -57,6 +66,9 @@ void showActionModal(BuildContext context, BookingAssignment assignment) {
     // Return early for invalid states
     return;
   }
+
+  // Mark modal as open
+  ref.read(isActionModalOpenProvider.notifier).state = true;
 
   showModalBottomSheet(
     context: context,
@@ -80,7 +92,9 @@ void showActionModal(BuildContext context, BookingAssignment assignment) {
         child: _NavigationContent(assignment: assignment),
       ),
     ),
-  );
+  ).whenComplete(() {
+    ref.read(isActionModalOpenProvider.notifier).state = false;
+  });
 }
 
 class _NavigationContent extends ConsumerWidget {
