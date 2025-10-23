@@ -68,12 +68,12 @@ class _AddressStepState extends ConsumerState<AddressStep> {
     );
 
     // Update all address fields
-    widget.controller.addressLine1Controller.text = addressData['addressLine1'] ?? '';
-    widget.controller.landmarkController.text = addressData['landmark'] ?? '';
-    widget.controller.pincodeController.text = addressData['pincode'] ?? '';
-    widget.controller.cityController.text = addressData['city'] ?? '';
-    widget.controller.districtController.text = addressData['district'] ?? '';
-    widget.controller.stateController.text = addressData['state'] ?? '';
+    widget.controller.addressLine1Controller.text = addressData.addressLine1;
+    widget.controller.landmarkController.text = addressData.landmark;
+    widget.controller.pincodeController.text = addressData.pincode;
+    widget.controller.cityController.text = addressData.city;
+    widget.controller.districtController.text = addressData.district;
+    widget.controller.stateController.text = addressData.state;
 
     // Move camera to location
     WidgetsBinding.instance.addPostFrameCallback((_) {
