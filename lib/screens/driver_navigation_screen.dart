@@ -7,6 +7,7 @@ import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/widgets/navigation_overlay.dart';
 
@@ -185,6 +186,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
 
         // Build consolidated payload using cached NavInfo, location, and route
         final Map<String, dynamic> payload = {
+          // Include booking id
+          'bookingId': widget.assignment.bookingId,
           // Always include the event-trigger values for telemetry
           'remainingDistance': event.remainingDistance,
           'remainingTime': event.remainingTime,
@@ -194,8 +197,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
           'distanceToNextDestinationMeters': nav?.distanceToNextDestinationMeters,
           'timeToNextDestinationSeconds': nav?.timeToNextDestinationSeconds,
           // Include cached location
-          'latitude': loc?.latitude,
-          'longitude': loc?.longitude,
+          'latitude': loc?.latitude ?? ref.read(currentPositionStreamProvider).value?.latitude,
+          'longitude': loc?.longitude ?? ref.read(currentPositionStreamProvider).value?.longitude,
           // Include route polyline
           'routePolyline': routePolyline,
           // Include timestamp

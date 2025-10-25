@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import '../models/booking.dart';
 import '../models/package.dart';
-import '../models/address.dart';
 import '../models/enums/booking_enums.dart';
 import '../models/enums/package_enums.dart';
 
@@ -20,7 +19,7 @@ class DummyBookings {
         gstBillUrl: 'https://example.com/gst-bill-001.pdf',
         transportDocUrls: ['https://example.com/transport-doc-001.pdf'],
       ),
-      pickupAddress: Address(
+      pickupAddress: BookingAddress(
         contactName: 'John Doe',
         contactPhone: '1234567890',
         formattedAddress: 'Rama Bhaathi Nilayam, Plot 122/A, 301, Moti Nagar Phase III, Kalyan Nagar, Moti Nagar, Hyderabad, Telangana 500114, India',
@@ -28,7 +27,7 @@ class DummyBookings {
         latitude: 17.4510495,
         longitude: 78.42151087,
       ),
-      dropAddress: Address(
+      dropAddress: BookingAddress(
         contactName: 'Jane Doe',
         contactPhone: '0987654321',
         formattedAddress: 'QJ4X+G6, Vallichira, Nechipuzhoor, Kerala 686635, India',

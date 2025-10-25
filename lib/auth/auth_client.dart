@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:dio/dio.dart';
 import '../models/auth_state.dart';
@@ -69,10 +70,9 @@ class AuthClient with WidgetsBindingObserver {
       _controller.add(AuthState.fromToken(newAccessToken));
       _retryDelay = 0;
     } on Exception catch (e) {
-      if (e is DioException && (e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.sendTimeout ||
-          e.type == DioExceptionType.receiveTimeout)) {
+      final logoutCodes = [400, 401, 403];
+      final shouldLogout = (e is DioException && logoutCodes.contains(e.response?.statusCode)) || (e is PlatformException);
+      if (!shouldLogout) {
         AppLogger.log('🔄 Token refresh error: $e');
         final accessToken = await _storage.read(key: 'accessToken');
         _controller.add(AuthState.fromToken(accessToken, isOffline: true));
@@ -81,7 +81,8 @@ class AuthClient with WidgetsBindingObserver {
         _retryTimer = Timer(Duration(seconds: _retryDelay.clamp(1, 8)), () {
          refreshTokens();
         });
-      } else {
+        //
+      } else if (shouldLogout) {
         // If token is missing or invalid or if corrupted secure storage
         AppLogger.log('🔄 Token refresh error: $e');
         await _storage.deleteAll();
@@ -128,5 +129,6 @@ class AuthClient with WidgetsBindingObserver {
     _refreshTimer?.cancel();
     _refreshTimer = null;
     _controller.close();
+    _appLifecycleController.close();
   }
 }

@@ -1,13 +1,12 @@
 import 'enums/booking_enums.dart';
 import 'package.dart';
-import 'address.dart';
 
 class Booking {
   final String id;
   final int bookingNumber;
   final Package package;
-  final Address pickupAddress;
-  final Address dropAddress;
+  final BookingAddress pickupAddress;
+  final BookingAddress dropAddress;
   final double estimatedCost;
   final double? finalCost;
   final double distanceKm;
@@ -58,12 +57,13 @@ class Booking {
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
+    try {
     return Booking(
       id: json['id'],
       bookingNumber: json['bookingNumber'],
       package: Package.fromJson(json['package']),
-      pickupAddress: Address.fromJson(json['pickupAddress']),
-      dropAddress: Address.fromJson(json['dropAddress']),
+      pickupAddress: BookingAddress.fromJson(json['pickupAddress']),
+      dropAddress: BookingAddress.fromJson(json['dropAddress']),
       estimatedCost: json['estimatedCost']?.toDouble(),
       finalCost: json['finalCost']?.toDouble(),
       distanceKm: json['distanceKm']?.toDouble(),
@@ -96,6 +96,46 @@ class Booking {
       scheduledAt: json['scheduledAt'] != null
           ? DateTime.parse(json['scheduledAt'])
           : null,
+    );
+  } catch (e) {
+    print('json: $json');
+    throw Exception('Error parsing booking: $e');
+  }
+  }
+}
+
+
+class BookingAddress {
+  final String? addressName;
+  final String contactName;
+  final String contactPhone;
+  final String? noteToDriver;
+  final String formattedAddress;
+  final String? addressDetails;
+  final double latitude;
+  final double longitude;
+
+  BookingAddress({
+    this.addressName,
+    required this.contactName,
+    required this.contactPhone,
+    this.noteToDriver,
+    required this.formattedAddress,
+    this.addressDetails,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory BookingAddress.fromJson(Map<String, dynamic> json) {
+    return BookingAddress(
+      addressName: json['addressName'],
+      contactName: json['contactName'],
+      contactPhone: json['contactPhone'],
+      noteToDriver: json['noteToDriver'],
+      formattedAddress: json['formattedAddress'],
+      addressDetails: json['addressDetails'],
+      latitude: json['latitude'] != null ? double.parse(json['latitude'].toString()) : 0.0,
+      longitude: json['longitude'] != null ? double.parse(json['longitude'].toString()) : 0.0,
     );
   }
 }
