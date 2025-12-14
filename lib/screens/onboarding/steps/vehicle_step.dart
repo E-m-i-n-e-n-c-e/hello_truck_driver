@@ -6,6 +6,7 @@ import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_compone
 import 'package:hello_truck_driver/screens/onboarding/widgets/document_upload_card.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 
 class VehicleStep extends ConsumerStatefulWidget {
   final OnboardingController controller;
@@ -110,6 +111,11 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
             }
           },
         ),
+
+        const SizedBox(height: 16),
+
+        // Vehicle Model Dropdown (always visible)
+        _buildVehicleModelDropdown(),
 
         const SizedBox(height: 16),
 
@@ -425,6 +431,62 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildVehicleModelDropdown() {
+    final vehicleModelsAsync = ref.watch(vehicleModelsProvider);
+
+    return vehicleModelsAsync.when(
+      data: (models) {
+        if (models.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.errorContainer,
+            ),
+            child: Text(
+              'No vehicle models available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+            ),
+          );
+        }
+
+        return OnboardingDropdown(
+          controller: widget.controller,
+          label: 'Vehicle Model',
+          icon: Icons.model_training_rounded,
+          value: widget.controller.selectedVehicleModelName,
+          items: models.map((model) =>
+            DropdownMenuItem(
+              value: model.name,
+              child: Text(model.name),
+            )
+          ).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              widget.controller.updateVehicleModel(value);
+            }
+          },
+        );
+      },
+      loading: () => const SizedBox.shrink(), // Already loading at screen level
+      error: (error, stack) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.errorContainer,
+        ),
+        child: Text(
+          'Error loading vehicle models: $error',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onErrorContainer,
+          ),
+        ),
+      ),
     );
   }
 }

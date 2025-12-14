@@ -116,6 +116,7 @@ class OnboardingController {
 
   // Vehicle State
   VehicleType? _selectedVehicleType;
+  String? _selectedVehicleModelName;
   VehicleBodyType? _selectedVehicleBodyType;
   FuelType? _selectedFuelType;
   bool _sameAsDriver = false; // For vehicle owner
@@ -174,6 +175,9 @@ class OnboardingController {
   // Vehicle Image getters
   File? get selectedVehicleImage => _selectedVehicleImage;
   String? get uploadedVehicleImageUrl => _uploadedVehicleImageUrl;
+
+  // Vehicle Model getter
+  String? get selectedVehicleModelName => _selectedVehicleModelName;
 
   OnboardingController({required TickerProvider vsync}) {
     _initializeAnimations(vsync);
@@ -379,6 +383,11 @@ class OnboardingController {
     // Validate vehicle type selection
     if (_selectedVehicleType == null) {
       return 'Please select vehicle type';
+    }
+
+    // Validate vehicle model selection
+    if (_selectedVehicleModelName == null) {
+      return 'Please select vehicle model';
     }
 
     // Validate vehicle body type selection
@@ -699,6 +708,7 @@ class OnboardingController {
     return Vehicle(
       vehicleNumber: vehicleNumberController.text.trim(),
       vehicleType: _selectedVehicleType!,
+      vehicleModelName: _selectedVehicleModelName!,
       vehicleBodyLength: double.parse(vehicleBodyLengthController.text.trim()),
       vehicleBodyType: _selectedVehicleBodyType!,
       fuelType: _selectedFuelType!,
@@ -845,6 +855,12 @@ class OnboardingController {
     _selectedVehicleType = VehicleType.values.firstWhere(
       (e) => e.value == type
     );
+    _selectedVehicleModelName = null;
+    _notifyStateChange();
+  }
+
+  void updateVehicleModel(String modelName) {
+    _selectedVehicleModelName = modelName;
     _notifyStateChange();
   }
 

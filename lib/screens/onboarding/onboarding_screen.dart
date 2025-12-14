@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
@@ -108,16 +109,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         }
         return true;
 
-      case 3: // Documents step
-        final documentError = _controller.validateDocuments();
-        if (documentError != null) {
-          _showError(documentError);
-          _controller.shake();
-          return false;
-        }
-        return true;
-
-      case 4: // Address step
+      case 3: // Address step
         final addressError = _controller.validateAddress();
         if (addressError != null) {
           _showError(addressError);
@@ -126,7 +118,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         }
         return true;
 
-      case 5: // Vehicle step
+      case 4: // Vehicle step
         final vehicleError = _controller.validateVehicle();
         if (vehicleError != null) {
           _showError(vehicleError);
@@ -134,6 +126,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           return false;
         }
         return true;
+
+      case 5: // Documents step
+        final documentError = _controller.validateDocuments();
+        if (documentError != null) {
+          _showError(documentError);
+          _controller.shake();
+          return false;
+        }
+        return true;
+
       case 6: // Payout step
         final payoutError = _controller.validatePayout();
         if (payoutError != null) {
@@ -142,6 +144,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           return false;
         }
         return true;
+
       case 7: // Phone step
         final error = _controller.validatePhoneDetails();
         if (error != null) {
@@ -251,23 +254,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         onSuccess: _showSuccess,
       ),
 
-      // Step 3: Documents
-      DocumentsStep(
-        controller: _controller,
-        onNext: _nextStep,
-        onError: _showError,
-      ),
-
-      // Step 4: Address
+      // Step 3: Address
       AddressStep(
         controller: _controller,
         onNext: _nextStep,
       ),
 
-      // Step 5: Vehicle
+      // Step 4: Vehicle
       VehicleStep(
         controller: _controller,
         onNext: _nextStep,
+      ),
+
+      // Step 5: Documents
+      DocumentsStep(
+        controller: _controller,
+        onNext: _nextStep,
+        onError: _showError,
       ),
 
       // Step 6: Payout
@@ -289,6 +292,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    // Watch vehicle models provider once at screen level
+    ref.watch(vehicleModelsProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

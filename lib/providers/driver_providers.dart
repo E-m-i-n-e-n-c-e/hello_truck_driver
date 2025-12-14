@@ -1,13 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
+import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/api/vehicle_api.dart' as vehicle_api;
 import 'package:shared_preferences/shared_preferences.dart';
 
 final driverProvider = FutureProvider<Driver>((ref) async {
   final api = await ref.watch(apiProvider.future);
   return driver_api.getDriverProfile(api, includeDocuments: true);
+});
+
+final vehicleModelsProvider = FutureProvider.autoDispose<List<VehicleModel>>((ref) async {
+  final api = await ref.watch(apiProvider.future);
+  return vehicle_api.getVehicleModels(api);
 });
 
 final showReadyPromptProvider = FutureProvider<bool>((ref) async {

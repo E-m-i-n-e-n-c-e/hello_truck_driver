@@ -125,7 +125,7 @@ flutter_launcher_icons:
   min_sdk_android: 21
 
   adaptive_icon_foreground: "assets/images/hello_truck_driver.png"
-  adaptive_icon_background: "#009999"
+  adaptive_icon_background: "assets/images/logo_bg.png"
 
   # Fallback icon for iOS and older Android versions
   image_path_ios: "assets/images/logo_icon.png"
@@ -141,7 +141,6 @@ flutter_native_splash:
   color_dark: "#008080"
   image_dark: assets/images/invisible.png
   branding_dark: assets/images/invisible.png
-
   android_12:
     image: assets/images/invisible.png
     icon_background_color: "#009999"

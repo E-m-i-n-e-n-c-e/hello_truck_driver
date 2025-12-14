@@ -1,16 +1,17 @@
+import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/vehicle_owner.dart';
 
 /// Get vehicle information for the current driver
-Future<Vehicle> getVehicle(dynamic api) async {
+Future<Vehicle> getVehicle(API api) async {
   final response = await api.get('/driver/vehicle');
   return Vehicle.fromJson(response.data);
 }
 
 /// Create a new vehicle for the current driver
 Future<Vehicle> createVehicle(
-  dynamic api, {
+  API api, {
   required String vehicleNumber,
   required VehicleType vehicleType,
   required double vehicleBodyLength,
@@ -36,7 +37,7 @@ Future<Vehicle> createVehicle(
 
 /// Update vehicle information for the current driver
 Future<Vehicle> updateVehicle(
-  dynamic api, {
+  API api, {
   String? vehicleNumber,
   VehicleType? vehicleType,
   double? vehicleBodyLength,
@@ -59,13 +60,21 @@ Future<Vehicle> updateVehicle(
 }
 
 /// Delete vehicle for the current driver
-Future<void> deleteVehicle(dynamic api) async {
+Future<void> deleteVehicle(API api) async {
   await api.delete('/driver/vehicle');
+}
+
+/// Get vehicle models
+Future<List<VehicleModel>> getVehicleModels(API api) async {
+  final response = await api.get('/driver/vehicle/models');
+  return (response.data as List)
+      .map((e) => VehicleModel.fromJson(e))
+      .toList();
 }
 
 /// Create vehicle owner for the current driver's vehicle
 Future<VehicleOwner> createVehicleOwner(
-  dynamic api, {
+  API api, {
   required VehicleOwner owner,
 }) async {
   final response = await api.post(
@@ -77,7 +86,7 @@ Future<VehicleOwner> createVehicleOwner(
 
 /// Update vehicle owner for the current driver's vehicle
 Future<VehicleOwner> updateVehicleOwner(
-  dynamic api, {
+  API api, {
   required VehicleOwner owner,
 }) async {
   final response = await api.put(

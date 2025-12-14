@@ -15,6 +15,8 @@ class Driver {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DriverDocuments? documents;
+  final String? payoutMethod;
+  final String? fundAccountId;
 
   const Driver({
     required this.phoneNumber,
@@ -30,6 +32,8 @@ class Driver {
     required this.createdAt,
     required this.updatedAt,
     this.documents,
+    this.payoutMethod,
+    this.fundAccountId,
   });
 
   factory Driver.fromJson(Map<String, dynamic> json) {
@@ -47,6 +51,8 @@ class Driver {
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
       documents: json['documents'] != null ? DriverDocuments.fromJson(json['documents']) : null,
+      payoutMethod: json['payoutMethod'],
+      fundAccountId: json['fundAccountId'],
     );
   }
 }
