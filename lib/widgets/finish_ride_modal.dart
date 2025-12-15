@@ -22,7 +22,7 @@ void showFinishRideModal(BuildContext context, BookingAssignment assignment, {re
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -63,64 +63,66 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
           // Header
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: Colors.green.withValues(alpha: 0.15),
-                ),
-                child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 26),
-              ),
-              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Ride Complete!',
-                      style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                      style: tt.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
-                      'Booking • ${booking.id}',
-                      style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6)),
+                      'Booking #${booking.bookingNumber}',
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
                     ),
                   ],
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close_rounded, color: cs.onSurface.withValues(alpha: 0.6)),
+                icon: Icon(
+                  Icons.close_rounded,
+                  color: cs.onSurface.withValues(alpha: 0.6),
+                  size: 26,
+                ),
+                padding: EdgeInsets.zero,
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Success Message
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+              color: Colors.green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: Colors.green.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             child: Column(
               children: [
-                Icon(Icons.celebration_rounded, color: Colors.green, size: 32),
-                const SizedBox(height: 8),
+                Icon(Icons.celebration_rounded, color: Colors.green, size: 36),
+                const SizedBox(height: 10),
                 Text(
                   'Package delivered successfully!',
                   style: tt.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.green,
+                    fontWeight: FontWeight.w800,
+                    color: Colors. green,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   'Both pickup and drop have been verified. You can now finish this ride.',
-                  style: tt.bodySmall?.copyWith(
+                  style: tt.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
                   textAlign: TextAlign.center,
@@ -128,44 +130,47 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
           // Trip Summary
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Trip Summary',
-                  style: tt.labelMedium?.copyWith(
+                  style: tt.labelLarge?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
                       child: _summaryItem(
                         context,
-                        icon: Icons.straighten,
+                        icon: Icons.straighten_rounded,
                         label: 'Distance',
                         value: '${booking.distanceKm.toStringAsFixed(1)} km',
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: _summaryItem(
                         context,
-                        icon: Icons.payments,
+                        icon: Icons.currency_rupee_rounded,
                         label: 'Earnings',
-                        value: '₹${booking.finalCost?.toStringAsFixed(2) ?? booking.estimatedCost.toStringAsFixed(2)}',
+                        value: '₹${booking.finalCost?.toStringAsFixed(0) ?? booking.estimatedCost.toStringAsFixed(0)}',
                       ),
                     ),
                   ],
@@ -173,28 +178,26 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Finish Ride Button
-          ElevatedButton(
+          FilledButton(
             onPressed: _isLoading ? null : _handleFinishRide,
-            style: ElevatedButton.styleFrom(
+            style: FilledButton.styleFrom(
               backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              elevation: 4,
-              shadowColor: Colors.green.withValues(alpha: 0.4),
+              foregroundColor: cs.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
                     ),
                   )
                 : Row(
@@ -205,8 +208,8 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                       Text(
                         'Finish Ride',
                         style: tt.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          color: cs.onPrimary,
                         ),
                       ),
                     ],
@@ -246,18 +249,23 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
       children: [
         Row(
           children: [
-            Icon(icon, size: 16, color: cs.onSurfaceVariant),
-            const SizedBox(width: 6),
+            Icon(icon, size: 17, color: cs.onSurfaceVariant),
+            const SizedBox(width: 7),
             Text(
               label,
-              style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+              style: tt.labelMedium?.copyWith(
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Text(
           value,
-          style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+          style: tt.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ],
     );

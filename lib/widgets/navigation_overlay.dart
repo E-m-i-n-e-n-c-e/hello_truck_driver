@@ -73,7 +73,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
           border: Border.all(color: color.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: cs.shadow.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -121,7 +121,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: cs.shadow.withValues(alpha: 0.15),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
@@ -199,7 +199,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
       onPressed: isEnabled && !_isLoading ? () => _handleAction(status) : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
-        foregroundColor: Colors.white,
+        foregroundColor: cs.onPrimary,
         elevation: 2,
         shadowColor: buttonColor.withValues(alpha: 0.3),
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -208,12 +208,12 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         ),
       ),
       child: _isLoading
-          ? const SizedBox(
+          ? SizedBox(
               height: 16,
               width: 16,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
               ),
             )
           : Row(
@@ -226,7 +226,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
                   buttonText,
                   style: tt.labelMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: cs.onPrimary,
                   ),
                 ),
               ],
@@ -348,12 +348,13 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Future<String?> _showOtpDialog(BuildContext context, String title, String subtitle) async {
+    final cs = Theme.of(context).colorScheme;
     return showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
+      barrierColor: cs.shadow.withValues(alpha: 0.35),
       builder: (ctx) {
         return OtpBottomSheet(title: title, subtitle: subtitle);
       },

@@ -6,6 +6,7 @@ import 'package:hello_truck_driver/models/vehicle_owner.dart';
 /// Get vehicle information for the current driver
 Future<Vehicle> getVehicle(API api) async {
   final response = await api.get('/driver/vehicle');
+  print(response.data);
   return Vehicle.fromJson(response.data);
 }
 

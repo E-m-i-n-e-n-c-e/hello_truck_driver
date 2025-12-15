@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/models/enums/transaction_enums.dart';
 import 'package:hello_truck_driver/models/ride_summary.dart';
 import 'package:hello_truck_driver/models/transaction_log.dart';
 import 'package:hello_truck_driver/models/wallet_log.dart';
@@ -8,6 +9,8 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
+import 'package:hello_truck_driver/screens/wallet_logs_screen.dart';
+import 'package:hello_truck_driver/screens/transaction_logs_screen.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -305,6 +308,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Row(
       children: [
         Expanded(
+          flex: 5,
           child: _QuickStatCard(
             icon: Icons.verified_rounded,
             label: 'Status',
@@ -312,8 +316,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             color: isAvailable ? Colors.green : Colors.grey,
           ),
         ),
-        const SizedBox(width: 12),
         Expanded(
+          flex: 3,
           child: _QuickStatCard(
             icon: Icons.star_rounded,
             label: 'Score',
@@ -347,7 +351,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               InkWell(
                 onTap: () {
-                  // TODO: Navigate to full wallet history
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WalletLogsScreen(),
+                    ),
+                  );
                 },
                 child: Text(
                   'See All',
@@ -414,7 +423,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               InkWell(
                 onTap: () {
-                  // TODO: Navigate to full transaction history
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TransactionLogsScreen(),
+                    ),
+                  );
                 },
                 child: Text(
                   'See All',

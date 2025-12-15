@@ -129,7 +129,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: cs.shadow.withValues(alpha: 0.2),
                         blurRadius: 40,
                         offset: const Offset(0, -10),
                       ),
@@ -163,29 +163,22 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                               cs.secondary,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Column(
                           children: [
-                            // Icon with animated glow effect
+                            // Icon
                             Container(
-                              width: 80,
-                              height: 80,
+                              width: 72,
+                              height: 72,
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withValues(alpha: 0.3),
-                                    blurRadius: 20,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
+                                color: cs.onPrimary.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.local_shipping_rounded,
-                                size: 40,
-                                color: Colors.white,
+                                size: 36,
+                                color: cs.onPrimary,
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -193,15 +186,15 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                               'Ready to take rides today?',
                               style: tt.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                color: Colors.white,
+                                color: cs.onPrimary,
                               ),
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Start earning by accepting ride requests from customers near you',
-                              style: tt.bodyMedium?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.9),
+                              style: tt.bodyLarge?.copyWith(
+                                color: cs.onPrimary.withValues(alpha: 0.9),
                                 height: 1.4,
                               ),
                               textAlign: TextAlign.center,
@@ -212,7 +205,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
 
                       // Content section
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 16, 32, 32),
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                         child: Column(
                           children: [
                             // Benefits list
@@ -222,14 +215,14 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                               'Get instant notifications',
                               'Receive ride requests immediately',
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             _buildBenefitItem(
                               context,
                               Icons.location_on_rounded,
                               'Find nearby rides',
                               'Connect with customers in your area',
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             _buildBenefitItem(
                               context,
                               Icons.currency_rupee_rounded,
@@ -237,7 +230,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                               'Maximize your daily income potential',
                             ),
 
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 28),
 
                             // Action buttons
                             Row(
@@ -245,35 +238,26 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                 // "Maybe later" button
                                 Expanded(
                                   flex: 5,
-                                  child: ElevatedButton(
+                                  child: OutlinedButton(
                                     onPressed: _isLoading ? null : _handleSkip,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.grey.shade100,
-                                      foregroundColor: Colors.grey.shade700,
-                                      disabledBackgroundColor: Colors.grey.shade100,
-                                      disabledForegroundColor: Colors.grey.shade400,
-                                      elevation: 0,
-                                      padding: const EdgeInsets.symmetric(vertical: 14),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: cs.onSurface.withValues(alpha: 0.7),
+                                      side: BorderSide(
+                                        color: _isLoading
+                                            ? cs.outline.withValues(alpha: 0.3)
+                                            : cs.outline.withValues(alpha: 0.5),
+                                        width: 1.5,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(
-                                          color: _isLoading ? Colors.grey.shade300 : Colors.grey.shade400,
-                                          width: 1,
-                                        ),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Maybe later',
-                                          style: tt.labelLarge?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                            color: _isLoading ? Colors.grey.shade400 : Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ],
+                                    child: Text(
+                                      'Maybe later',
+                                      style: tt.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -285,14 +269,13 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                     onPressed: _isLoading ? null : _handleReady,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: cs.primary,
-                                      foregroundColor: Colors.white,
-                                      disabledBackgroundColor: Colors.grey.shade300,
-                                      disabledForegroundColor: Colors.grey.shade500,
-                                      elevation: 4,
-                                      shadowColor: cs.primary.withValues(alpha: 0.3),
-                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                      foregroundColor: cs.onPrimary,
+                                      disabledBackgroundColor: cs.surfaceContainerHighest,
+                                      disabledForegroundColor: cs.onSurface.withValues(alpha: 0.4),
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(vertical: 18),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
                                     child: _isLoading
@@ -300,18 +283,20 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                             height: 20,
                                             width: 20,
                                             child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                              strokeWidth: 2.5,
+                                              valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
                                             ),
                                           )
                                         : Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
+                                              Icon(Icons.check_circle_rounded, size: 20),
+                                              const SizedBox(width: 8),
                                               Text(
                                                 "I'm ready!",
                                                 style: tt.titleMedium?.copyWith(
                                                   fontWeight: FontWeight.w700,
-                                                  color: Colors.white,
+                                                  color: cs.onPrimary,
                                                 ),
                                               ),
                                             ],
@@ -334,8 +319,8 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                           ],
                         ),
                       ),
-                      ],
-                    ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -354,58 +339,66 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: cs.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              icon,
+              color: cs.primary,
+              size: 24,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: cs.primary,
-            size: 24,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: tt.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cs.onSurface,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: tt.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: tt.bodySmall?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.7),
-                  height: 1.3,
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.7),
+                    height: 1.3,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 // Function to show the modal as a full screen modal
 Future<void> showReadyModal(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
   return showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     isDismissible: false,
     enableDrag: false,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: 0.7),
+    barrierColor: colorScheme.shadow.withValues(alpha: 0.7),
     builder: (context) => const ReadyModal(),
   );
 }

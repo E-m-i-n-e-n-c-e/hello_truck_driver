@@ -24,11 +24,11 @@ class BookingActionButtons extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceBright,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: colorScheme.shadow.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -76,7 +76,7 @@ class BookingActionButtons extends StatelessWidget {
                   icon: Icons.check_rounded,
                   onPressed: isProcessing ? null : onAccept,
                   backgroundColor: colorScheme.primary,
-                  textColor: Colors.white,
+                  textColor: colorScheme.onPrimary,
                   borderColor: colorScheme.primary,
                   isPrimary: true,
                 ),

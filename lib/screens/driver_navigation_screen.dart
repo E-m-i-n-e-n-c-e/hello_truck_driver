@@ -177,8 +177,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     );
 
     ref.read(_remainingTimeOrDistanceChangedListenerProvider.notifier).state ??= GoogleMapsNavigator.setOnRemainingTimeOrDistanceChangedListener(
-      remainingDistanceThresholdMeters: 200, // 200 meters
-      remainingTimeThresholdSeconds: 60, // 1 minute
+      // remainingDistanceThresholdMeters: 200, // 200 meters
+      // remainingTimeThresholdSeconds: 60, // 1 minute
       (RemainingTimeOrDistanceChangedEvent event) {
         final nav = container.read(_lastNavInfoProvider);
         final loc = container.read(_lastRoadSnappedProvider);

@@ -43,7 +43,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: cs.shadow.withValues(alpha: 0.15),
                 blurRadius: 12,
                 offset: const Offset(0, -4),
               ),
@@ -99,9 +99,9 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                     borderRadius: BorderRadius.circular(8),
                     fieldHeight: 50,
                     fieldWidth: 45,
-                    activeFillColor: Colors.white,
-                    inactiveFillColor: Colors.white,
-                    selectedFillColor: Colors.white,
+                    activeFillColor: cs.surface,
+                    inactiveFillColor: cs.surface,
+                    selectedFillColor: cs.surface,
                     activeColor: cs.primary,
                     inactiveColor: cs.outline.withValues(alpha: 0.5),
                     selectedColor: cs.primary,
@@ -134,7 +134,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: cs.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: cs.onPrimary,
                       ),
                       child: const Text('Verify'),
                     ),

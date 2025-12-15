@@ -59,25 +59,49 @@ class DriverDocuments {
 
 class ExpiryAlerts {
   final String? licenseAlert;
+  final String? fcAlert;
   final String? insuranceAlert;
+  final bool isLicenseExpired;
+  final bool isFcExpired;
+  final bool isInsuranceExpired;
+  final DateTime? licenseExpiry;
+  final DateTime? fcExpiry;
+  final DateTime? insuranceExpiry;
 
   const ExpiryAlerts({
     this.licenseAlert,
+    this.fcAlert,
     this.insuranceAlert,
+    this.isLicenseExpired = false,
+    this.isFcExpired = false,
+    this.isInsuranceExpired = false,
+    this.licenseExpiry,
+    this.fcExpiry,
+    this.insuranceExpiry,
   });
 
   factory ExpiryAlerts.fromJson(Map<String, dynamic> json) {
     return ExpiryAlerts(
       licenseAlert: json['licenseAlert'],
+      fcAlert: json['fcAlert'],
       insuranceAlert: json['insuranceAlert'],
+      isLicenseExpired: json['isLicenseExpired'] ?? false,
+      isFcExpired: json['isFcExpired'] ?? false,
+      isInsuranceExpired: json['isInsuranceExpired'] ?? false,
+      licenseExpiry: json['licenseExpiry'] != null ? DateTime.parse(json['licenseExpiry']) : null,
+      fcExpiry: json['fcExpiry'] != null ? DateTime.parse(json['fcExpiry']) : null,
+      insuranceExpiry: json['insuranceExpiry'] != null ? DateTime.parse(json['insuranceExpiry']) : null,
     );
   }
 
-  bool get hasAlerts => licenseAlert != null || insuranceAlert != null;
+  bool get hasAlerts => licenseAlert != null || fcAlert != null || insuranceAlert != null;
+
+  bool get hasExpiredDocuments => isLicenseExpired || isFcExpired || isInsuranceExpired;
 
   List<String> get allAlerts {
     final alerts = <String>[];
     if (licenseAlert != null) alerts.add(licenseAlert!);
+    if (fcAlert != null) alerts.add(fcAlert!);
     if (insuranceAlert != null) alerts.add(insuranceAlert!);
     return alerts;
   }

@@ -83,7 +83,7 @@ void showActionModal(BuildContext context, BookingAssignment assignment, WidgetR
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -122,74 +122,76 @@ class _NavigationContent extends ConsumerWidget {
           // Header
           Row(
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  color: navigationInfo.color.withValues(alpha: 0.15),
-                ),
-                child: Icon(navigationInfo.icon, color: navigationInfo.color, size: 26),
-              ),
-              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       navigationInfo.title,
-                      style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                      style: tt.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
-                      'Booking • ${booking.id}',
-                      style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6)),
+                      'Booking #${booking.bookingNumber}',
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
                     ),
                   ],
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close_rounded, color: cs.onSurface.withValues(alpha: 0.6)),
+                icon: Icon(
+                  Icons.close_rounded,
+                  color: cs.onSurface.withValues(alpha: 0.6),
+                  size: 26,
+                ),
+                padding: EdgeInsets.zero,
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Package Info
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.primary.withValues(alpha: 0.2)),
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    _getPackageIcon(package),
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
+                        'Package',
+                        style: tt.labelMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
                         _getPackageTitle(package),
-                        style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                        style: tt.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         _getFormattedWeight(package),
-                        style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
+                        style: tt.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.7),
+                        ),
                       ),
                     ],
                   ),
@@ -197,26 +199,33 @@ class _NavigationContent extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
           // Location Section
           Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
                     color: navigationInfo.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(navigationInfo.locationIcon, color: navigationInfo.color, size: 18),
+                  child: Icon(
+                    navigationInfo.locationIcon,
+                    color: navigationInfo.color,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -230,7 +239,7 @@ class _NavigationContent extends ConsumerWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         navigationInfo.isPickup
                             ? booking.pickupAddress.formattedAddress
@@ -241,7 +250,7 @@ class _NavigationContent extends ConsumerWidget {
                         ),
                       ),
                       if (navigationInfo.isPickup && (booking.pickupAddress.addressDetails?.isNotEmpty ?? false)) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           booking.pickupAddress.addressDetails!,
                           style: tt.bodySmall?.copyWith(
@@ -250,7 +259,7 @@ class _NavigationContent extends ConsumerWidget {
                           ),
                         ),
                       ] else if (!navigationInfo.isPickup && (booking.dropAddress.addressDetails?.isNotEmpty ?? false)) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(
                           booking.dropAddress.addressDetails!,
                           style: tt.bodySmall?.copyWith(
@@ -268,23 +277,36 @@ class _NavigationContent extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Distance Info
-          Row(
-            children: [
-              Expanded(
-                child: _infoChip(
-                  context,
-                  icon: Icons.straighten,
-                  label: '${booking.distanceKm.toStringAsFixed(1)} km',
-                  color: cs.primary,
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
+                width: 1,
               ),
-            ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.straighten_rounded, size: 18, color: cs.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Text(
+                  '${booking.distanceKm.toStringAsFixed(1)} km',
+                  style: tt.titleSmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Action Button
           if (navigationInfo.showButton)
-            ElevatedButton(
+            FilledButton(
               onPressed: () async {
                   // Start ride if pickup is verified
                   if(booking.status == BookingStatus.pickupVerified) {
@@ -303,14 +325,12 @@ class _NavigationContent extends ConsumerWidget {
                     ),
                   );
               },
-              style: ElevatedButton.styleFrom(
+              style: FilledButton.styleFrom(
                 backgroundColor: navigationInfo.color,
-                foregroundColor: Colors.white,
-                elevation: 4,
-                shadowColor: navigationInfo.color.withValues(alpha: 0.4),
+                foregroundColor: cs.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Row(
@@ -321,8 +341,8 @@ class _NavigationContent extends ConsumerWidget {
                   Text(
                     navigationInfo.buttonText,
                     style: tt.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      color: cs.onPrimary,
                     ),
                   ),
                 ],
@@ -392,40 +412,6 @@ class _NavigationContent extends ConsumerWidget {
           isPickup: true,
           showButton: false,
         );
-    }
-  }
-
-  Widget _infoChip(BuildContext context, {required IconData icon, required String label, required Color color}) {
-    final tt = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: tt.labelMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getPackageIcon(Package package) {
-    if (package.productType.value == 'AGRICULTURAL') {
-      return '🌾';
-    } else {
-      return '📦';
     }
   }
 

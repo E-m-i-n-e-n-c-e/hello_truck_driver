@@ -160,7 +160,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: colorScheme.shadow.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -218,7 +218,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                       child: Material(
                         elevation: 4,
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
+                        color: colorScheme.surfaceBright,
                         child: InkWell(
                           onTap: _showAddressSearchModal,
                           borderRadius: BorderRadius.circular(12),
@@ -239,7 +239,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                       child: Material(
                         elevation: 4,
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
+                        color: colorScheme.surfaceBright,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
                           onTap: () async {
@@ -263,7 +263,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                       child: Material(
                         elevation: 4,
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.white,
+                        color: colorScheme.surfaceBright,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -282,7 +282,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                                 child: Icon(Icons.add, size: 20, color: Theme.of(context).colorScheme.primary),
                               ),
                             ),
-                            const Divider(height: 1, thickness: 1, color: Color(0xFFDDDDDD)),
+                            Divider(height: 1, thickness: 1, color: colorScheme.outline.withValues(alpha: 0.3)),
                             InkWell(
                               onTap: () {
                                 _mapController?.moveCamera(CameraUpdate.zoomOut());

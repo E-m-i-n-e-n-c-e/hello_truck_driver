@@ -137,7 +137,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       Polyline(
         polylineId: const PolylineId('route'),
         points: [pickup, drop], // Direct line first to test
-        color: Colors.cyan,
+        color: Theme.of(context).colorScheme.primary,
         width: 8,
         startCap: Cap.roundCap,
         endCap: Cap.roundCap,
@@ -247,11 +247,12 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: colorScheme.inverseSurface,
         body: Stack(
           children: [
             // Background Map
@@ -290,8 +291,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withValues(alpha: 0.3),
-                    Colors.black.withValues(alpha: 0.6),
+                    colorScheme.shadow.withValues(alpha: 0.3),
+                    colorScheme.shadow.withValues(alpha: 0.6),
                   ],
                 ),
               ),
@@ -312,10 +313,10 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
             // Status overlay when processing
             if (_isProcessing)
               Container(
-                color: Colors.black.withValues(alpha: 0.5),
-                child: const Center(
+                color: colorScheme.shadow.withValues(alpha: 0.5),
+                child: Center(
                   child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
                   ),
                 ),
               ),
@@ -332,11 +333,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceBright,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: colorScheme.shadow.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -485,16 +486,16 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.currency_rupee_rounded,
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             size: 18,
           ),
           const SizedBox(width: 4),
           Text(
             widget.booking.estimatedCost.toStringAsFixed(2),
             style: textTheme.titleMedium?.copyWith(
-              color: Colors.white,
+              color: colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -815,7 +816,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
             onPressed: _isProcessing ? null : () => _handleBookingResponse(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primary,
-              foregroundColor: Colors.white,
+              foregroundColor: colorScheme.onPrimary,
               disabledBackgroundColor: Colors.grey.shade300,
               disabledForegroundColor: Colors.grey.shade500,
               elevation: 4,
@@ -831,7 +832,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
                     ),
                   )
                 : Row(
@@ -846,7 +847,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                         'Accept Ride',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                         ),
                       ),
                     ],

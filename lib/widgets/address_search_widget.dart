@@ -107,11 +107,12 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -158,16 +159,16 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
               controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Search for location...',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF22AAAE)),
+                prefixIcon: Icon(Icons.search, color: colorScheme.primary),
                 suffixIcon: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: Padding(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Color(0xFF22AAAE),
+                            color: colorScheme.primary,
                           ),
                         ),
                       )
@@ -188,7 +189,7 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF22AAAE), width: 2),
+                  borderSide: BorderSide(color: colorScheme.primary, width: 2),
                 ),
                 filled: true,
                 fillColor: Colors.grey.shade50,

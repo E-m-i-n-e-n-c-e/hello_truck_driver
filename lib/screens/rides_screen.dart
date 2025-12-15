@@ -45,56 +45,64 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.secondary.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.directions_car_filled_rounded, color: colorScheme.onPrimary, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                'Rides',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: colorScheme.onPrimary,
-                ),
-              ),
-            ],
+        title: Text(
+          'Rides',
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: colorScheme.onSurface,
           ),
         ),
         backgroundColor: colorScheme.surface,
         elevation: 0,
-        centerTitle: true,
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Active'),
-            Tab(text: 'History'),
-          ],
-          labelColor: colorScheme.primary,
-          unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
-          indicatorColor: colorScheme.primary,
+        centerTitle: false,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(text: 'Active'),
+                Tab(text: 'History'),
+              ],
+              labelColor: colorScheme.onPrimary,
+              unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
+              labelStyle: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+              unselectedLabelStyle: textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              indicator: BoxDecoration(
+                color: colorScheme.primary,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              indicatorSize: TabBarIndicatorSize.tab,
+              dividerColor: Colors.transparent,
+              padding: const EdgeInsets.all(4),
+            ),
+          ),
         ),
       ),
       body: Column(
         children: [
           // Availability Card (only show when no active ride)
           driverAsync.when(
-            loading: () => _availabilitySkeleton(context),
-            error: (_, _) => _availabilitySkeleton(context),
+            loading: () => const SizedBox(height: 4),
+            error: (_, _) => const SizedBox(height: 4),
             data: (driver) {
               final hasActiveRide = currentAssignmentAsync.hasValue &&
                   currentAssignmentAsync.value?.status == AssignmentStatus.accepted;
               final isOnRideOrAssigned = driver.driverStatus == DriverStatus.onRide || driver.driverStatus == DriverStatus.rideOffered;
               if (hasActiveRide || isOnRideOrAssigned) {
-                return const SizedBox.shrink();
+                return const SizedBox(height: 4);
               }
-              return Padding(
-                padding: const EdgeInsets.all(16),
+              return Container(
+                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: _availabilityCard(
                   context,
                   isAvailable: driver.driverStatus == DriverStatus.available,
@@ -121,22 +129,50 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
 
     return currentAssignmentAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: CircularProgressIndicator(strokeWidth: 3),
+        ),
+      ),
       error: (error, stackTrace) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, color: Colors.red.shade400, size: 48),
-              const SizedBox(height: 12),
-              Text('Failed to load active ride', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 6),
-              Text('$error', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
-              const SizedBox(height: 16),
-              ElevatedButton(
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Failed to load active ride',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$error',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
                 onPressed: () => ref.invalidate(currentAssignmentProvider),
-                child: const Text('Retry'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
               ),
             ],
           ),
@@ -151,16 +187,11 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             Icons.directions_car_filled_rounded,
           );
         }
-        return RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(currentAssignmentProvider);
-          },
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _activeRideTile(context, assignment),
-            ],
-          ),
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _activeRideTile(context, assignment),
+          ],
         );
       },
     );
@@ -170,22 +201,50 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     final historyAsync = ref.watch(assignmentHistoryProvider);
 
     return historyAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: CircularProgressIndicator(strokeWidth: 3),
+        ),
+      ),
       error: (error, stackTrace) => Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.error_outline, color: Colors.red.shade400, size: 48),
-              const SizedBox(height: 12),
-              Text('Failed to load ride history', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 6),
-              Text('$error', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
-              const SizedBox(height: 16),
-              ElevatedButton(
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Failed to load ride history',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '$error',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
                 onPressed: () => ref.invalidate(assignmentHistoryProvider),
-                child: const Text('Retry'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry'),
               ),
             ],
           ),
@@ -200,18 +259,13 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             Icons.history_rounded,
           );
         }
-        return RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(assignmentHistoryProvider);
+        return ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: items.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            return _historyTile(context, items[index]);
           },
-          child: ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              return _historyTile(context, items[index]);
-            },
-          ),
         );
       },
     );
@@ -258,71 +312,68 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     );
   }
 
-  Widget _availabilitySkeleton(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        height: 78,
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-    );
-  }
 
   Widget _availabilityCard(BuildContext context, {required bool isAvailable}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    return Card(
-      elevation: 1.2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isAvailable ? Colors.green.withValues(alpha: 0.07) : cs.surfaceContainer.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isAvailable
+              ? Colors.green.withValues(alpha: 0.3)
+              : cs.outline.withValues(alpha: 0.2),
+          width: 1.5,
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: isAvailable ? Colors.green.withValues(alpha: 0.15) : cs.secondary.withValues(alpha: 0.15),
-              ),
-              child: Icon(
-                isAvailable ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                color: isAvailable ? Colors.green : cs.secondary,
-              ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: isAvailable
+                  ? Colors.green.withValues(alpha: 0.15)
+                  : cs.surfaceContainerHigh,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isAvailable ? 'Available for rides' : 'Unavailable',
-                    style: tt.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    isAvailable
-                        ? 'You will receive new ride offers.'
-                        : 'Go available to start receiving offers.',
-                      style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
-                  ),
-                ],
-              ),
+            child: Icon(
+              isAvailable ? Icons.check_circle_rounded : Icons.do_not_disturb_on_rounded,
+              color: isAvailable ? Colors.green : cs.onSurface.withValues(alpha: 0.5),
+              size: 26,
             ),
-            const SizedBox(width: 8),
-            Switch.adaptive(
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAvailable ? 'You\'re available' : 'You\'re unavailable',
+                  style: tt.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isAvailable
+                      ? 'Ready to accept new ride requests'
+                      : 'Turn on to start receiving rides',
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Transform.scale(
+            scale: 0.9,
+            child: Switch.adaptive(
               value: isAvailable,
               onChanged: _toggling
                   ? null
@@ -347,8 +398,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                       }
                     },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -360,178 +411,201 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     final booking = assignment.booking;
     final package = booking.package;
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: cs.primaryContainer.withValues(alpha: 0.07),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.primary.withValues(alpha: 0.3),
+          width: 1.5,
         ),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with booking number and status
+          Row(
             children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: cs.primary.withValues(alpha: 0.15),
-                    ),
-                    child: Icon(Icons.directions_car_filled_rounded, color: cs.primary),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Active Ride', style: tt.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                        const SizedBox(height: 4),
-                        Text('Booking • ${booking.id}', style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
-                    ),
-                    child: Text(
-                      booking.status.value.replaceAll('_', ' '),
-                      style: tt.labelSmall?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Package Details Section
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-                ),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: cs.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _getPackageIcon(package),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getPackageTitle(package),
-                                style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                _getFormattedWeight(package),
-                                style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_getPackageDescription(package).isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        _getPackageDescription(package),
-                        style: tt.bodySmall?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.6),
-                          height: 1.3,
-                        ),
+                    Text(
+                      'Booking #${booking.bookingNumber}',
+                      style: tt.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _getPackageTitle(package),
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // Pickup Location
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.trip_origin_rounded, size: 18, color: Colors.green),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Pickup', style: tt.labelSmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6))),
-                        Text(booking.pickupAddress.formattedAddress, style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
-                      ],
-                    ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  booking.status.value.replaceAll('_', ' '),
+                  style: tt.labelMedium?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 10),
-
-              // Drop Location
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.location_on_rounded, size: 18, color: Colors.red),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Drop', style: tt.labelSmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.6))),
-                        Text(booking.dropAddress.formattedAddress, style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Distance and Cost Chips
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  _chip(context, icon: Icons.straighten, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
-                  _chip(context, icon: Icons.payments, label: '₹${booking.finalCost?.toStringAsFixed(2) ?? booking.estimatedCost.toStringAsFixed(2)}'),
-                  if (booking.scheduledAt != null)
-                    _chip(context, icon: Icons.schedule, label: booking.formattedPickupTime),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Dynamic Action Button
-              _buildActionButton(context, assignment, tt),
             ],
           ),
-        ),
-      );
+
+          const SizedBox(height: 16),
+
+          // Route section
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                // Pickup
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.trip_origin_rounded,
+                        size: 16,
+                        color: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Pickup',
+                            style: tt.labelSmall?.copyWith(
+                              color: cs.onSurface.withValues(alpha: 0.6),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            booking.pickupAddress.formattedAddress,
+                            style: tt.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 14),
+                      Container(
+                        width: 2,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: cs.outline.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Drop
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.location_on_rounded,
+                        size: 16,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Drop',
+                            style: tt.labelSmall?.copyWith(
+                              color: cs.onSurface.withValues(alpha: 0.6),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            booking.dropAddress.formattedAddress,
+                            style: tt.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // Info chips
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
+              _chip(context, icon: Icons.straighten_rounded, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+              _chip(context, icon: Icons.currency_rupee_rounded, label: booking.finalCost?.toStringAsFixed(0) ?? booking.estimatedCost.toStringAsFixed(0)),
+              if (booking.scheduledAt != null)
+                _chip(context, icon: Icons.schedule_rounded, label: booking.formattedPickupTime),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // Dynamic Action Button
+          _buildActionButton(context, assignment, tt),
+        ],
+      ),
+    );
   }
 
   Widget _buildActionButton(BuildContext context, BookingAssignment assignment, TextTheme tt) {
+    final cs = Theme.of(context).colorScheme;
     final booking = assignment.booking;
 
     // Determine button properties based on booking status
@@ -567,7 +641,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
       onPressed: () => showActionModal(context, assignment, ref),
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
-        foregroundColor: Colors.white,
+        foregroundColor: cs.onPrimary,
         elevation: 2,
         shadowColor: buttonColor.withValues(alpha: 0.3),
         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -584,7 +658,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             buttonText,
             style: tt.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
-              color: Colors.white,
+              color: cs.onPrimary,
             ),
           ),
         ],
@@ -592,12 +666,186 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     );
   }
 
-  String _getPackageIcon(Package package) {
-    if (package.productType.value == 'AGRICULTURAL') {
-      return '🌾';
-    } else {
-      return '📦';
+
+  Widget _historyTile(BuildContext context, BookingAssignment assignment) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+    final booking = assignment.booking;
+    final package = booking.package;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: Booking number + Package
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Booking #${booking.bookingNumber}',
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _getPackageTitle(package),
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(booking.status, cs).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: Text(
+                  booking.status.value.replaceAll('_', ' '),
+                  style: tt.labelSmall?.copyWith(
+                    color: _getStatusColor(booking.status, cs),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Pickup location
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  Icons.trip_origin_rounded,
+                  size: 14,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  booking.pickupAddress.formattedAddress,
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.8),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // Drop location
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  Icons.location_on_rounded,
+                  size: 14,
+                  color: Colors.red,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  booking.dropAddress.formattedAddress,
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.8),
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Info chips
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
+              _chip(context, icon: Icons.straighten_rounded, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+              _chip(context, icon: Icons.currency_rupee_rounded, label: booking.finalCost?.toStringAsFixed(0) ?? booking.estimatedCost.toStringAsFixed(0)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(BookingStatus status, ColorScheme cs) {
+    switch (status) {
+      case BookingStatus.completed:
+        return Colors.green;
+      case BookingStatus.cancelled:
+        return Colors.red;
+      default:
+        return cs.primary;
     }
+  }
+
+  Widget _chip(BuildContext context, {required IconData icon, required String label}) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        color: cs.surfaceContainerHighest,
+        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: cs.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: tt.labelMedium?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   String _getPackageTitle(Package package) {
@@ -618,89 +866,4 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
       return '$weight KG';
     }
   }
-
-  String _getPackageDescription(Package package) {
-    if (package.productType.value == 'AGRICULTURAL') {
-      return 'Agricultural product for ${package.packageType.value.toLowerCase()} use';
-    } else {
-      final dimensions = package.length != null &&
-              package.width != null &&
-              package.height != null
-          ? '${package.length}×${package.width}×${package.height} ${package.dimensionUnit?.value ?? 'CM'}'
-          : '';
-      return dimensions.isNotEmpty ? 'Dimensions: $dimensions' : '';
-    }
-  }
-
-  Widget _historyTile(BuildContext context, BookingAssignment assignment) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
-    final booking = assignment.booking;
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: cs.secondaryContainer.withValues(alpha: 0.07),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: cs.secondaryContainer,
-              ),
-              child: Icon(Icons.history_rounded, color: cs.surface, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Booking • ${booking.id}', style: tt.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: cs.onSurface,
-                  )),
-                  const SizedBox(height: 4),
-                  Text('${booking.pickupAddress.formattedAddress} → ${booking.dropAddress.formattedAddress}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                        style: tt.bodySmall?.copyWith(color: cs.onSurface.withValues(alpha: 0.7))),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            _chip(context, icon: Icons.straighten, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _chip(BuildContext context, {required IconData icon, required String label}) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        color: cs.surfaceContainerHighest,
-        border: Border.all(color: cs.outline.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: cs.onSurfaceVariant),
-          const SizedBox(width: 6),
-          Text(label, style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-        ],
-      ),
-    );
-  }
 }
-
-

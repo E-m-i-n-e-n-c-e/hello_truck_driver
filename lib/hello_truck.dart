@@ -6,11 +6,12 @@ import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart'
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/screens/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
 import 'package:hello_truck_driver/screens/rides_screen.dart';
-import 'package:hello_truck_driver/screens/payments_screen.dart';
+import 'package:hello_truck_driver/screens/earnings/earnings_screen.dart';
 import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
@@ -102,14 +103,14 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
         title: Text(
           title,
           style: textTheme.titleLarge?.copyWith(
-            color: Colors.black87,
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
         content: Text(
           content,
           style: textTheme.bodyMedium?.copyWith(
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         shape: RoundedRectangleBorder(
@@ -120,7 +121,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               secondaryText,
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             ),
           ),
           TextButton(
@@ -139,8 +140,8 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     if (!_screenLoaded[index]) {
       _screens[index] = switch (index) {
         0 => const DashboardScreen(),
-        1 => const RidesScreen(),
-        2 => const PaymentsScreen(),
+        1 => const EarningsScreen(),
+        2 => const RidesScreen(),
         3 => const ProfileScreen(),
         _ => const SizedBox.shrink(),
       };
@@ -259,11 +260,20 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemSelected: (index) {
-          if (index == 3 || index == 1) {
-            ref.invalidate(driverProvider);
-            if (index == 1) {
+          if (index == 3 || index == 2 || index == 1) {
+            if (index == 3) {
+              // Profile screen
+              ref.invalidate(driverProvider);
+            } else if (index == 2) {
+              // Rides screen
+              ref.invalidate(driverProvider);
               ref.invalidate(currentAssignmentProvider);
               ref.invalidate(assignmentHistoryProvider);
+            } else if (index == 1) {
+              // Payments screen
+              ref.invalidate(driverProvider);
+              ref.invalidate(walletLogsProvider);
+              ref.invalidate(transactionLogsProvider);
             }
           }
           setState(() {

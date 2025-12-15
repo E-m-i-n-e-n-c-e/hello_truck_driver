@@ -4,6 +4,7 @@ import 'package:hello_truck_driver/models/documents.dart';
 /// Get driver documents
 Future<DriverDocuments> getDriverDocuments(API api) async {
   final response = await api.get('/driver/documents');
+  print(response.data);
   return DriverDocuments.fromJson(response.data);
 }
 

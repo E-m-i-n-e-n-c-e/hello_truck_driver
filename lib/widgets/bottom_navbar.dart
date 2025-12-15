@@ -18,15 +18,14 @@ class CustomBottomNavigationBar extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 420),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: colorScheme.surface.withValues(alpha: 0.7),
           border: Border(top: BorderSide(color: colorScheme.outline.withValues(alpha: 0.1))),
         ),
         child: NavigationBar(
           destinations: [
             _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: 'Home', colorScheme: colorScheme),
             _buildNavItem(icon: Icons.directions_car_filled_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: 'Payments', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.person_rounded, index: 3, label: 'Profile', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.person_rounded, index: 2, label: 'Profile', colorScheme: colorScheme),
           ],
         ),
       ),

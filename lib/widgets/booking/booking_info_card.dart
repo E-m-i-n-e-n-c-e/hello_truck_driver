@@ -16,15 +16,16 @@ class BookingInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceBright,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: colorScheme.shadow.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -84,16 +85,16 @@ class BookingInfoCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
+          Icon(
             Icons.currency_rupee_rounded,
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             size: 18,
           ),
           const SizedBox(width: 4),
           Text(
             booking.estimatedCost.toStringAsFixed(2),
             style: textTheme.titleMedium?.copyWith(
-              color: Colors.white,
+              color: colorScheme.onPrimary,
               fontWeight: FontWeight.bold,
             ),
           ),

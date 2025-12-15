@@ -12,6 +12,7 @@ class BookingTimerBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final progress = remainingSeconds / totalSeconds;
 
     // Change color based on remaining time
@@ -28,10 +29,10 @@ class BookingTimerBar extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.8),
+        color: colorScheme.inverseSurface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: colorScheme.onInverseSurface.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -45,7 +46,7 @@ class BookingTimerBar extends StatelessWidget {
               Text(
                 'Booking Request',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: colorScheme.onInverseSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -73,7 +74,7 @@ class BookingTimerBar extends StatelessWidget {
           Container(
             height: 6,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: colorScheme.onInverseSurface.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(3),
             ),
             child: ClipRRect(
@@ -98,7 +99,7 @@ class BookingTimerBar extends StatelessWidget {
                 ? 'Accept or decline this booking request'
                 : 'Time is running out!',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.8),
+              color: colorScheme.onInverseSurface.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),

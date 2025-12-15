@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 
 import '../utils/logger.dart';
 
@@ -18,8 +19,12 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
   ref.invalidate(currentAssignmentProvider);
 
   final List<FutureProvider<Object>> futureProvidersToEagerInit = [
-    driverProvider,
-    assignmentHistoryProvider
+    // driverProvider,
+    // assignmentHistoryProvider,
+    // rideSummaryProvider,
+    // expiryAlertsProvider,
+    // walletLogsProvider,
+    // transactionLogsProvider,
   ];
 
   final List<StreamProvider<Object>> streamProvidersToEagerInit = [
@@ -28,11 +33,13 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
   ];
 
   final List<ProviderListenable> providersToEagerInit = [
-    ...futureProvidersToEagerInit,
     ...streamProvidersToEagerInit,
+    ...futureProvidersToEagerInit,
   ];
 
   for (final provider in providersToEagerInit) {
+    ref.invalidate(provider as ProviderOrFamily);
+    AppLogger.log("Invalidated provider: ${provider.toString()}");
     ref.read(provider);
   }
 
@@ -40,6 +47,7 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
     AppLogger.log('AppInitializerProvider disposed');
     for (final provider in providersToEagerInit) {
       ref.invalidate(provider as ProviderOrFamily);
+      AppLogger.log("Invalidated provider: ${provider.toString()}");
     }
     socketService.dispose();
     fcmService.stop();
