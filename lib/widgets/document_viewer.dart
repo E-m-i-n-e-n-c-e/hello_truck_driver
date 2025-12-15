@@ -42,10 +42,10 @@ class DocumentViewer extends ConsumerWidget {
           : _buildImageViewer(context, ref, documentUrl!);
     }
 
-    // Otherwise, try to get from driver profile (profile scenario)
-    return ref.watch(driverProvider).when(
-      data: (driver) {
-        if (driver.documents == null) {
+    // Otherwise, try to get from documents provider (profile scenario)
+    return ref.watch(documentsProvider).when(
+      data: (documents) {
+        if (documents == null) {
           return _buildErrorState(
             context,
             ref,
@@ -54,7 +54,7 @@ class DocumentViewer extends ConsumerWidget {
           );
         }
 
-        final String url = _getDocumentUrl(driver.documents!, documentType);
+        final String url = _getDocumentUrl(documents, documentType);
         if (url.isEmpty) {
           return _buildErrorState(
             context,
@@ -206,7 +206,7 @@ class DocumentViewer extends ConsumerWidget {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () {
-              ref.invalidate(driverProvider);
+              ref.invalidate(documentsProvider);
             },
             icon: const Icon(Icons.refresh),
             label: const Text('Retry'),

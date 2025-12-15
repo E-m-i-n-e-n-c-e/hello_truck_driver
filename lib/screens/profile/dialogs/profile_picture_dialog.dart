@@ -226,12 +226,12 @@ class _ProfilePictureDialogState extends ConsumerState<ProfilePictureDialog> {
                     ),
                   ),
                   child: _isUploading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onSecondary),
                           ),
                         )
                       : const Text('Upload Picture'),

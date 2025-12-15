@@ -324,12 +324,12 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
                         foregroundColor: colorScheme.onSecondary,
                       ),
                       child: _isUploading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onSecondary),
                               ),
                             )
                           : const Text('Upload'),

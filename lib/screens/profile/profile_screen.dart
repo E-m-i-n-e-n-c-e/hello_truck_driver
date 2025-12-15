@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/screens/profile/dialogs/document_upload_dialog.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
-import 'package:hello_truck_driver/widgets/document_viewer.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/profile_edit_dialogs.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/profile_picture_dialog.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/email_link_dialog.dart';
+import 'package:hello_truck_driver/screens/profile/documents_screen.dart';
+import 'package:hello_truck_driver/screens/profile/vehicle_screen.dart';
+import 'package:hello_truck_driver/screens/profile/address_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -18,60 +19,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends ConsumerState<ProfileScreen>
-    with TickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _reUploadDocument(String documentType, String title) async {
-    final documents = (await ref.read(driverProvider.future)).documents;
-    if (documents == null) return;
-
-    final currentExpiry = switch (documentType) {
-      'license' => documents.licenseExpiry,
-      'fc' => documents.fcExpiry,
-      'insurance' => documents.insuranceExpiry,
-      _ => null,
-    };
-
-    final currentUrl = switch (documentType) {
-      'license' => documents.licenseUrl,
-      'rcBook' => documents.rcBookUrl,
-      'fc' => documents.fcUrl,
-      'insurance' => documents.insuranceUrl,
-      'aadhar' => documents.aadharUrl,
-      'ebBill' => documents.ebBillUrl,
-      _ => '',
-    };
-
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => DocumentReUploadDialog(
-        title: title,
-        documentType: documentType,
-        currentExpiry: currentExpiry,
-        currentUrl: currentUrl,
-        onSuccess: () {
-          ref.invalidate(driverProvider);
-          SnackBars.success(context, '$title re-uploaded successfully');
-        },
-      ),
-    );
-  }
-
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   String _getVerificationStatusText(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
@@ -100,182 +48,405 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
     final driverAsync = ref.watch(driverProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Profile',
-          style: textTheme.titleLarge?.copyWith(
-            color: colorScheme.onSecondary,
-            fontWeight: FontWeight.w600,
+      backgroundColor: cs.surface,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(driverProvider);
+          ref.invalidate(documentsProvider);
+          ref.invalidate(vehicleProvider);
+          ref.invalidate(addressProvider);
+        },
+        child: driverAsync.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(strokeWidth: 3),
           ),
+          error: (error, stack) => _buildErrorState(context, error),
+          data: (driver) => _buildProfileContent(context, driver),
         ),
-        backgroundColor: colorScheme.secondary.withValues(alpha: 0.8),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: colorScheme.onSecondary,
-          unselectedLabelColor: colorScheme.onSecondary.withValues(alpha: 0.7),
-          indicatorColor: colorScheme.onSecondary,
-          tabs: const [
-            Tab(text: 'Personal Info'),
-            Tab(text: 'Documents'),
-          ],
-        ),
-      ),
-      body: driverAsync.when(
-        data: (driver) {
-          return TabBarView(
-            controller: _tabController,
-            children: [
-              // Personal Info Tab
-              _buildPersonalInfoTab(driver, colorScheme, textTheme),
-              // Documents Tab
-              _buildDocumentsTab(driver, colorScheme, textTheme),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: colorScheme.error,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading profile: $error',
-                  style: textTheme.titleMedium?.copyWith(
-                    color: colorScheme.error,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () => ref.invalidate(driverProvider),
-                  child: const Text('Try Again'),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
 
-  Widget _buildPersonalInfoTab(Driver driver, ColorScheme colorScheme, TextTheme textTheme) {
-    return SingleChildScrollView(
+  Widget _buildErrorState(BuildContext context, Object error) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cs.error.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline_rounded,
+                color: cs.error,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Failed to load profile',
+              style: tt.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '$error',
+              textAlign: TextAlign.center,
+              style: tt.bodyMedium?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () => ref.invalidate(driverProvider),
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileContent(BuildContext context, Driver driver) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Text(
+              'Profile',
+              style: tt.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: cs.onSurface,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Profile Card
+            _buildProfileCard(context, driver),
+            const SizedBox(height: 20),
+
+            // Quick Access Cards (Documents, Vehicle, Address)
+            _buildQuickAccessSection(context),
+            const SizedBox(height: 24),
+
+            // Personal Information Section
+            _buildSectionHeader(context, 'Personal Information'),
+            const SizedBox(height: 12),
+            _buildPersonalInfoSection(context, driver),
+            const SizedBox(height: 24),
+
+            // Account Section
+            _buildSectionHeader(context, 'Account'),
+            const SizedBox(height: 12),
+            _buildAccountSection(context, driver),
+            const SizedBox(height: 24),
+
+            // Logout Button
+            _buildLogoutButton(context),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileCard(BuildContext context, Driver driver) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
       padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
         children: [
-          // Profile Header
-          Center(
-            child: Column(
+          // Profile Picture
+          GestureDetector(
+            onTap: () => _showProfilePictureDialog(driver),
+            child: Stack(
               children: [
-                GestureDetector(
-                  onTap: () => _showProfilePictureDialog(driver),
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: colorScheme.secondary.withValues(alpha: 0.1),
-                        backgroundImage: driver.photo != null && driver.photo!.isNotEmpty
-                            ? NetworkImage(driver.photo!)
-                            : null,
-                        child: driver.photo == null || driver.photo!.isEmpty
-                            ? Text(
-                                ('${driver.firstName?.isNotEmpty == true ? driver.firstName![0] : ''}'
-                                        '${driver.lastName?.isNotEmpty == true ? driver.lastName![0] : ''}')
-                                    .toUpperCase(),
-                                style: textTheme.headlineMedium?.copyWith(
-                                  color: colorScheme.secondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                            : null,
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: cs.primary.withValues(alpha: 0.15),
+                  backgroundImage: driver.photo != null && driver.photo!.isNotEmpty
+                      ? NetworkImage(driver.photo!)
+                      : null,
+                  child: driver.photo == null || driver.photo!.isEmpty
+                      ? Text(
+                          ('${driver.firstName?.isNotEmpty == true ? driver.firstName![0] : ''}'
+                                  '${driver.lastName?.isNotEmpty == true ? driver.lastName![0] : ''}')
+                              .toUpperCase(),
+                          style: tt.headlineSmall?.copyWith(
+                            color: cs.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: cs.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: cs.surfaceContainerHighest,
+                        width: 2,
                       ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: colorScheme.secondary,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: colorScheme.surface,
-                              width: 2,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.camera_alt_rounded,
-                            size: 16,
-                            color: colorScheme.onSecondary,
-                          ),
+                    ),
+                    child: Icon(
+                      Icons.camera_alt_rounded,
+                      size: 14,
+                      color: cs.onPrimary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Profile Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${driver.firstName ?? ''} ${driver.lastName ?? ''}'.trim(),
+                  style: tt.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  driver.phoneNumber,
+                  style: tt.bodyMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Verification Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: _getVerificationStatusColor(driver.verificationStatus.value, cs)
+                        .withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        driver.verificationStatus.value == 'VERIFIED'
+                            ? Icons.verified_rounded
+                            : Icons.pending_rounded,
+                        size: 14,
+                        color: _getVerificationStatusColor(driver.verificationStatus.value, cs),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        _getVerificationStatusText(driver.verificationStatus.value),
+                        style: tt.labelSmall?.copyWith(
+                          color: _getVerificationStatusColor(driver.verificationStatus.value, cs),
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  '${driver.firstName ?? ''} ${driver.lastName ?? ''}'.trim(),
-                  style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                if (driver.email?.isNotEmpty == true)
-                  Text(
-                    driver.email!,
-                    style: textTheme.titleMedium?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                  ),
-                const SizedBox(height: 8),
-                // Verification Status Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme),
-                    ),
-                  ),
-                  child: Text(
-                    _getVerificationStatusText(driver.verificationStatus.value),
-                    style: textTheme.bodyMedium?.copyWith(
-                      color: _getVerificationStatusColor(driver.verificationStatus.value, colorScheme),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
-          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
 
-          _EditableInfoTile(
-            icon: Icons.phone_rounded,
-            title: 'Phone Number',
-            subtitle: driver.phoneNumber.isEmpty ? 'Not set' : driver.phoneNumber,
-            onEdit: null, // Phone number cannot be edited
+  Widget _buildQuickAccessSection(BuildContext context) {
+    return Column(
+      children: [
+        // Documents Card
+        _buildQuickAccessCard(
+          context,
+          icon: Icons.description_rounded,
+          title: 'Documents',
+          subtitle: 'License, RC, Insurance & more',
+          onTap: () {
+            ref.invalidate(documentsProvider);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const DocumentsScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+
+        // Vehicle Card
+        _buildQuickAccessCard(
+          context,
+          icon: Icons.local_shipping_rounded,
+          title: 'Vehicle',
+          subtitle: 'Vehicle details & owner info',
+          onTap: () {
+            ref.invalidate(vehicleProvider);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const VehicleScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+
+        // Address Card
+        _buildQuickAccessCard(
+          context,
+          icon: Icons.location_on_rounded,
+          title: 'Address',
+          subtitle: 'Your registered address',
+          onTap: () {
+            ref.invalidate(addressProvider);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddressScreen()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickAccessCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Material(
+      color: cs.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.2),
+              width: 1,
+            ),
           ),
-          const SizedBox(height: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: cs.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: tt.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: cs.onSurface.withValues(alpha: 0.5),
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-          // Profile Info with Edit Buttons
-          _EditableInfoTile(
+  Widget _buildSectionHeader(BuildContext context, String title) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
+    return Text(
+      title,
+      style: tt.titleMedium?.copyWith(
+        fontWeight: FontWeight.w800,
+        color: cs.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildPersonalInfoSection(BuildContext context, Driver driver) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            context,
             icon: Icons.person_rounded,
             title: 'First Name',
-            subtitle: driver.firstName ?? 'Not set',
+            value: driver.firstName ?? 'Not set',
             onEdit: () => _showEditDialog(
               context,
               'First Name',
@@ -283,12 +454,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               (value) => _updateFirstName(value),
             ),
           ),
-          const SizedBox(height: 16),
-
-          _EditableInfoTile(
+          _buildDivider(context),
+          _buildInfoRow(
+            context,
             icon: Icons.person_rounded,
             title: 'Last Name',
-            subtitle: driver.lastName?.isNotEmpty == true ? driver.lastName! : 'Not set',
+            value: driver.lastName?.isNotEmpty == true ? driver.lastName! : 'Not set',
             onEdit: () => _showEditDialog(
               context,
               'Last Name',
@@ -296,406 +467,179 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
               (value) => _updateLastName(value),
             ),
           ),
-          const SizedBox(height: 16),
-
-          _EditableInfoTile(
-            icon: Icons.email_rounded,
-            title: 'Email',
-            subtitle: driver.email ?? 'Not linked',
-            onEdit: () => _showEmailLinkDialog(driver),
-            isLinked: driver.email?.isNotEmpty == true,
+          _buildDivider(context),
+          _buildInfoRow(
+            context,
+            icon: Icons.phone_android_rounded,
+            title: 'Alternate Phone',
+            value: driver.alternatePhone?.isNotEmpty == true ? driver.alternatePhone! : 'Not set',
+            onEdit: () => _showEditDialog(
+              context,
+              'Alternate Phone',
+              driver.alternatePhone ?? '',
+              (value) => _updateAlternatePhone(value),
+            ),
           ),
-          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
 
-           _EditableInfoTile(
-              icon: Icons.phone_android_rounded,
-              title: 'Alternate Phone',
-              subtitle: driver.alternatePhone == null || driver.alternatePhone!.isEmpty ? 'Not set' : driver.alternatePhone!,
-              onEdit: () => _showEditDialog(
-                context,
-                'Alternate Phone',
-                driver.alternatePhone ?? '',
-                (value) => _updateAlternatePhone(value),
-              ),
-            ),
-          const SizedBox(height: 16),
+  Widget _buildAccountSection(BuildContext context, Driver driver) {
+    final cs = Theme.of(context).colorScheme;
 
-          if (driver.referalCode?.isNotEmpty == true) ...[
-            _EditableInfoTile(
-              icon: Icons.card_giftcard_rounded,
-              title: 'Referral Code',
-              subtitle: driver.referalCode!,
-              onEdit: null, // Referral code cannot be edited
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          _EditableInfoTile(
-            icon: Icons.verified_user_rounded,
-            title: 'Status',
-            subtitle: driver.driverStatus.name[0].toUpperCase() + driver.driverStatus.name.substring(1),
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: cs.outline.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildInfoRow(
+            context,
+            icon: Icons.phone_rounded,
+            title: 'Phone Number',
+            value: driver.phoneNumber,
             onEdit: null,
           ),
-          const SizedBox(height: 16),
-
-          _EditableInfoTile(
+          _buildDivider(context),
+          _buildInfoRow(
+            context,
+            icon: Icons.email_rounded,
+            title: 'Email',
+            value: driver.email ?? 'Not linked',
+            onEdit: () => _showEmailLinkDialog(driver),
+            isAction: driver.email == null,
+            actionLabel: 'Link',
+          ),
+          _buildDivider(context),
+          _buildInfoRow(
+            context,
             icon: Icons.calendar_today_rounded,
             title: 'Member Since',
-            subtitle: '${driver.createdAt.day}/${driver.createdAt.month}/${driver.createdAt.year}',
-            onEdit: null, // Member since cannot be edited
+            value: '${driver.createdAt.day}/${driver.createdAt.month}/${driver.createdAt.year}',
+            onEdit: null,
           ),
-
-          // Logout Button
-          const SizedBox(height: 32),
-          OutlinedButton(
-            onPressed: () async {
-              final shouldLogout = await showDialog<bool>(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('CANCEL'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: Text(
-                        'LOGOUT',
-                        style: TextStyle(color: colorScheme.error),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-
-              if (shouldLogout == true && mounted) {
-                await ref.read(apiProvider).value!.signOut();
-              }
-            },
-            style: OutlinedButton.styleFrom(
-              foregroundColor: colorScheme.error,
-              minimumSize: const Size(double.infinity, 50),
-              side: BorderSide(color: colorScheme.error),
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDocumentsTab(Driver driver, ColorScheme colorScheme, TextTheme textTheme) {
-    if (driver.documents == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.description_outlined,
-              size: 64,
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No documents found',
-              style: textTheme.titleLarge?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Complete your onboarding to upload documents',
-              style: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
+          if (driver.referalCode?.isNotEmpty == true) ...[
+            _buildDivider(context),
+            _buildInfoRow(
+              context,
+              icon: Icons.card_giftcard_rounded,
+              title: 'Referral Code',
+              value: driver.referalCode!,
+              onEdit: null,
             ),
           ],
-        ),
-      );
-    }
-
-    final documents = driver.documents!;
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // PAN Number display
-          _InfoTile(
-            icon: Icons.credit_card_rounded,
-            title: 'PAN Number',
-            subtitle: documents.panNumber,
-          ),
-          const SizedBox(height: 16),
-
-          // Document Cards
-          _buildDocumentCard(
-            context,
-            title: 'Driving License',
-            subtitle: documents.licenseExpiry != null
-                ? 'Valid until ${_formatDate(documents.licenseExpiry!)}'
-                : 'Verification pending - Admin will set expiry date',
-            icon: Icons.drive_eta_rounded,
-            documentType: 'license',
-            currentUrl: documents.licenseUrl,
-            showExpiryDate: true,
-            expiryDate: documents.licenseExpiry,
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDocumentCard(
-            context,
-            title: 'RC Book',
-            subtitle: 'Vehicle registration certificate',
-            icon: Icons.local_shipping_rounded,
-            documentType: 'rcBook',
-            currentUrl: documents.rcBookUrl,
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDocumentCard(
-            context,
-            title: 'FC Certificate',
-            subtitle: documents.fcExpiry != null
-                ? 'Valid until ${_formatDate(documents.fcExpiry!)}'
-                : 'Verification pending - Admin will set expiry date',
-            icon: Icons.verified_rounded,
-            documentType: 'fc',
-            currentUrl: documents.fcUrl,
-            showExpiryDate: true,
-            expiryDate: documents.fcExpiry,
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDocumentCard(
-            context,
-            title: 'Insurance Certificate',
-            subtitle: documents.insuranceExpiry != null
-                ? 'Valid until ${_formatDate(documents.insuranceExpiry!)}'
-                : 'Verification pending - Admin will set expiry date',
-            icon: Icons.security_rounded,
-            documentType: 'insurance',
-            currentUrl: documents.insuranceUrl,
-            showExpiryDate: true,
-            expiryDate: documents.insuranceExpiry,
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDocumentCard(
-            context,
-            title: 'Aadhar Card',
-            subtitle: 'Identity proof',
-            icon: Icons.person_rounded,
-            documentType: 'aadhar',
-            currentUrl: documents.aadharUrl,
-          ),
-
-          const SizedBox(height: 16),
-
-          _buildDocumentCard(
-            context,
-            title: 'Electricity Bill',
-            subtitle: 'Address proof',
-            icon: Icons.receipt_long_rounded,
-            documentType: 'ebBill',
-            currentUrl: documents.ebBillUrl,
-          ),
-
-          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildDocumentCard(
+  Widget _buildInfoRow(
     BuildContext context, {
-    required String title,
-    required String subtitle,
     required IconData icon,
-    required String documentType,
-    required String currentUrl,
-    bool hasChanges = false,
-    bool showExpiryDate = false,
-    DateTime? expiryDate,
+    required String title,
+    required String value,
+    VoidCallback? onEdit,
+    bool isAction = false,
+    String? actionLabel,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: hasChanges
-              ? Colors.orange
-              : colorScheme.outline.withValues(alpha: 0.3),
-          width: hasChanges ? 2 : 1,
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: cs.onSurface.withValues(alpha: 0.6),
+            size: 22,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: colorScheme.secondary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: colorScheme.secondary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: colorScheme.secondary,
-                    size: 24,
+                Text(
+                  title,
+                  style: tt.labelMedium?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.onSurface,
-                            ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.7),
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (hasChanges)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.orange),
-                    ),
-                    child: Text(
-                      'Updated',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // View/Re-upload Actions
-            Row(
-              children: [
-                // View Document Button
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => showDocumentViewer(context, documentType: documentType, title: title),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: BorderSide(
-                        color: colorScheme.outline.withValues(alpha: 0.5),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.visibility_rounded, size: 18),
-                    label: Text(
-                      'View',
-                      style: TextStyle(
-                        color: colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-                // Re-upload Document Button
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _reUploadDocument(documentType, title),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.secondary,
-                      foregroundColor: colorScheme.onSecondary,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    icon: const Icon(Icons.upload_file_rounded, size: 18),
-                    label: const Text(
-                      'Re-upload',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: tt.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
             ),
-
-            // Expiry Date Display (always visible when expiry exists)
-            if (showExpiryDate && expiryDate != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_rounded,
-                      size: 18,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Expires: ${_formatDate(expiryDate)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
+          ),
+          if (onEdit != null)
+            TextButton(
+              onPressed: onEdit,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                minimumSize: Size.zero,
+              ),
+              child: Text(
+                isAction ? (actionLabel ?? 'Add') : 'Edit',
+                style: tt.labelLarge?.copyWith(
+                  color: cs.primary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ],
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  Widget _buildDivider(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: cs.outline.withValues(alpha: 0.1),
+      indent: 52,
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return OutlinedButton(
+      onPressed: () => _showLogoutDialog(context),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: cs.error,
+        minimumSize: const Size(double.infinity, 52),
+        side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.logout_rounded, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            'Logout',
+            style: tt.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Dialog methods
@@ -734,6 +678,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         },
       ),
     );
+  }
+
+  void _showLogoutDialog(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
+
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Logout',
+              style: TextStyle(color: cs.error),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true && mounted) {
+      await ref.read(apiProvider).value!.signOut();
+    }
   }
 
   // Update methods
@@ -789,154 +763,5 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen>
         SnackBars.error(context, 'Failed to update alternate phone: $e');
       }
     }
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  const _InfoTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.secondary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: colorScheme.secondary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: textTheme.titleSmall?.copyWith(
-                    color: colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EditableInfoTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback? onEdit;
-  final bool isLinked;
-
-  const _EditableInfoTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    this.onEdit,
-    this.isLinked = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.secondary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: colorScheme.secondary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      title,
-                      style: textTheme.titleSmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    if (isLinked) ...[
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.verified_rounded,
-                        size: 16,
-                        color: Colors.green,
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (onEdit != null)
-            IconButton(
-              onPressed: onEdit,
-              icon: Icon(
-                Icons.edit_rounded,
-                color: colorScheme.secondary,
-                size: 20,
-              ),
-            ),
-        ],
-      ),
-    );
   }
 }
