@@ -55,7 +55,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                         Text(
                           'Earnings',
                           style: tt.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: cs.onSurface,
                           ),
                         ),

@@ -88,7 +88,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Text(
                 'Hello, $driverName 👋',
                 style: tt.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                   color: cs.onSurface,
                 ),
               ),

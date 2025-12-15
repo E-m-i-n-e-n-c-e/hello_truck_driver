@@ -133,7 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             Text(
               'Profile',
               style: tt.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: cs.onSurface,
               ),
             ),
@@ -244,7 +244,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Text(
                   '${driver.firstName ?? ''} ${driver.lastName ?? ''}'.trim(),
                   style: tt.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -489,7 +489,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Text(
       title,
       style: tt.titleMedium?.copyWith(
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         color: cs.onSurface,
       ),
     );

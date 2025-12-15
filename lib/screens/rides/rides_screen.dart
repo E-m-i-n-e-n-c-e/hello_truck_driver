@@ -57,7 +57,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                       Text(
                         'Rides',
                         style: textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,
                         ),
                       ),
