@@ -123,7 +123,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Stack(
             children: [
@@ -133,12 +133,12 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                     children: [
                       IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon:  BackButton(color: Colors.black.withValues(alpha: 0.8)),
+                    icon:  BackButton(color: colorScheme.onSurface.withValues(alpha: 0.8)),
                   ),
                   Text(
                     'OTP Verification',
                     style: textTheme.titleLarge?.copyWith(
-                      color: Colors.black.withValues(alpha: 0.85),
+                      color: colorScheme.onSurface.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -150,12 +150,12 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 20),
 
                           Text(
                             'We have sent a verification code to',
                             style: textTheme.titleMedium?.copyWith(
-                              color: Colors.black87,
+                              color: colorScheme.onSurface.withValues(alpha: 0.87),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -165,7 +165,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                             '+91-${widget.phoneNumber}',
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: colorScheme.onSurface,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -190,9 +190,9 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                 borderRadius: BorderRadius.circular(6),
                                 fieldHeight: 50,
                                 fieldWidth: 45,
-                                activeFillColor: Colors.white,
-                                inactiveFillColor: Colors.white,
-                                selectedFillColor: Colors.white,
+                                activeFillColor: colorScheme.surface,
+                                inactiveFillColor: colorScheme.surface,
+                                selectedFillColor: colorScheme.surface,
                                 activeColor: colorScheme.primary,
                                 inactiveColor: Colors.grey.shade300,
                                 selectedColor: colorScheme.primary,
@@ -218,30 +218,35 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                             ),
                           ),
 
-                          const SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
-                          Text(
-                            'Check text messages for your OTP',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
 
-                          const SizedBox(height: 16),
+                      // Resend OTP section with ValueListenableBuilder
+                      ValueListenableBuilder<TimerState>(
+                        valueListenable: _timerState,
+                        builder: (context, timerState, _) {
+                          return Column(
+                            children: [
+                              if (timerState.resendCountdown > 25) ...[
+                                Text(
+                                  'Check text messages for your OTP',
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: Colors.blueAccent,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
 
-                          // Resend OTP section with ValueListenableBuilder
-                          ValueListenableBuilder<TimerState>(
-                            valueListenable: _timerState,
-                            builder: (context, timerState, _) {
-                              return Row(
+                                const SizedBox(height: 16),
+                              ],
+
+                              Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     "Didn't get the OTP? ",
                                     style: textTheme.titleMedium?.copyWith(
-                                      color: Colors.black87,
+                                      color: colorScheme.onSurface.withValues(alpha: 0.87),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -274,7 +279,9 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             );
-                                    },
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               );
@@ -285,7 +292,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
 
                           // Bottom button
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 80.0),
+                            padding: const EdgeInsets.only(bottom: 60.0),
                             child: TextButton(
                               onPressed: () => Navigator.pop(context),
                               child: Text(
@@ -316,7 +323,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                         children: [
                           ModalBarrier(
                             dismissible: false,
-                            color: Colors.black.withValues(alpha: 0.3),
+                            color: colorScheme.shadow.withValues(alpha: 0.3),
                           ),
                           const Center(child: CircularProgressIndicator()),
                         ],

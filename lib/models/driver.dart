@@ -10,6 +10,7 @@ class Driver {
   final String? referalCode;
   final String? photo;
   final int score;
+  final double walletBalance;
   final VerificationStatus verificationStatus;
   final DriverStatus driverStatus;
   final DateTime createdAt;
@@ -29,6 +30,7 @@ class Driver {
     required this.verificationStatus,
     required this.driverStatus,
     required this.score,
+    required this.walletBalance,
     required this.createdAt,
     required this.updatedAt,
     this.documents,
@@ -48,6 +50,9 @@ class Driver {
       verificationStatus: VerificationStatus.fromString(json['verificationStatus'] ?? 'PENDING'),
       driverStatus: DriverStatus.fromString(json['driverStatus']),
       score: json['score'],
+      walletBalance: json['walletBalance'] != null
+          ? double.parse(json['walletBalance'].toString())
+          : 0.0,
       createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
       documents: json['documents'] != null ? DriverDocuments.fromJson(json['documents']) : null,

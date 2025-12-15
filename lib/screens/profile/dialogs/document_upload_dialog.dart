@@ -38,10 +38,7 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
     super.dispose();
   }
 
-  bool get _needsPanNumber => widget.documentType == 'aadhar';
-
-  bool get _canSave => _selectedFile != null &&
-    (!_needsPanNumber || _panController.text.trim().isNotEmpty);
+  bool get _canSave => _selectedFile != null;
 
   Future<void> _pickDocument() async {
     try {
@@ -233,35 +230,6 @@ class _DocumentReUploadDialogState extends ConsumerState<DocumentReUploadDialog>
                     ),
 
                     const SizedBox(height: 20),
-
-                    // PAN number (for Aadhar)
-                    if (_needsPanNumber) ...[
-                      Text(
-                        'PAN Number',
-                        style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _panController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter PAN number (e.g., ABCDE1234F)',
-                          prefixIcon: Icon(Icons.credit_card_rounded),
-                        ),
-                        enabled: !_isUploading,
-                        textCapitalization: TextCapitalization.characters,
-                        onChanged: (_) => setState(() {}),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'PAN number is required';
-                          }
-                          if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(value.trim())) {
-                            return 'Please enter a valid PAN number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                    ],
 
                     // Info text about admin verification
                     Container(

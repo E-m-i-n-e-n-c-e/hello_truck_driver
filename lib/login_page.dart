@@ -59,7 +59,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         isScrollControlled: true,
         useSafeArea: true,
         enableDrag: false,
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         builder: (context) => OtpVerificationPage(phoneNumber: phoneNumber),
       );
     } catch (e) {
@@ -87,7 +87,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       child: GestureDetector(
         onTap: () => _phoneFocusNode.unfocus(),
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: colorScheme.surface,
           body: Stack(
             children: [
               _buildMainContent(textTheme, colorScheme, api),
@@ -129,6 +129,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildLoadingOverlay() {
+    final colorScheme = Theme.of(context).colorScheme;
     return ValueListenableBuilder<bool>(
       valueListenable: _loadingState,
       builder: (context, isLoading, _) {
@@ -141,7 +142,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               children: [
                 ModalBarrier(
                   dismissible: false,
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: colorScheme.shadow.withValues(alpha: 0.3),
                 ),
                 const Center(child: CircularProgressIndicator()),
               ],
@@ -153,20 +154,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildTitle(TextTheme textTheme) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Text(
       'Enter your phone number',
       style: textTheme.headlineSmall?.copyWith(
         fontWeight: FontWeight.w700,
-        color: Colors.black87,
+        color: colorScheme.onSurface,
       ),
     );
   }
 
   Widget _buildSubtitle(TextTheme textTheme) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Text(
       "We'll send you a verification code",
       style: textTheme.titleMedium?.copyWith(
-        color: Colors.black54,
+        color: colorScheme.onSurface.withValues(alpha: 0.7),
         fontWeight: FontWeight.w500,
       ),
     );
@@ -239,7 +242,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     API? api,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 40.0),
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: ValueListenableBuilder<bool>(
         valueListenable: _loadingState,
         builder: (context, isLoading, child) {
@@ -247,7 +250,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             onPressed: isLoading ? null : () => _sendOtp(api!),
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.secondary,
-              foregroundColor: Colors.white,
+              foregroundColor: colorScheme.onSecondary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -258,7 +261,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Text(
               'Send OTP',
               style: textTheme.titleMedium?.copyWith(
-                color: Colors.white,
+                color: colorScheme.onSecondary,
                 fontWeight: FontWeight.w600,
               ),
             ),

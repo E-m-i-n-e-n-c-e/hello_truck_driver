@@ -53,20 +53,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(driverProvider);
-          ref.invalidate(documentsProvider);
-          ref.invalidate(vehicleProvider);
-          ref.invalidate(addressProvider);
-        },
-        child: driverAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          error: (error, stack) => _buildErrorState(context, error),
-          data: (driver) => _buildProfileContent(context, driver),
+      body: driverAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(strokeWidth: 3),
         ),
+        error: (error, stack) => _buildErrorState(context, error),
+        data: (driver) => _buildProfileContent(context, driver),
       ),
     );
   }
@@ -143,6 +135,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             // Profile Card
             _buildProfileCard(context, driver),
+            const SizedBox(height: 20),
+
+            // Wallet Balance Card
+            _buildWalletBalanceCard(context, driver),
             const SizedBox(height: 20),
 
             // Quick Access Cards (Documents, Vehicle, Address)
@@ -284,6 +280,71 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWalletBalanceCard(BuildContext context, Driver driver) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            cs.primary,
+            cs.primary.withValues(alpha: 0.85),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: cs.onPrimary.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.account_balance_wallet_rounded,
+              color: cs.onPrimary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Wallet Balance',
+                  style: tt.labelMedium?.copyWith(
+                    color: cs.onPrimary.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '₹${driver.walletBalance.toStringAsFixed(2)}',
+                  style: tt.titleLarge?.copyWith(
+                    color: cs.onPrimary,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: cs.onPrimary.withValues(alpha: 0.7),
+            size: 22,
           ),
         ],
       ),
