@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/booking.dart';
 import '../../models/enums/package_enums.dart';
-import '../../models/enums/booking_enums.dart';
-import '../../utils/dummy_bookings.dart';
 
 class BookingInfoCard extends StatelessWidget {
   final Booking booking;
@@ -380,26 +378,22 @@ class BookingInfoCard extends StatelessWidget {
   }
 
   String _getPackageDescription() {
-    if (booking.package.productType == ProductType.agricultural) {
-      return 'Agricultural product for ${booking.package.packageType.value.toLowerCase()} use';
+    if (booking.package.productType == ProductType.agricultural || booking.package.productType == ProductType.nonAgricultural) {
+      return 'Commercial Product';
+    } else if (booking.package.productType == ProductType.personal) {
+      return 'Personal Product';
     } else {
       final dimensions = booking.package.length != null &&
               booking.package.width != null &&
               booking.package.height != null
           ? '${booking.package.length}×${booking.package.width}×${booking.package.height} ${booking.package.dimensionUnit?.value ?? 'CM'}'
           : '';
-      return dimensions.isNotEmpty ? 'Dimensions: $dimensions' : '';
+      return dimensions.isNotEmpty ? 'Dimensions: $dimensions' : 'Commercial goods';
     }
   }
 
   Color _getVehicleTypeColor() {
-    switch (booking.suggestedVehicleType) {
-      case VehicleType.twoWheeler:
-        return Colors.blue;
-      case VehicleType.threeWheeler:
-        return Colors.orange;
-      case VehicleType.fourWheeler:
-        return Colors.green;
-    }
+    // Default color since suggestedVehicleType is now in invoice
+    return Colors.green;
   }
 }

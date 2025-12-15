@@ -6,7 +6,6 @@ import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart'
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
-import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/screens/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
@@ -260,22 +259,6 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemSelected: (index) {
-          if (index == 3 || index == 2 || index == 1) {
-            if (index == 3) {
-              // Profile screen
-              ref.invalidate(driverProvider);
-            } else if (index == 2) {
-              // Rides screen
-              ref.invalidate(driverProvider);
-              ref.invalidate(currentAssignmentProvider);
-              ref.invalidate(assignmentHistoryProvider);
-            } else if (index == 1) {
-              // Payments screen
-              ref.invalidate(driverProvider);
-              ref.invalidate(walletLogsProvider);
-              ref.invalidate(transactionLogsProvider);
-            }
-          }
           setState(() {
             _selectedIndex = index;
           });

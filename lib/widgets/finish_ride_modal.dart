@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
@@ -278,9 +279,14 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
       final api = await ref.read(apiProvider.future);
       await finishRide(api);
 
-      // Invalidate assignment provider and driver provider to refresh the state
+      // There is no current assignment after finishing
       ref.invalidate(currentAssignmentProvider);
+      // Driver is now available
       ref.invalidate(driverProvider);
+      // As current assignment is now history
+      ref.invalidate(assignmentHistoryProvider);
+      // Ride summary is updated
+      ref.invalidate(rideSummaryProvider);
 
       if (mounted) {
         Navigator.pop(context);

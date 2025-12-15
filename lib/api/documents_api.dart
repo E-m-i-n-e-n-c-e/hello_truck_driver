@@ -4,7 +4,6 @@ import 'package:hello_truck_driver/models/documents.dart';
 /// Get driver documents
 Future<DriverDocuments> getDriverDocuments(API api) async {
   final response = await api.get('/driver/documents');
-  print(response.data);
   return DriverDocuments.fromJson(response.data);
 }
 
@@ -37,12 +36,4 @@ Future<DriverDocuments> updateDriverDocuments(
 
   final response = await api.put('/driver/documents', data: data);
   return DriverDocuments.fromJson(response.data);
-}
-
-
-
-/// Get document expiry alerts
-Future<ExpiryAlerts> getDocumentExpiryAlerts(API api) async {
-  final response = await api.get('/driver/documents/expiry-alerts');
-  return ExpiryAlerts.fromJson(response.data);
 }

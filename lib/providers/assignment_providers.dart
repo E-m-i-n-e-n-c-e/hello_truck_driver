@@ -8,7 +8,7 @@ import 'package:hello_truck_driver/utils/mock_data.dart';
 // TODO: Remove mock data and uncomment API calls when backend is ready
 
 /// Current assignment for the driver (can be null)
-final currentAssignmentProvider = FutureProvider<BookingAssignment?>((ref) async {
+final currentAssignmentProvider = FutureProvider.autoDispose<BookingAssignment?>((ref) async {
   // Simulate network delay
   // await Future.delayed(const Duration(milliseconds: 500));
   // return MockData.getMockCurrentAssignment();
@@ -19,9 +19,9 @@ final currentAssignmentProvider = FutureProvider<BookingAssignment?>((ref) async
 });
 
 /// Assignment history for the driver
-final assignmentHistoryProvider = FutureProvider<List<BookingAssignment>>((ref) async {
+final assignmentHistoryProvider = FutureProvider.autoDispose<List<BookingAssignment>>((ref) async {
   // Simulate network delay
-  await Future.delayed(const Duration(milliseconds: 600));
+  await Future.delayed(const Duration(milliseconds: 2000));
   return MockData.getMockAssignmentHistory();
 
   // TODO: Uncomment when backend is ready

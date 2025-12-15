@@ -366,7 +366,6 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
   Widget _buildViewMode(BuildContext context, DriverAddress address) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),

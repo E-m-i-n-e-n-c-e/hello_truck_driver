@@ -28,22 +28,17 @@ class VehicleScreen extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(vehicleProvider);
-        },
-        child: vehicleAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          error: (error, stack) => _buildErrorState(context, ref, error),
-          data: (vehicle) {
-            if (vehicle == null) {
-              return _buildEmptyState(context);
-            }
-            return _buildVehicleDetails(context, vehicle);
-          },
+      body: vehicleAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(strokeWidth: 3),
         ),
+        error: (error, stack) => _buildErrorState(context, ref, error),
+        data: (vehicle) {
+          if (vehicle == null) {
+            return _buildEmptyState(context);
+          }
+          return _buildVehicleDetails(context, vehicle);
+        },
       ),
     );
   }

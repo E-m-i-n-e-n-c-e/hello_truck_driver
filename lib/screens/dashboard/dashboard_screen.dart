@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/documents.dart';
-import 'package:hello_truck_driver/models/enums/transaction_enums.dart';
 import 'package:hello_truck_driver/models/ride_summary.dart';
-import 'package:hello_truck_driver/models/transaction_log.dart';
-import 'package:hello_truck_driver/models/wallet_log.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/providers/payment_providers.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
-import 'package:hello_truck_driver/screens/wallet_logs_screen.dart';
-import 'package:hello_truck_driver/screens/transaction_logs_screen.dart';
-import 'package:intl/intl.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -43,45 +39,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(rideSummaryProvider);
-          ref.invalidate(expiryAlertsProvider);
-          ref.invalidate(walletLogsProvider);
-          ref.invalidate(transactionLogsProvider);
-          ref.invalidate(driverProvider);
-        },
-        child: SafeArea(
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header with greeting
-                _buildHeader(context, driverAsync),
-                const SizedBox(height: 20),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with greeting
+              _buildHeader(context, driverAsync),
+              const SizedBox(height: 20),
 
-                // Document expiry alerts (if any)
-                _buildExpiryAlerts(context),
+              // Document expiry alerts (if any)
+              _buildExpiryAlerts(context),
 
-                // Ride summary section
-                _buildRideSummary(context),
-                const SizedBox(height: 20),
+              // Ride summary section
+              _buildRideSummary(context),
+              const SizedBox(height: 20),
 
-                // Quick stats grid
-                _buildQuickStats(context),
-                const SizedBox(height: 24),
+              // Quick stats grid
+              _buildQuickStats(context),
+              const SizedBox(height: 24),
 
-                // Recent wallet activity
-                _buildWalletActivitySection(context),
-                const SizedBox(height: 24),
-
-                // Recent transactions
-                _buildTransactionsSection(context),
-                const SizedBox(height: 16),
-              ],
-            ),
+              // Today's completed rides
+              _buildTodaysRides(context),
+              const SizedBox(height: 16),
+            ],
           ),
         ),
       ),
@@ -248,7 +231,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         _buildCompactStat(
           context,
           icon: Icons.currency_rupee_rounded,
-          value: (summary?.totalEarnings ?? 0).toStringAsFixed(0),
+          value: (summary?.netEarnings ?? 0).toStringAsFixed(0),
           label: 'earned',
         ),
       ],
@@ -329,233 +312,263 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  Widget _buildWalletActivitySection(BuildContext context) {
+  Widget _buildTodaysRides(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final walletLogsAsync = ref.watch(walletLogsProvider);
+    final rideSummaryAsync = ref.watch(rideSummaryProvider);
+
+    return rideSummaryAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+      data: (summary) {
+        if (summary.assignments.isEmpty) {
+          return _buildEmptyRidesCard(context);
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                "Today's Rides",
+                style: tt.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...summary.assignments.map((assignment) {
+              final booking = assignment.booking;
+
+              // Calculate driver earnings (after commission)
+              final grossAmount = booking.finalCost ?? booking.estimatedCost;
+              final commission = grossAmount * summary.commissionRate;
+              final driverEarnings = grossAmount - commission;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: cs.outline.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.green,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Booking #${booking.bookingNumber}',
+                                    style: tt.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Completed',
+                                    style: tt.bodySmall?.copyWith(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '+₹${driverEarnings.toStringAsFixed(0)}',
+                                  style: tt.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                                Text(
+                                  'earned',
+                                  style: tt.bodySmall?.copyWith(
+                                    color: cs.onSurface.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Divider(
+                          height: 1,
+                          color: cs.outline.withValues(alpha: 0.2),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildRouteInfo(context, booking),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRouteInfo(BuildContext context, Booking booking) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.location_on_rounded,
+              size: 18,
+              color: cs.primary,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                booking.pickupAddress.formattedAddress.split(',').take(2).join(','),
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.7),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Icon(
+              Icons.arrow_downward_rounded,
+              size: 18,
+              color: cs.onSurface.withValues(alpha: 0.4),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${booking.distanceKm.toStringAsFixed(1)} km',
+              style: tt.bodySmall?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            Icon(
+              Icons.flag_rounded,
+              size: 18,
+              color: cs.error,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                booking.dropAddress.formattedAddress.split(',').take(2).join(','),
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.7),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyRidesCard(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Text(
+            "Today's Rides",
+            style: tt.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: cs.outline.withValues(alpha: 0.15),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.local_shipping_outlined,
+                  size: 32,
+                  color: cs.primary,
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
-                'Wallet Activity',
-                style: tt.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+                'No rides completed yet',
+                style: tt.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
                   color: cs.onSurface,
                 ),
               ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WalletLogsScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'See All',
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+              const SizedBox(height: 4),
+              Text(
+                'Complete your first ride today!',
+                style: tt.bodySmall?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
-        walletLogsAsync.when(
-          loading: () => _buildWalletLogsShimmer(context),
-          error: (error, _) => _buildErrorCard(context, 'Failed to load wallet activity'),
-          data: (logs) {
-            if (logs.isEmpty) {
-              return _buildEmptyCard(context, 'No wallet activity yet', Icons.account_balance_wallet_outlined);
-            }
-            // Show only first 3 entries
-            final recentLogs = logs.take(3).toList();
-            return Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: recentLogs.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final log = entry.value;
-                  return _WalletLogTile(
-                    log: log,
-                    showDivider: index < recentLogs.length - 1,
-                  );
-                }).toList(),
-              ),
-            );
-          },
-        ),
       ],
-    );
-  }
-
-  Widget _buildTransactionsSection(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final transactionLogsAsync = ref.watch(transactionLogsProvider);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Recent Transactions',
-                style: tt.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TransactionLogsScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'See All',
-                  style: tt.bodyMedium?.copyWith(
-                    color: cs.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-        transactionLogsAsync.when(
-          loading: () => _buildTransactionLogsShimmer(context),
-          error: (error, _) => _buildErrorCard(context, 'Failed to load transactions'),
-          data: (logs) {
-            if (logs.isEmpty) {
-              return _buildEmptyCard(context, 'No transactions yet', Icons.receipt_long_outlined);
-            }
-            // Show only first 5 entries
-            final recentLogs = logs.take(5).toList();
-            return Container(
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: recentLogs.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final log = entry.value;
-                  return _TransactionLogTile(
-                    log: log,
-                    showDivider: index < recentLogs.length - 1,
-                  );
-                }).toList(),
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWalletLogsShimmer(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: 150,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation(cs.primary),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTransactionLogsShimmer(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation(cs.primary),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyCard(BuildContext context, String message, IconData icon) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, size: 40, color: cs.onSurface.withValues(alpha: 0.4)),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: tt.bodyMedium?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildErrorCard(BuildContext context, String message) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: cs.errorContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.error.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, size: 20, color: cs.error),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: tt.bodySmall?.copyWith(color: cs.error),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -744,181 +757,4 @@ class _QuickStatCard extends StatelessWidget {
   }
 }
 
-// Wallet Log Tile Widget
-class _WalletLogTile extends StatelessWidget {
-  final WalletLog log;
-  final bool showDivider;
 
-  const _WalletLogTile({required this.log, this.showDivider = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final isCredit = log.isCredit;
-    final color = isCredit ? Colors.green : Colors.red;
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-                  color: color,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      log.reason,
-                      style: tt.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: cs.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      DateFormat('MMM d, h:mm a').format(log.createdAt),
-                      style: tt.bodySmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${isCredit ? '+' : '-'}₹${log.absoluteAmount.toStringAsFixed(0)}',
-                style: tt.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (showDivider)
-          Divider(
-            height: 1,
-            indent: 66,
-            color: cs.outline.withValues(alpha: 0.1),
-          ),
-      ],
-    );
-  }
-}
-
-// Transaction Log Tile Widget
-class _TransactionLogTile extends StatelessWidget {
-  final TransactionLog log;
-  final bool showDivider;
-
-  const _TransactionLogTile({required this.log, this.showDivider = true});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final isCredit = log.isCredit;
-    final color = isCredit ? Colors.green : Colors.red;
-
-    IconData icon;
-    switch (log.category) {
-      case TransactionCategory.bookingPayment:
-        icon = Icons.payments_rounded;
-        break;
-      case TransactionCategory.bookingRefund:
-        icon = Icons.refresh_rounded;
-        break;
-      case TransactionCategory.driverPayout:
-        icon = Icons.account_balance_rounded;
-        break;
-      case TransactionCategory.walletCredit:
-        icon = Icons.account_balance_wallet_rounded;
-        break;
-      default:
-        icon = Icons.receipt_rounded;
-    }
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      log.description,
-                      style: tt.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: cs.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          log.category.displayName,
-                          style: tt.bodySmall?.copyWith(
-                            color: cs.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          ' • ${DateFormat('MMM d').format(log.createdAt)}',
-                          style: tt.bodySmall?.copyWith(
-                            color: cs.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                '${isCredit ? '+' : '-'}₹${log.amount.abs().toStringAsFixed(0)}',
-                style: tt.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (showDivider)
-          Divider(
-            height: 1,
-            indent: 66,
-            color: cs.outline.withValues(alpha: 0.1),
-          ),
-      ],
-    );
-  }
-}

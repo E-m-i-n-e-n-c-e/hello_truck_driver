@@ -31,11 +31,7 @@ class DocumentsScreen extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(documentsProvider);
-        },
-        child: documentsAsync.when(
+      body: documentsAsync.when(
           loading: () => const Center(
             child: CircularProgressIndicator(strokeWidth: 3),
           ),
@@ -47,8 +43,7 @@ class DocumentsScreen extends ConsumerWidget {
             return _buildDocumentsList(context, ref, documents);
           },
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {

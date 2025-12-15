@@ -11,7 +11,7 @@ import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/widgets/navigation_overlay.dart';
 
-import '../utils/logger.dart';
+import '../../utils/logger.dart';
 
 final _navInfoListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
 final _roadSnappedLocationUpdatedListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
@@ -177,8 +177,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     );
 
     ref.read(_remainingTimeOrDistanceChangedListenerProvider.notifier).state ??= GoogleMapsNavigator.setOnRemainingTimeOrDistanceChangedListener(
-      // remainingDistanceThresholdMeters: 200, // 200 meters
-      // remainingTimeThresholdSeconds: 60, // 1 minute
+      remainingDistanceThresholdMeters: 200, // 200 meters
+      remainingTimeThresholdSeconds: 60, // 1 minute
       (RemainingTimeOrDistanceChangedEvent event) {
         final nav = container.read(_lastNavInfoProvider);
         final loc = container.read(_lastRoadSnappedProvider);

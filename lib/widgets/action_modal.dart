@@ -2,8 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
+import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
-import 'package:hello_truck_driver/models/package.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
@@ -424,13 +424,8 @@ class _NavigationContent extends ConsumerWidget {
   }
 
   String _getFormattedWeight(Package package) {
-    if (package.productType.value == 'AGRICULTURAL') {
-      final weight = package.approximateWeight ?? 0;
-      final unit = package.weightUnit?.value ?? 'KG';
-      return '$weight $unit';
-    } else {
-      final weight = package.averageWeight ?? 0;
-      return '$weight KG';
-    }
+    final weight = package.approximateWeight;
+    final unit = package.weightUnit.value;
+    return '$weight $unit';
   }
 }

@@ -3,6 +3,7 @@ import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/models/driver_address.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
+import 'package:hello_truck_driver/models/ride_summary.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/models/payout_details.dart';
 
@@ -70,4 +71,15 @@ Future<void> updateDriverStatus(API api, {required bool isAvailable}) async {
 // Update payout details
 Future<void> updateDriverPayoutDetails(API api, {required PayoutDetails payoutDetails}) async {
   await api.put('/driver/profile/payout-details', data: payoutDetails.toJson());
+}
+
+/// Get daily ride summary
+/// [date] should be in YYYY-MM-DD format. Defaults to today in IST.
+Future<RideSummary> getRideSummary(API api, {String? date}) async {
+  final queryParams = <String, dynamic>{};
+  if (date != null) {
+    queryParams['date'] = date;
+  }
+  final response = await api.get('/bookings/driver/ride-summary', queryParameters: queryParams);
+  return RideSummary.fromJson(response.data);
 }

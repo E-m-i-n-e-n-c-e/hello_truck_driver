@@ -1,18 +1,3 @@
-enum VehicleType {
-  twoWheeler('TWO_WHEELER'),
-  threeWheeler('THREE_WHEELER'),
-  fourWheeler('FOUR_WHEELER');
-
-  const VehicleType(this.value);
-  final String value;
-
-  static VehicleType fromString(String value) {
-    return VehicleType.values.firstWhere(
-      (type) => type.value == value,
-    );
-  }
-}
-
 enum BookingStatus {
   pending('PENDING'),
   driverAssigned('DRIVER_ASSIGNED'),
