@@ -11,6 +11,7 @@ import 'package:hello_truck_driver/screens/profile/dialogs/email_link_dialog.dar
 import 'package:hello_truck_driver/screens/profile/documents_screen.dart';
 import 'package:hello_truck_driver/screens/profile/vehicle_screen.dart';
 import 'package:hello_truck_driver/screens/profile/address_screen.dart';
+import 'package:hello_truck_driver/utils/date_time_utils.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -587,7 +588,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             context,
             icon: Icons.calendar_today_rounded,
             title: 'Member Since',
-            value: '${driver.createdAt.day}/${driver.createdAt.month}/${driver.createdAt.year}',
+            value: DateTimeUtils.formatShortDateIST(driver.createdAt),
             onEdit: null,
           ),
           if (driver.referalCode?.isNotEmpty == true) ...[

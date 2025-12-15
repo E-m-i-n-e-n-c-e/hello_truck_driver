@@ -5,7 +5,7 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/hello_truck.dart';
 import 'package:hello_truck_driver/login_page.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:hello_truck_driver/screens/splash_screen.dart';
+import 'package:hello_truck_driver/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

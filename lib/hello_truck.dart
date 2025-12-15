@@ -6,10 +6,10 @@ import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart'
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
-import 'package:hello_truck_driver/screens/dashboard_screen.dart';
+import 'package:hello_truck_driver/screens/dashboard/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
-import 'package:hello_truck_driver/screens/rides_screen.dart';
+import 'package:hello_truck_driver/screens/rides/rides_screen.dart';
 import 'package:hello_truck_driver/screens/earnings/earnings_screen.dart';
 import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/services/location_service.dart';

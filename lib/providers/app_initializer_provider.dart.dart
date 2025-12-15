@@ -14,8 +14,6 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
   final fcmService = ref.read(fcmServiceProvider);
   await fcmService.initialize(api);
 
-  ref.invalidate(currentAssignmentProvider);
-
   final List<StreamProvider<Object>> streamProvidersToEagerInit = [
     currentPositionStreamProvider,
     fcmEventStreamProvider,

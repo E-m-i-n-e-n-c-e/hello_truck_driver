@@ -43,83 +43,99 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'Rides',
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        centerTitle: false,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(text: 'Active'),
-                Tab(text: 'History'),
-              ],
-              labelColor: colorScheme.onPrimary,
-              unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.6),
-              labelStyle: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-              unselectedLabelStyle: textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              indicator: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              padding: const EdgeInsets.all(4),
-            ),
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          // Availability Card (only show when no active ride)
-          driverAsync.when(
-            loading: () => const SizedBox(height: 4),
-            error: (_, _) => const SizedBox(height: 4),
-            data: (driver) {
-              final hasActiveRide = currentAssignmentAsync.hasValue &&
-                  currentAssignmentAsync.value?.status == AssignmentStatus.accepted;
-              final isOnRideOrAssigned = driver.driverStatus == DriverStatus.onRide || driver.driverStatus == DriverStatus.rideOffered;
-              if (hasActiveRide || isOnRideOrAssigned) {
-                return const SizedBox(height: 4);
-              }
-              return Container(
-                margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: _availabilityCard(
-                  context,
-                  isAvailable: driver.driverStatus == DriverStatus.available,
+      body: SafeArea(
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Text(
+                        'Rides',
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Availability Card (only show when no active ride)
+                      driverAsync.when(
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, _) => const SizedBox.shrink(),
+                        data: (driver) {
+                          final hasActiveRide = currentAssignmentAsync.hasValue &&
+                              currentAssignmentAsync.value?.status == AssignmentStatus.accepted;
+                          final isOnRideOrAssigned = driver.driverStatus == DriverStatus.onRide ||
+                              driver.driverStatus == DriverStatus.rideOffered;
+                          if (hasActiveRide || isOnRideOrAssigned) {
+                            return const SizedBox.shrink();
+                          }
+                          return Column(
+                            children: [
+                              _availabilityCard(
+                                context,
+                                isAvailable: driver.driverStatus == DriverStatus.available,
+                              ),
+                              const SizedBox(height: 20),
+                            ],
+                          );
+                        },
+                      ),
+
+                      // Tabs
+                      Container(
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          indicator: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          labelColor: colorScheme.onPrimary,
+                          unselectedLabelColor: colorScheme.onSurface.withValues(alpha: 0.7),
+                          labelStyle: textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                          unselectedLabelStyle: textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overlayColor: WidgetStateProperty.all(Colors.transparent),
+                          splashFactory: NoSplash.splashFactory,
+                          tabs: const [
+                            Tab(text: 'Active'),
+                            Tab(text: 'History'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildActiveRidesList(context),
+              _buildHistoryRidesList(context),
+            ],
           ),
-          // Tab Content
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildActiveRidesList(context),
-                _buildHistoryRidesList(context),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

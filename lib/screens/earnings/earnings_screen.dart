@@ -4,7 +4,7 @@ import 'package:hello_truck_driver/models/wallet_log.dart';
 import 'package:hello_truck_driver/models/transaction_log.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/payment_providers.dart';
-import 'package:intl/intl.dart';
+import 'package:hello_truck_driver/utils/date_time_utils.dart';
 
 class EarningsScreen extends ConsumerStatefulWidget {
   const EarningsScreen({super.key});
@@ -468,7 +468,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  DateFormat('MMM dd, yyyy • hh:mm a').format(log.createdAt),
+                  DateTimeUtils.formatLogDateTime(log.createdAt),
                   style: tt.bodySmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
                   ),
@@ -532,12 +532,13 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      'Booking #${log.booking?.bookingNumber ?? log.bookingId ?? 'N/A'}',
-                      style: tt.bodySmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.6),
+                    if (log.booking != null)
+                      Text(
+                        'Booking #${log.booking!.bookingNumber}',
+                        style: tt.bodySmall?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.6),
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -565,7 +566,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
               ),
               const SizedBox(width: 6),
               Text(
-                DateFormat('MMM dd, yyyy • hh:mm a').format(log.createdAt),
+                DateTimeUtils.formatLogDateTime(log.createdAt),
                 style: tt.bodySmall?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.6),
                 ),

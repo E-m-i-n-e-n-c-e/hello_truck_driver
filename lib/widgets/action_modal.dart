@@ -7,7 +7,7 @@ import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/screens/driver_navigation_screen.dart';
+import 'package:hello_truck_driver/screens/booking/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/widgets/finish_ride_modal.dart';
 
 final isActionModalOpenProvider = StateProvider<bool>((ref) => false);
