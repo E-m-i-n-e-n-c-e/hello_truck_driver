@@ -4,6 +4,7 @@ import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
@@ -331,6 +332,41 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
   Widget _availabilityCard(BuildContext context, {required bool isAvailable}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final driverAsync = ref.watch(driverProvider);
+    final expiryAlertsAsync = ref.watch(expiryAlertsProvider);
+
+    // Check statuses
+    final driver = driverAsync.value;
+    final isPendingVerification = driver?.verificationStatus == VerificationStatus.pending;
+    final isRejectedVerification = driver?.verificationStatus == VerificationStatus.rejected;
+
+    // Check if any documents are expired
+    final expiryAlerts = expiryAlertsAsync.value;
+    final hasExpiredDocs = expiryAlerts?.hasExpiredDocuments ?? false;
+
+    // Determine if toggle should be disabled
+    final shouldDisable = isPendingVerification || hasExpiredDocs || isRejectedVerification;
+
+    // Get the reason and color
+    String? disabledReason;
+    Color warningColor = Colors.orange;
+    IconData warningIcon = Icons.warning_rounded;
+
+    if (isRejectedVerification) {
+      disabledReason = 'Your verification was rejected. Please contact support to resolve the issue.';
+      warningColor = cs.error; // Use red for rejection
+      warningIcon = Icons.error_rounded;
+    } else if (isPendingVerification) {
+      disabledReason = 'Your account is pending verification. You cannot accept rides until your documents are verified.';
+      warningColor = Colors.orange;
+    } else if (hasExpiredDocs) {
+      final expiredDocs = <String>[];
+      if (expiryAlerts?.isLicenseExpired ?? false) expiredDocs.add('License');
+      if (expiryAlerts?.isFcExpired ?? false) expiredDocs.add('FC');
+      if (expiryAlerts?.isInsuranceExpired ?? false) expiredDocs.add('Insurance');
+      disabledReason = 'Your ${expiredDocs.join(", ")} ${expiredDocs.length == 1 ? "has" : "have"} expired. Please update ${expiredDocs.length == 1 ? "it" : "them"} to accept rides.';
+      warningColor = Colors.orange;
+    }
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -338,9 +374,11 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
         color: cs.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isAvailable
-              ? Colors.green.withValues(alpha: 0.3)
-              : cs.outline.withValues(alpha: 0.2),
+          color: shouldDisable
+              ? warningColor.withValues(alpha: 0.3)
+              : isAvailable
+                  ? Colors.green.withValues(alpha: 0.3)
+                  : cs.outline.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -351,13 +389,23 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: isAvailable
-                  ? Colors.green.withValues(alpha: 0.15)
-                  : cs.surfaceContainerHigh,
+              color: shouldDisable
+                  ? warningColor.withValues(alpha: 0.15)
+                  : isAvailable
+                      ? Colors.green.withValues(alpha: 0.15)
+                      : cs.surfaceContainerHigh,
             ),
             child: Icon(
-              isAvailable ? Icons.check_circle_rounded : Icons.do_not_disturb_on_rounded,
-              color: isAvailable ? Colors.green : cs.onSurface.withValues(alpha: 0.5),
+              shouldDisable
+                  ? warningIcon
+                  : isAvailable
+                      ? Icons.check_circle_rounded
+                      : Icons.do_not_disturb_on_rounded,
+              color: shouldDisable
+                  ? warningColor
+                  : isAvailable
+                      ? Colors.green
+                      : cs.onSurface.withValues(alpha: 0.5),
               size: 26,
             ),
           ),
@@ -367,7 +415,11 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isAvailable ? 'You\'re available' : 'You\'re unavailable',
+                  shouldDisable
+                      ? 'Cannot Accept Rides'
+                      : isAvailable
+                          ? 'You\'re available'
+                          : 'You\'re unavailable',
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: cs.onSurface,
@@ -375,9 +427,11 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isAvailable
-                      ? 'Ready to accept new ride requests'
-                      : 'Turn on to start receiving rides',
+                  shouldDisable
+                      ? disabledReason!
+                      : isAvailable
+                          ? 'Ready to accept new ride requests'
+                          : 'Turn on to start receiving rides',
                   style: tt.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
@@ -386,34 +440,35 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             ),
           ),
           const SizedBox(width: 12),
-          Transform.scale(
-            scale: 0.9,
-            child: Switch.adaptive(
-              value: isAvailable,
-              onChanged: _toggling
-                  ? null
-                  : (v) async {
-                      setState(() => _toggling = true);
-                      try {
-                        final api = await ref.read(apiProvider.future);
-                        await driver_api.updateDriverStatus(api, isAvailable: v);
-                        // if available, mark as ready prompt seen
-                        if(v) {
-                          await markAsReadyPromptSeen(ref);
+          if (!shouldDisable)
+            Transform.scale(
+              scale: 0.9,
+              child: Switch.adaptive(
+                value: isAvailable,
+                onChanged: _toggling
+                    ? null
+                    : (v) async {
+                        setState(() => _toggling = true);
+                        try {
+                          final api = await ref.read(apiProvider.future);
+                          await driver_api.updateDriverStatus(api, isAvailable: v);
+                          // if available, mark as ready prompt seen
+                          if (v) {
+                            await markAsReadyPromptSeen(ref);
+                          }
+                          // Refresh driver profile
+                          ref.invalidate(driverProvider);
+                          if (context.mounted) {
+                            SnackBars.success(context, v ? 'You are now available' : 'You are now unavailable');
+                          }
+                        } catch (e) {
+                          if (context.mounted) SnackBars.error(context, 'Failed to update status');
+                        } finally {
+                          if (mounted) setState(() => _toggling = false);
                         }
-                        // Refresh driver profile
-                        ref.invalidate(driverProvider);
-                        if (context.mounted) {
-                          SnackBars.success(context, v ? 'You are now available' : 'You are now unavailable');
-                        }
-                      } catch (e) {
-                        if (context.mounted) SnackBars.error(context, 'Failed to update status');
-                      } finally {
-                        if (mounted) setState(() => _toggling = false);
-                      }
-                    },
+                      },
+              ),
             ),
-          ),
         ],
       ),
     );

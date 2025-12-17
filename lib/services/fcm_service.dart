@@ -91,10 +91,10 @@ class FCMService {
 
     if (token != null) {
       int attempts = 0;
-      while (attempts < 2 && _api.accessToken != null) {
+      while (attempts < 3 && _api.accessToken != null) {
         attempts++;
         AppLogger.log('Waiting for access token before FCM upsert (attempt $attempts)');
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 1000));
       }
       await _upsertToken(token);
     }

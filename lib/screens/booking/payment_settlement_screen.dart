@@ -25,6 +25,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   bool _isProcessing = false;
   bool _showDisclaimer = false;
   bool hasSetupFCMListener = false;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -81,8 +82,13 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   }
 
   Future<void> _refresh() async {
+    if (_isRefreshing) return; // Prevent spam
+
+    setState(() => _isRefreshing = true);
+
     ref.invalidate(currentAssignmentProvider);
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Wait for 1 second to let the assignment provider refresh
+    await Future.delayed(const Duration(milliseconds: 1000));
 
     // Check if payment was received
     final assignment = await ref.read(currentAssignmentProvider.future);
@@ -94,6 +100,8 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
         if (mounted) Navigator.of(context).pop(true);
       });
     }
+
+    if (mounted) setState(() => _isRefreshing = false);
   }
 
   @override
@@ -130,9 +138,18 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           elevation: 0,
           actions: [
             IconButton(
-              onPressed: _isProcessing ? null : _refresh,
+              onPressed: (_isProcessing || _isRefreshing) ? null : _refresh,
               color: cs.onSurface,
-              icon: Icon(Icons.refresh_rounded),
+              icon: _isRefreshing
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(cs.onSurface),
+                      ),
+                    )
+                  : Icon(Icons.refresh_rounded),
               tooltip: 'Check Payment Status',
             ),
           ],

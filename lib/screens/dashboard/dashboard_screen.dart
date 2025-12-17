@@ -6,7 +6,6 @@ import 'package:hello_truck_driver/models/ride_summary.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
-import 'package:hello_truck_driver/providers/payment_providers.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
