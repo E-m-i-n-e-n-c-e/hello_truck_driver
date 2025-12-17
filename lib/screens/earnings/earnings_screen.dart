@@ -478,7 +478,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
           ),
           const SizedBox(width: 12),
           Text(
-            '${isCredit ? '+' : ''}₹${log.amount.abs().toStringAsFixed(2)}',
+            '${isCredit ? '+' : '-'}₹${log.amount.abs().toStringAsFixed(2)}',
             style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
               color: isCredit ? Colors.green : cs.error,
@@ -492,6 +492,8 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
   Widget _buildTransactionCard(BuildContext context, TransactionLog log) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final isCredit = log.isCredit;
+    final amountColor = isCredit ? Colors.green : Colors.red;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -511,12 +513,12 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
+                  color: amountColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   Icons.account_balance_rounded,
-                  color: Colors.green,
+                  color: amountColor,
                   size: 22,
                 ),
               ),
@@ -543,10 +545,10 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                 ),
               ),
               Text(
-                '+₹${log.amount.toStringAsFixed(2)}',
+                '${isCredit ? "+" : "-"}₹${log.amount.toStringAsFixed(2)}',
                 style: tt.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: Colors.green,
+                  color: amountColor,
                 ),
               ),
             ],
