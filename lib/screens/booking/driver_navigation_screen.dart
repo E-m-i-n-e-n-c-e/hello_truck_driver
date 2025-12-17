@@ -262,6 +262,179 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     return !disallowedList.contains(booking.status);
   }
 
+  Future<void> _showForceExitDialog() async {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.all(20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Title with inline icon
+            Row(
+              children: [
+                Icon(
+                  Icons.warning_rounded,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Force Exit Navigation?',
+                    style: tt.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Description
+            Text(
+              'This will stop navigation and location updates',
+              style: tt.bodyMedium?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Warning Box
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.orange.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        color: Colors.orange.shade700,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Consequences:',
+                        style: tt.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.orange.shade900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _buildWarningPoint(cs, tt, 'Navigation updates will stop'),
+                  const SizedBox(height: 6),
+                  _buildWarningPoint(cs, tt, 'Customer won\'t see your location'),
+                  const SizedBox(height: 6),
+                  _buildWarningPoint(cs, tt, 'May affect your rating'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(
+                        color: cs.outline.withValues(alpha: 0.5),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: tt.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Exit Anyway',
+                      style: tt.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (shouldExit == true) {
+      _handleNavigationExit();
+    }
+  }
+
+  Widget _buildWarningPoint(ColorScheme cs, TextTheme tt, String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 6),
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: Colors.orange.shade700,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: tt.bodySmall?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.8),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final booking = widget.assignment.booking;
@@ -278,17 +451,25 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
           title: Text(title),
           backgroundColor: Theme.of(context).colorScheme.secondary,
           actions: [
-          IconButton(
-            icon: const Icon(Icons.close_rounded),
-            onPressed: () {
-              if(_canExitNavigation(currentAssignmentAsync.value?.booking)) {
-                _handleNavigationExit();
-              } else {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-          const SizedBox(width: 12),
+            InkWell(
+              onTap: () {
+                if (_canExitNavigation(currentAssignmentAsync.value?.booking)) {
+                  _handleNavigationExit();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+              onLongPress: () {
+                // Long-press to force exit with confirmation
+                _showForceExitDialog();
+              },
+              borderRadius: BorderRadius.circular(50),
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                child: Icon(Icons.close_rounded),
+              ),
+            ),
+            const SizedBox(width: 12),
           ],
           leading: const SizedBox.shrink(),
           leadingWidth: 12,

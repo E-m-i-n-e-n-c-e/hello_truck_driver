@@ -6,6 +6,7 @@ import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
+import 'package:hello_truck_driver/screens/booking/payment_settlement_screen.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/widgets/otp_bottom_sheet.dart';
 
@@ -26,12 +27,7 @@ class NavigationOverlay extends ConsumerStatefulWidget {
 class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   bool _isLoading = false;
   bool _isExpanded = false;
-  Offset _position = const Offset(20, 120); // Initial position
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  Offset _position = const Offset(20, 120);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +43,6 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         onPanUpdate: (details) {
           setState(() {
             _position += details.delta;
-            // Keep within screen bounds
             final screenSize = MediaQuery.of(context).size;
             _position = Offset(
               _position.dx.clamp(0, screenSize.width - (_isExpanded ? 300 : 120)),
@@ -55,26 +50,28 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             );
           });
         },
-        child: _isExpanded ? _buildExpandedOverlay(context, status, tt, cs) : _buildCompactOverlay(context, status, tt, cs),
+        child: _isExpanded
+            ? _buildExpandedOverlay(context, status, tt, cs)
+            : _buildCompactOverlay(context, status, tt, cs),
       ),
     );
   }
 
   Widget _buildCompactOverlay(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
-    final (title, _, icon, color) = _getStatusInfo(status);
+    final (_, _, icon, color) = _getStatusInfo(status);
 
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = true),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
-              color: cs.shadow.withValues(alpha: 0.2),
-              blurRadius: 8,
+              color: cs.shadow.withValues(alpha: 0.15),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
@@ -83,19 +80,18 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 24,
-              height: 24,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(10),
                 color: color.withValues(alpha: 0.15),
               ),
-              child: Icon(icon, color: color, size: 14),
+              child: Icon(icon, color: color, size: 18),
             ),
             const SizedBox(width: 8),
             Text(
               'Actions',
               style: tt.labelMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: cs.onSurface,
               ),
             ),
@@ -121,9 +117,9 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withValues(alpha: 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+                color: cs.shadow.withValues(alpha: 0.2),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -137,7 +133,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
                   IconButton(
                     onPressed: () => setState(() => _isExpanded = false),
                     icon: Icon(Icons.close_rounded, size: 20, color: cs.onSurface.withValues(alpha: 0.6)),
-                    constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                   ),
                 ],
               ),
@@ -156,15 +153,14 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
     return Row(
       children: [
         Container(
-          width: 32,
-          height: 32,
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             color: color.withValues(alpha: 0.15),
           ),
-          child: Icon(icon, color: color, size: 18),
+          child: Icon(icon, color: color, size: 20),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,6 +172,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
                   color: cs.onSurface,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
                 subtitle,
                 style: tt.bodySmall?.copyWith(
@@ -191,7 +188,6 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
     );
   }
 
-
   Widget _buildActionButton(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
     final (buttonText, buttonIcon, buttonColor, isEnabled) = _getButtonInfo(status);
 
@@ -199,34 +195,34 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
       onPressed: isEnabled && !_isLoading ? () => _handleAction(status) : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: buttonColor,
-        foregroundColor: cs.onPrimary,
-        elevation: 2,
+        foregroundColor: Colors.white,
+        elevation: 0,
         shadowColor: buttonColor.withValues(alpha: 0.3),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
       child: _isLoading
           ? SizedBox(
-              height: 16,
-              width: 16,
+              height: 18,
+              width: 18,
               child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(buttonIcon, size: 16),
-                const SizedBox(width: 6),
+                Icon(buttonIcon, size: 18),
+                const SizedBox(width: 8),
                 Text(
                   buttonText,
-                  style: tt.labelMedium?.copyWith(
+                  style: tt.labelLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: cs.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -237,16 +233,16 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   (String, String, IconData, Color) _getStatusInfo(BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
-        return ('Navigate to Pickup', 'Tap when you arrive at pickup location', Icons.trip_origin_rounded, Colors.green);
+        return ('Navigate to Pickup', 'Mark arrival at pickup location', Icons.trip_origin_rounded, Colors.green);
       case BookingStatus.pickupArrived:
-        return ('Verify Pickup', 'Enter OTP to verify pickup', Icons.verified_rounded, Colors.blue);
+        return ('Verify Pickup', 'Enter customer OTP', Icons.verified_rounded, Colors.blue);
       case BookingStatus.pickupVerified:
       case BookingStatus.inTransit:
-        return ('Navigate to Drop', 'Tap when you arrive at drop location', Icons.location_on_rounded, Colors.orange);
+        return ('Navigate to Drop', 'Mark arrival at drop location', Icons.location_on_rounded, Colors.orange);
       case BookingStatus.dropArrived:
-        return ('Verify Drop', 'Enter OTP to verify drop', Icons.verified_rounded, Colors.purple);
+        return ('Verify Drop', 'Enter customer OTP', Icons.verified_rounded, Colors.purple);
       case BookingStatus.dropVerified:
-        return ('Ride Complete', 'Ready to finish the ride', Icons.check_circle_rounded, Colors.green);
+        return ('Ride Complete', 'Ready to finish', Icons.check_circle_rounded, Colors.green);
       default:
         return ('Navigation', 'Follow the route', Icons.navigation_rounded, Colors.grey);
     }
@@ -255,12 +251,12 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   (String, IconData, Color, bool) _getButtonInfo(BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
-        return ('Mark as Arrived', Icons.location_on_rounded, Colors.green, true);
+        return ('Mark Arrived', Icons.location_on_rounded, Colors.green, true);
       case BookingStatus.pickupArrived:
         return ('Verify Pickup', Icons.verified_rounded, Colors.blue, true);
       case BookingStatus.pickupVerified:
       case BookingStatus.inTransit:
-        return ('Mark as Arrived', Icons.location_on_rounded, Colors.orange, true);
+        return ('Mark Arrived', Icons.location_on_rounded, Colors.orange, true);
       case BookingStatus.dropArrived:
         return ('Verify Drop', Icons.verified_rounded, Colors.purple, true);
       case BookingStatus.dropVerified:
@@ -282,56 +278,96 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
           ref.invalidate(currentAssignmentProvider);
           _showSuccess('Marked as arrived at pickup');
           break;
+
         case BookingStatus.pickupArrived:
-          // Show OTP dialog for pickup verification
-          if(!mounted) return;
-          final otp = await _showOtpDialog(context, 'Pickup Verification', 'Enter the OTP provided by the customer');
-          if (otp != null && otp.length == 4) {
-            try {
-              await verifyPickupOtp(api, otp);
+          // Check payment status BEFORE showing OTP dialog
+          final assignment = await ref.read(currentAssignmentProvider.future);
+          final finalInvoice = assignment?.booking.finalInvoice;
+
+          if (finalInvoice != null && !finalInvoice.isPaid) {
+            // Payment pending - show payment settlement screen as modal
+            if (!mounted) return;
+
+            final settled = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => PaymentSettlementScreen(
+                  booking: assignment!.booking,
+                ),
+              ),
+            );
+
+            // If payment was settled, refresh and continue with OTP
+            if (settled == true && mounted) {
               ref.invalidate(currentAssignmentProvider);
-              _showSuccess('Pickup verified successfully! 🎉');
-              // Exit navigation and invalidate provider to trigger drop navigation
-              widget.onNavigationExit();
-            } catch (e) {
-              _showError('Invalid OTP. Please try again.');
+
+              // Small delay to let provider refresh
+              await Future.delayed(const Duration(milliseconds: 300));
+
+              if (!mounted) return;
+              final otp = await _showOtpDialog(context, 'Pickup Verification', 'Enter customer OTP');
+              if (otp != null && otp.length == 4) {
+                try {
+                  await verifyPickupOtp(api, otp);
+                  ref.invalidate(currentAssignmentProvider);
+                  _showSuccess('Pickup verified! 🎉');
+                  widget.onNavigationExit();
+                } catch (e) {
+                  _showError('Invalid OTP. Please try again.');
+                }
+              }
+            }
+          } else {
+            // Payment already received - proceed with OTP verification
+            if (!mounted) return;
+            final otp = await _showOtpDialog(context, 'Pickup Verification', 'Enter customer OTP');
+            if (otp != null && otp.length == 4) {
+              try {
+                await verifyPickupOtp(api, otp);
+                ref.invalidate(currentAssignmentProvider);
+                _showSuccess('Pickup verified! 🎉');
+                widget.onNavigationExit();
+              } catch (e) {
+                _showError('Invalid OTP. Please try again.');
+              }
             }
           }
           break;
+
         case BookingStatus.pickupVerified:
         case BookingStatus.inTransit:
           await dropArrived(api);
           ref.invalidate(currentAssignmentProvider);
           _showSuccess('Marked as arrived at drop');
           break;
+
         case BookingStatus.dropArrived:
-          // Show OTP dialog for drop verification
-          if(!mounted) return;
-          final otp = await _showOtpDialog(context, 'Drop Verification', 'Enter the OTP provided by the customer');
+          if (!mounted) return;
+          final otp = await _showOtpDialog(context, 'Drop Verification', 'Enter customer OTP');
           if (otp != null && otp.length == 4) {
             try {
               await verifyDropOtp(api, otp);
               ref.invalidate(currentAssignmentProvider);
-              _showSuccess('Drop verified successfully! 🎉');
-              // Exit navigation and show finish ride modal
+              _showSuccess('Drop verified! 🎉');
               widget.onNavigationExit();
             } catch (e) {
               _showError('Invalid OTP. Please try again.');
             }
           }
           break;
+
         case BookingStatus.dropVerified:
           await finishRide(api);
           ref.invalidate(currentAssignmentProvider);
-          _showSuccess('Ride completed successfully! 🎉');
+          _showSuccess('Ride completed! 🎉');
           break;
+
         default:
           break;
       }
     } catch (e) {
-      _showError('Failed to update status: $e');
+      _showError('Failed: ${e.toString().replaceAll('Exception: ', '')}');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

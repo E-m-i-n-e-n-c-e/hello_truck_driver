@@ -9,24 +9,16 @@ import 'package:hello_truck_driver/utils/mock_data.dart';
 
 /// Current assignment for the driver (can be null)
 final currentAssignmentProvider = FutureProvider.autoDispose<BookingAssignment?>((ref) async {
-  // Simulate network delay
-  // await Future.delayed(const Duration(milliseconds: 500));
-  // return MockData.getMockCurrentAssignment();
-
-  // TODO: Uncomment when backend is ready
   final API api = await ref.read(apiProvider.future);
-  return assignment_api.getCurrentAssignment(api);
+  BookingAssignment? assignment = await assignment_api.getCurrentAssignment(api);
+  return assignment ?? MockData.getMockCurrentAssignment();
 });
 
 /// Assignment history for the driver
 final assignmentHistoryProvider = FutureProvider.autoDispose<List<BookingAssignment>>((ref) async {
-  // Simulate network delay
-  await Future.delayed(const Duration(milliseconds: 2000));
-  return MockData.getMockAssignmentHistory();
-
-  // TODO: Uncomment when backend is ready
-  // final API api = await ref.read(apiProvider.future);
-  // return assignment_api.getAssignmentHistory(api);
+  final API api = await ref.read(apiProvider.future);
+  List<BookingAssignment> history = await assignment_api.getAssignmentHistory(api);
+  return history.isNotEmpty ? history : MockData.getMockAssignmentHistory();
 });
 
 final hasShownActionModalProvider = StateProvider((ref) => false);

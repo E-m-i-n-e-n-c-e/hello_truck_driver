@@ -68,3 +68,8 @@ Future<void> startRide(API api) async {
 Future<void> finishRide(API api) async {
   await api.post('/bookings/driver/finish');
 }
+
+/// Settle booking payment with cash
+Future<void> settleCash(API api) async {
+  await api.post('/bookings/driver/settle-cash');
+}

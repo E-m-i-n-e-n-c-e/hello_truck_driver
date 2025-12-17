@@ -12,11 +12,14 @@ class Booking {
   final BookingStatus status;
   final String? assignedDriverId;
   final AssignedDriver? assignedDriver;
+  final DateTime? acceptedAt;
   final DateTime? pickupArrivedAt;
   final DateTime? pickupVerifiedAt;
   final DateTime? dropArrivedAt;
   final DateTime? dropVerifiedAt;
   final DateTime? completedAt;
+  final DateTime? cancelledAt;
+  final String? cancellationReason;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? scheduledAt;
@@ -31,11 +34,14 @@ class Booking {
     required this.status,
     this.assignedDriverId,
     this.assignedDriver,
+    this.acceptedAt,
     this.pickupArrivedAt,
     this.pickupVerifiedAt,
     this.dropArrivedAt,
     this.dropVerifiedAt,
     this.completedAt,
+    this.cancelledAt,
+    this.cancellationReason,
     required this.createdAt,
     required this.updatedAt,
     this.scheduledAt,
@@ -58,6 +64,9 @@ class Booking {
       assignedDriver: json['assignedDriver'] != null
           ? AssignedDriver.fromJson(json['assignedDriver'])
           : null,
+      acceptedAt: json['acceptedAt'] != null
+          ? DateTime.parse(json['acceptedAt'])
+          : null,
       pickupArrivedAt: json['pickupArrivedAt'] != null
           ? DateTime.parse(json['pickupArrivedAt'])
           : null,
@@ -73,6 +82,10 @@ class Booking {
       completedAt: json['completedAt'] != null
           ? DateTime.parse(json['completedAt'])
           : null,
+      cancelledAt: json['cancelledAt'] != null
+          ? DateTime.parse(json['cancelledAt'])
+          : null,
+      cancellationReason: json['cancellationReason'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       scheduledAt: json['scheduledAt'] != null
@@ -334,10 +347,14 @@ class Invoice {
   final double totalPrice;
   final double walletApplied;
   final double finalAmount;
-  final String paymentLinkUrl;
-  final String rzpOrderId;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? paymentLinkUrl;
+  final String? rzpPaymentLinkId;
+  final String? rzpPaymentId;
+  final bool isPaid;
+  final DateTime? paidAt;
+  final String? paymentMethod;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const Invoice({
     required this.id,
@@ -353,10 +370,14 @@ class Invoice {
     required this.totalPrice,
     required this.walletApplied,
     required this.finalAmount,
-    required this.paymentLinkUrl,
-    required this.rzpOrderId,
-    required this.createdAt,
-    required this.updatedAt,
+    this.paymentLinkUrl,
+    this.rzpPaymentLinkId,
+    this.rzpPaymentId,
+    this.isPaid = false,
+    this.paidAt,
+    this.paymentMethod,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory Invoice.fromJson(Map<String, dynamic> json) {
@@ -374,14 +395,20 @@ class Invoice {
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
       walletApplied: (json['walletApplied'] ?? 0).toDouble(),
       finalAmount: (json['finalAmount'] ?? 0).toDouble(),
-      paymentLinkUrl: json['paymentLinkUrl'] ?? '',
-      rzpOrderId: json['rzpOrderId'] ?? '',
+      paymentLinkUrl: json['paymentLinkUrl'],
+      rzpPaymentLinkId: json['rzpPaymentLinkId'],
+      rzpPaymentId: json['rzpPaymentId'],
+      isPaid: json['isPaid'] ?? false,
+      paidAt: json['paidAt'] != null
+          ? DateTime.parse(json['paidAt'])
+          : null,
+      paymentMethod: json['paymentMethod'],
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+          : null,
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'])
-          : DateTime.now(),
+          : null,
     );
   }
 }
