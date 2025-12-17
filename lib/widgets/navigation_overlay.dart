@@ -45,8 +45,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             _position += details.delta;
             final screenSize = MediaQuery.of(context).size;
             _position = Offset(
-              _position.dx.clamp(0, screenSize.width - (_isExpanded ? 300 : 120)),
-              _position.dy.clamp(0, screenSize.height - (_isExpanded ? 400 : 60)),
+              _position.dx.clamp(0, screenSize.width - (_isExpanded ? 280 : 120)),
+              _position.dy.clamp(0, screenSize.height - (_isExpanded ? 250 : 250)),
             );
           });
         },
@@ -63,16 +63,16 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = true),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: cs.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(color: cs.outline.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
               color: cs.shadow.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
           ],
         ),

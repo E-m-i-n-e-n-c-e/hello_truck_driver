@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
 import 'package:hello_truck_driver/models/booking.dart';
-import 'package:hello_truck_driver/models/enums/fcm_enums.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
-import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+
+import '../../utils/logger.dart';
 
 class PaymentSettlementScreen extends ConsumerStatefulWidget {
   final Booking booking;
@@ -24,8 +24,8 @@ class PaymentSettlementScreen extends ConsumerStatefulWidget {
 class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScreen> {
   bool _isProcessing = false;
   bool _showDisclaimer = false;
-  bool hasSetupFCMListener = false;
   bool _isRefreshing = false;
+  bool _hasHandledPaymentSuccess = false;
 
   @override
   void initState() {
@@ -40,21 +40,18 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     });
   }
 
-  void _setupFCMListener() {
-    ref.listen<AsyncValue<FcmEventType>>(fcmEventStreamProvider, (previous, next) {
-      next.whenData((event) {
-        if (event == FcmEventType.paymentSuccess && mounted) {
-          // Payment received! Show success and close
-          SnackBars.success(context, 'Payment received successfully! 💰');
+  /// Centralized payment success handler
+  void _handlePaymentSuccess() {
+    AppLogger.log("Payment success handler called");
+    if (!mounted) return;
 
-          // Delay to let user see the message
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              Navigator.of(context).pop(true);
-            }
-          });
-        }
-      });
+    SnackBars.success(context, 'Payment received successfully! 💰');
+
+    // Delay to let user see the message
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
     });
   }
 
@@ -87,19 +84,8 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     setState(() => _isRefreshing = true);
 
     ref.invalidate(currentAssignmentProvider);
-    // Wait for 1 second to let the assignment provider refresh
+    // Wait for 1 second to prevent spamming
     await Future.delayed(const Duration(milliseconds: 1000));
-
-    // Check if payment was received
-    final assignment = await ref.read(currentAssignmentProvider.future);
-    final isPaid = assignment?.booking.finalInvoice?.isPaid ?? false;
-
-    if (isPaid && mounted) {
-      SnackBars.success(context, 'Payment received! 💰');
-      Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) Navigator.of(context).pop(true);
-      });
-    }
 
     if (mounted) setState(() => _isRefreshing = false);
   }
@@ -108,13 +94,19 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
+
+    if(currentAssignmentAsync.hasValue &&
+      currentAssignmentAsync.value?.booking.finalInvoice?.isPaid == true &&
+      !_hasHandledPaymentSuccess) {
+      _hasHandledPaymentSuccess = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handlePaymentSuccess();
+      });
+    }
+
     final rideSummaryAsync = ref.watch(rideSummaryProvider);
     final commissionRate = rideSummaryAsync.value?.commissionRate ?? 0.07;
-
-    if (!hasSetupFCMListener) {
-      _setupFCMListener();
-      hasSetupFCMListener = true;
-    }
 
     final finalInvoice = widget.booking.finalInvoice;
     final amount = finalInvoice?.finalAmount ?? 0.0;

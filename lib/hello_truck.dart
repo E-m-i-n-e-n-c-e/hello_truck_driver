@@ -5,7 +5,10 @@ import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
+import 'package:hello_truck_driver/models/enums/fcm_enums.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/providers/navigation_providers.dart';
+import 'package:hello_truck_driver/screens/booking/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/screens/dashboard/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
@@ -149,25 +152,65 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
   }
 
   void _setupListeners(AsyncValue<AuthState> authState) {
-      if (!_hasSetupListener) {
-        // Show offline snackbar if user is offline
-        if (authState.value?.isOffline == true) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            SnackBars.error(context, 'You are offline. Please check your internet connection.');
+    if (!_hasSetupListener) {
+      // Show offline snackbar if user is offline
+      if (authState.value?.isOffline == true) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          SnackBars.error(context, 'You are offline. Please check your internet connection.');
+        });
+      }
+
+      _hasSetupListener = true;
+    }
+    // Listen for offline status changes
+    ref.listen(authStateProvider, (previous, next) {
+      if (next.value?.isOffline == true) {
+        SnackBars.error(context, 'You are offline. Please check your internet connection.');
+      }
+      else if (previous?.value?.isOffline == true && next.value?.isOffline == false) {
+        SnackBars.success(context, 'You are back online');
+      }
+    });
+
+    // Listen for ride cancellations
+    ref.listen(fcmEventStreamProvider, (previous, next) {
+      next.whenData((event) {
+        if (event == FcmEventType.rideCancelled && mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // Cleanup navigation session
+            await stopAndCleanupNavigation(ref);
+
+            // Pop all screens to home
+            if (mounted) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              // Show cancellation dialog
+            if (mounted) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (dialogContext) => AlertDialog(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  title: Row(
+                    children: [
+                      Icon(Icons.cancel_rounded, color: Theme.of(dialogContext).colorScheme.error),
+                      const SizedBox(width: 12),
+                      const Text('Booking Cancelled'),
+                    ],
+                  ),
+                  content: const Text('Sorry, your booking has been cancelled by the customer. You will receive some compensation for your time.'),
+                  actions: [
+                    FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            }}
           });
         }
-
-        _hasSetupListener = true;
-      }
-      // Listen for offline status changes
-      ref.listen(authStateProvider, (previous, next) {
-        if (next.value?.isOffline == true) {
-          SnackBars.error(context, 'You are offline. Please check your internet connection.');
-        }
-        else if (previous?.value?.isOffline == true && next.value?.isOffline == false) {
-          SnackBars.success(context, 'You are back online');
-        }
       });
+    });
   }
 
   @override

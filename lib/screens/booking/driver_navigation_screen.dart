@@ -8,17 +8,11 @@ import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/providers/navigation_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/widgets/navigation_overlay.dart';
 
 import '../../utils/logger.dart';
-
-final _navInfoListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
-final _roadSnappedLocationUpdatedListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
-final _remainingTimeOrDistanceChangedListenerProvider = StateProvider<StreamSubscription?>((ref) => null);
-final _lastNavInfoProvider = StateProvider<NavInfo?>((ref) => null);
-final _lastRoadSnappedProvider = StateProvider<LatLng?>((ref) => null);
-final _cachedRouteProvider = StateProvider<String?>((ref) => null);
 
 class DriverNavigationScreen extends ConsumerStatefulWidget {
   final BookingAssignment assignment;
@@ -149,7 +143,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
         if (coordinates.isNotEmpty) {
           // Encode coordinates using Google polyline algorithm
           final encodedPolyline = _encodePolyline(coordinates);
-          ref.read(_cachedRouteProvider.notifier).state = encodedPolyline;
+          ref.read(cachedRouteProvider.notifier).state = encodedPolyline;
           AppLogger.log('Cached encoded polyline: ${encodedPolyline.length} characters, ${coordinates.length} points');
         }
       }
@@ -162,27 +156,27 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     final socket = ref.read(socketServiceProvider);
     final container = ProviderScope.containerOf(context);
 
-    ref.read(_navInfoListenerProvider.notifier).state ??= GoogleMapsNavigator.setNavInfoListener(
+    ref.read(navInfoListenerProvider.notifier).state ??= GoogleMapsNavigator.setNavInfoListener(
       (NavInfoEvent event) {
-        container.read(_lastNavInfoProvider.notifier).state = event.navInfo;
+        container.read(lastNavInfoProvider.notifier).state = event.navInfo;
         AppLogger.log('nav_info_cached: ${event.navInfo}');
       },
     );
 
-    ref.read(_roadSnappedLocationUpdatedListenerProvider.notifier).state ??= await GoogleMapsNavigator.setRoadSnappedLocationUpdatedListener(
+    ref.read(roadSnappedLocationUpdatedListenerProvider.notifier).state ??= await GoogleMapsNavigator.setRoadSnappedLocationUpdatedListener(
       (RoadSnappedLocationUpdatedEvent event) {
-        container.read(_lastRoadSnappedProvider.notifier).state = event.location;
+        container.read(lastRoadSnappedProvider.notifier).state = event.location;
         AppLogger.log('road_snapped_cached: ${event.location}');
       },
     );
 
-    ref.read(_remainingTimeOrDistanceChangedListenerProvider.notifier).state ??= GoogleMapsNavigator.setOnRemainingTimeOrDistanceChangedListener(
+    ref.read(remainingTimeOrDistanceChangedListenerProvider.notifier).state ??= GoogleMapsNavigator.setOnRemainingTimeOrDistanceChangedListener(
       remainingDistanceThresholdMeters: 200, // 200 meters
       remainingTimeThresholdSeconds: 60, // 1 minute
       (RemainingTimeOrDistanceChangedEvent event) {
-        final nav = container.read(_lastNavInfoProvider);
-        final loc = container.read(_lastRoadSnappedProvider);
-        final routePolyline = container.read(_cachedRouteProvider);
+        final nav = container.read(lastNavInfoProvider);
+        final loc = container.read(lastRoadSnappedProvider);
+        final routePolyline = container.read(cachedRouteProvider);
 
         // Build consolidated payload using cached NavInfo, location, and route
         final Map<String, dynamic> payload = {
@@ -210,21 +204,6 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     );
   }
 
-  Future<void> _cleanupListenersAndCache() async {
-    // clear listeners
-    await ref.read(_navInfoListenerProvider.notifier).state?.cancel();
-    await ref.read(_roadSnappedLocationUpdatedListenerProvider.notifier).state?.cancel();
-    await ref.read(_remainingTimeOrDistanceChangedListenerProvider.notifier).state?.cancel();
-    ref.read(_navInfoListenerProvider.notifier).state = null;
-    ref.read(_roadSnappedLocationUpdatedListenerProvider.notifier).state = null;
-    ref.read(_remainingTimeOrDistanceChangedListenerProvider.notifier).state = null;
-
-    // Clear cached data
-    ref.read(_lastNavInfoProvider.notifier).state = null;
-    ref.read(_lastRoadSnappedProvider.notifier).state = null;
-    ref.read(_cachedRouteProvider.notifier).state = null;
-  }
-
   /// Encode a list of coordinates using google_polyline_algorithm
   String _encodePolyline(List<LatLng> coordinates) {
     // Convert PointLatLng to List<List<num>> format expected by google_polyline_algorithm
@@ -235,18 +214,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     return encodePolyline(coords);
   }
 
-  Future<void> _stopAndCleanup() async {
-    try {
-      await GoogleMapsNavigator.stopGuidance();
-    } catch (_) {}
-    try {
-      await GoogleMapsNavigator.clearDestinations();
-    } catch (_) {}
-    await _cleanupListenersAndCache();
-  }
-
   void _handleNavigationExit() async {
-    await _stopAndCleanup();
+    await stopAndCleanupNavigation(ref);
     if (mounted) Navigator.of(context).pop();
   }
 

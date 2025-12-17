@@ -1,12 +1,12 @@
 enum FcmEventType {
   // bookingStatusChange('BOOKING_STATUS_CHANGE'),
-  driverAssignmentOffered('DRIVER_ASSIGNMENT_OFFERED'),
+  driverAssignmentOffered('DRIVER_ASSIGNMENT_OFFERED'), // Handle locally
   driverAssignmentTimeout('DRIVER_ASSIGNMENT_TIMEOUT'), // Data only
   driverVerificationUpdate('DRIVER_VERIFICATION_UPDATE'), // Data only
   paymentSuccess('PAYMENT_SUCCESS'),
   payoutProcessed('PAYOUT_PROCESSED'),
   // refundProcessed('REFUND_PROCESSED'),
-  rideCancelled('RIDE_CANCELLED'),
+  rideCancelled('RIDE_CANCELLED'), // Handle locally
   walletChange('WALLET_CHANGE');
 
   const FcmEventType(this.value);
@@ -19,10 +19,9 @@ enum FcmEventType {
   }
 
   static const localNotificationEnabledEvents = [
-    walletChange,
-    rideCancelled,
     paymentSuccess,
     payoutProcessed,
+    walletChange,
   ];
 
   static bool isLocalNotificationEnabled(FcmEventType eventType) {
