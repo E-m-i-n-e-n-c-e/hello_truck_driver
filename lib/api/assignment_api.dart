@@ -15,7 +15,7 @@ Future<BookingAssignment?> getCurrentAssignment(API api) async {
     return BookingAssignment.fromJson(response.data);
   } catch (e) {
     AppLogger.log("error: $e");
-    // Return null if no assignment found (404)
+    // Return null if error
     return null;
   }
 }

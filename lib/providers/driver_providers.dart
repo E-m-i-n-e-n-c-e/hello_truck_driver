@@ -30,7 +30,7 @@ final documentsProvider = FutureProvider.autoDispose<DriverDocuments?>((ref) asy
 });
 
 /// Driver vehicle provider - fetched separately
-final vehicleProvider = FutureProvider.autoDispose<Vehicle?>((ref) async {
+final vehicleProvider = FutureProvider<Vehicle?>((ref) async {
   final api = await ref.watch(apiProvider.future);
   try {
     return await vehicle_api.getVehicle(api);
@@ -41,7 +41,7 @@ final vehicleProvider = FutureProvider.autoDispose<Vehicle?>((ref) async {
 });
 
 /// Driver address provider - fetched separately
-final addressProvider = FutureProvider.autoDispose<DriverAddress?>((ref) async {
+final addressProvider = FutureProvider<DriverAddress?>((ref) async {
   final api = await ref.watch(apiProvider.future);
   try {
     return await address_api.getAddress(api);

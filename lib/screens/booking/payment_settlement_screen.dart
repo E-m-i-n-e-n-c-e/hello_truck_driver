@@ -129,20 +129,23 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           ),
           elevation: 0,
           actions: [
-            IconButton(
-              onPressed: (_isProcessing || _isRefreshing) ? null : _refresh,
-              color: cs.onSurface,
-              icon: _isRefreshing
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(cs.onSurface),
-                      ),
-                    )
-                  : Icon(Icons.refresh_rounded),
-              tooltip: 'Check Payment Status',
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                onPressed: (_isProcessing || _isRefreshing) ? null : _refresh,
+                color: cs.onSurface,
+                icon: _isRefreshing
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(cs.onSurface),
+                        ),
+                      )
+                    : Icon(Icons.refresh_rounded),
+                tooltip: 'Check Payment Status',
+              ),
             ),
           ],
         ),

@@ -52,11 +52,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final cs = Theme.of(context).colorScheme;
     final driverAsync = ref.watch(driverProvider);
 
-    // Watch these to keep them from being disposed
-    ref.watch(documentsProvider);
-    ref.watch(vehicleProvider);
-    ref.watch(addressProvider);
-
     return Scaffold(
       backgroundColor: cs.surface,
       body: driverAsync.when(
@@ -367,7 +362,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           title: 'Documents',
           subtitle: 'License, RC, Insurance & more',
           onTap: () {
-            ref.invalidate(documentsProvider);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const DocumentsScreen()),
