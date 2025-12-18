@@ -36,3 +36,17 @@ enum AssignmentStatus {
     );
   }
 }
+
+enum InvoiceType {
+  estimate('ESTIMATE'),
+  final_('FINAL');
+
+  const InvoiceType(this.value);
+  final String value;
+
+  static InvoiceType fromString(String value) {
+    return InvoiceType.values.firstWhere(
+      (status) => status.value == value,
+    );
+  }
+}

@@ -98,7 +98,7 @@ class Booking {
   Invoice? get estimateInvoice {
     if (invoices == null || invoices!.isEmpty) return null;
     try {
-      return invoices!.firstWhere((inv) => inv.type == 'ESTIMATE');
+      return invoices!.firstWhere((inv) => inv.type == InvoiceType.estimate);
     } catch (_) {
       return null;
     }
@@ -108,9 +108,9 @@ class Booking {
   Invoice? get finalInvoice {
     if (invoices == null || invoices!.isEmpty) return null;
     try {
-      return invoices!.firstWhere((inv) => inv.type == 'FINAL');
+      return invoices!.firstWhere((inv) => inv.type == InvoiceType.final_);
     } catch (_) {
-      return invoices!.first;
+      return null;
     }
   }
 
@@ -149,13 +149,7 @@ class Booking {
 
   /// Get formatted pickup time
   String get formattedPickupTime {
-    if (scheduledAt != null) {
-      final hour = scheduledAt!.hour;
-      final minute = scheduledAt!.minute.toString().padLeft(2, '0');
-      final period = hour >= 12 ? 'PM' : 'AM';
-      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-      return '$displayHour:$minute $period';
-    }
+    // Todo: Handle scheduled bookings
     return 'Now';
   }
 }
@@ -336,7 +330,7 @@ class Package {
 class Invoice {
   final String id;
   final String bookingId;
-  final String type; // ESTIMATE or FINAL
+  final InvoiceType type; // ESTIMATE or FINAL
   final String vehicleModelName;
   final double basePrice;
   final double perKmPrice;

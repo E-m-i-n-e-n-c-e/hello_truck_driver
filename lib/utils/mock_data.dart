@@ -94,7 +94,7 @@ class MockData {
     return Invoice(
       id: id,
       bookingId: bookingId,
-      type: type,
+      type: InvoiceType.fromString(type),
       vehicleModelName: 'Tata Ace',
       basePrice: 100.0,
       perKmPrice: 15.0,
