@@ -558,67 +558,90 @@ class _CashConfirmationSheet extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.orange.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.warning_rounded,
-              color: Colors.orange,
-              size: 48,
-            ),
-          ),
-          const SizedBox(height: 20),
+          // Title
           Text(
             'Confirm Cash Payment',
-            style: tt.titleLarge?.copyWith(
+            style: tt.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: cs.onSurface,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+
+          // Description
           Text(
-            'By confirming, you declare that you have received cash payment from the customer.',
+            'By confirming, you declare that you have received the full cash payment from the customer.',
             style: tt.bodyMedium?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.8),
+              color: cs.onSurface.withValues(alpha: 0.75),
+              height: 1.4,
             ),
-            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
+
+          // Commission info box
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: cs.errorContainer,
+              color: cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              '₹${commission.toStringAsFixed(0)} will be deducted from your wallet as platform fee.',
-              style: tt.bodyMedium?.copyWith(
-                color: cs.onErrorContainer,
-                fontWeight: FontWeight.w600,
+              border: Border.all(
+                color: cs.outline.withValues(alpha: 0.2),
               ),
-              textAlign: TextAlign.center,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: cs.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.85),
+                        height: 1.4,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '₹${commission.toStringAsFixed(0)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: cs.primary,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' platform fee will be deducted from your wallet',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 24),
+
+          // Action buttons
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context, false),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
+                    side: BorderSide(color: cs.outline.withValues(alpha: 0.4)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -627,16 +650,17 @@ class _CashConfirmationSheet extends StatelessWidget {
                     'Cancel',
                     style: tt.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
+                      color: cs.onSurface,
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                flex: 2,
-                child: ElevatedButton(
+                flex: 3,
+                child: FilledButton(
                   onPressed: () => Navigator.pop(context, true),
-                  style: ElevatedButton.styleFrom(
+                  style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
@@ -651,7 +675,7 @@ class _CashConfirmationSheet extends StatelessWidget {
                       Icon(Icons.check_circle_rounded, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Confirm',
+                        'Confirm ',
                         style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Colors.white,

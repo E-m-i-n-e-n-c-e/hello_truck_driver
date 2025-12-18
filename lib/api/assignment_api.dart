@@ -11,6 +11,7 @@ Future<BookingAssignment?> getCurrentAssignment(API api) async {
       '/bookings/driver/current-assignment',
       policy: CachePolicy.noCache,
     );
+    if(response.data == null || response.data.isEmpty) return null;
     AppLogger.log("getCurrentAssignment: ${response.data}");
     return BookingAssignment.fromJson(response.data);
   } catch (e) {

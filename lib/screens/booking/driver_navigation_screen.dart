@@ -231,7 +231,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     return !disallowedList.contains(booking.status);
   }
 
-  Future<void> _showForceExitDialog() async {
+  Future<void> _showExitDialog() async {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
@@ -254,7 +254,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Force Exit Navigation?',
+                    'Exit Navigation?',
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: cs.onSurface,
@@ -425,12 +425,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                 if (_canExitNavigation(currentAssignmentAsync.value?.booking)) {
                   _handleNavigationExit();
                 } else {
-                  Navigator.of(context).pop();
+                  _showExitDialog();
                 }
-              },
-              onLongPress: () {
-                // Long-press to force exit with confirmation
-                _showForceExitDialog();
               },
               borderRadius: BorderRadius.circular(50),
               child: Container(
