@@ -9,12 +9,12 @@ import 'package:hello_truck_driver/utils/mock_data.dart';
 final walletLogsProvider = FutureProvider.autoDispose<List<WalletLog>>((ref) async {
   final api = await ref.watch(apiProvider.future);
   final logs = await dashboard_api.getWalletLogs(api);
-  return logs.isEmpty ? MockData.getMockWalletLogs() : logs;
+  return logs;
 });
 
 /// Transaction logs (latest 50)
 final transactionLogsProvider = FutureProvider.autoDispose<List<TransactionLog>>((ref) async {
   final api = await ref.watch(apiProvider.future);
   final logs = await dashboard_api.getTransactionLogs(api);
-  return logs.isEmpty ? MockData.getMockTransactionLogs() : logs;
+  return logs;
 });

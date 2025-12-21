@@ -8,7 +8,6 @@ import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/models/enums/fcm_enums.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/providers/navigation_providers.dart';
-import 'package:hello_truck_driver/screens/booking/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/screens/dashboard/dashboard_screen.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/profile_screen.dart';
@@ -142,8 +141,8 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     if (!_screenLoaded[index]) {
       _screens[index] = switch (index) {
         0 => const DashboardScreen(),
-        1 => const EarningsScreen(),
-        2 => const RidesScreen(),
+        1 => const RidesScreen(),
+        2 => const EarningsScreen(),
         3 => const ProfileScreen(),
         _ => const SizedBox.shrink(),
       };
@@ -302,6 +301,9 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedIndex: _selectedIndex,
         onItemSelected: (index) {
+          if(index == 1) {
+            ref.invalidate(currentAssignmentProvider);
+          }
           setState(() {
             _selectedIndex = index;
           });

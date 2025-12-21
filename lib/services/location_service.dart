@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:hello_truck_driver/services/google_places_service.dart';
 
@@ -54,10 +56,37 @@ class AddressDetails {
 }
 
 class LocationService {
-  static const LocationSettings _locationSettings = LocationSettings(
-    accuracy: LocationAccuracy.high,
-    distanceFilter: 5, // Update every 5 meters
-  );
+  // Platform-specific location settings
+  static LocationSettings get _locationSettings {
+    if (Platform.isAndroid) {
+      return AndroidSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5, // Update every 5 meters
+        forceLocationManager: false,
+        intervalDuration: const Duration(seconds: 5),
+        // Enable background location for Android
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationText: "HelloTruck is tracking your location",
+          notificationTitle: "Location Active",
+          enableWakeLock: true,
+        ),
+      );
+    } else if (Platform.isIOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 5,
+        activityType: ActivityType.automotiveNavigation,
+        pauseLocationUpdatesAutomatically: false,
+        showBackgroundLocationIndicator: true,
+        allowBackgroundLocationUpdates: true,
+      );
+    }
+    // Default fallback
+    return const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 5,
+    );
+  }
 
   // Stream of current position
   Stream<Position> get positionStream => Geolocator.getPositionStream(

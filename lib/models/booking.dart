@@ -378,7 +378,7 @@ class Invoice {
     return Invoice(
       id: json['id'] ?? '',
       bookingId: json['bookingId'] ?? '',
-      type: json['type'] ?? 'ESTIMATE',
+      type: InvoiceType.fromString(json['type'] ?? 'ESTIMATE'),
       vehicleModelName: json['vehicleModelName'] ?? '',
       basePrice: (json['basePrice'] ?? 0).toDouble(),
       perKmPrice: (json['perKmPrice'] ?? 0).toDouble(),

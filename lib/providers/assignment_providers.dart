@@ -3,12 +3,11 @@ import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart' as assignment_api;
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/utils/mock_data.dart';
 
 // TODO: Remove mock data and uncomment API calls when backend is ready
 
 /// Current assignment for the driver (can be null)
-final currentAssignmentProvider = FutureProvider.autoDispose<BookingAssignment?>((ref) async {
+final currentAssignmentProvider = FutureProvider<BookingAssignment?>((ref) async {
   final API api = await ref.read(apiProvider.future);
   final assignment = await assignment_api.getCurrentAssignment(api);
   return assignment;
@@ -18,7 +17,7 @@ final currentAssignmentProvider = FutureProvider.autoDispose<BookingAssignment?>
 final assignmentHistoryProvider = FutureProvider.autoDispose<List<BookingAssignment>>((ref) async {
   final API api = await ref.read(apiProvider.future);
   final history = await assignment_api.getAssignmentHistory(api);
-  return history.isNotEmpty ? history : MockData.getMockAssignmentHistory();
+  return history;
 });
 
 final hasShownActionModalProvider = StateProvider((ref) => false);
