@@ -1,309 +1,309 @@
-import 'package:hello_truck_driver/models/enums/transaction_enums.dart';
-import 'package:hello_truck_driver/models/wallet_log.dart';
-import 'package:hello_truck_driver/models/transaction_log.dart';
-import 'package:hello_truck_driver/models/ride_summary.dart';
-import 'package:hello_truck_driver/models/booking_assignment.dart';
-import 'package:hello_truck_driver/models/booking.dart';
-import 'package:hello_truck_driver/models/enums/booking_enums.dart';
-import 'package:hello_truck_driver/models/enums/package_enums.dart';
+// import 'package:hello_truck_driver/models/enums/transaction_enums.dart';
+// import 'package:hello_truck_driver/models/wallet_log.dart';
+// import 'package:hello_truck_driver/models/transaction_log.dart';
+// import 'package:hello_truck_driver/models/ride_summary.dart';
+// import 'package:hello_truck_driver/models/booking_assignment.dart';
+// import 'package:hello_truck_driver/models/booking.dart';
+// import 'package:hello_truck_driver/models/enums/booking_enums.dart';
+// import 'package:hello_truck_driver/models/enums/package_enums.dart';
 
-/// Mock data for testing dashboard UI
-class MockData {
-  /// Mock wallet logs
-  static List<WalletLog> getMockWalletLogs() {
-    final now = DateTime.now();
+// /// Mock data for testing dashboard UI
+// class MockData {
+//   /// Mock wallet logs
+//   static List<WalletLog> getMockWalletLogs() {
+//     final now = DateTime.now();
 
-    return [
-      WalletLog(
-        id: '1',
-        beforeBalance: 1500.0,
-        afterBalance: 1850.0,
-        amount: 350.0,
-        reason: 'Earnings from Booking #1234',
-        bookingId: 'booking_1234',
-        createdAt: now.subtract(const Duration(hours: 2)),
-      ),
-      WalletLog(
-        id: '2',
-        beforeBalance: 1850.0,
-        afterBalance: 1650.0,
-        amount: -200.0,
-        reason: 'Payout to bank account',
-        bookingId: null,
-        createdAt: now.subtract(const Duration(hours: 5)),
-      ),
-      WalletLog(
-        id: '3',
-        beforeBalance: 1650.0,
-        afterBalance: 2100.0,
-        amount: 450.0,
-        reason: 'Earnings from Booking #1235',
-        bookingId: 'booking_1235',
-        createdAt: now.subtract(const Duration(hours: 8)),
-      ),
-    ];
-  }
+//     return [
+//       WalletLog(
+//         id: '1',
+//         beforeBalance: 1500.0,
+//         afterBalance: 1850.0,
+//         amount: 350.0,
+//         reason: 'Earnings from Booking #1234',
+//         bookingId: 'booking_1234',
+//         createdAt: now.subtract(const Duration(hours: 2)),
+//       ),
+//       WalletLog(
+//         id: '2',
+//         beforeBalance: 1850.0,
+//         afterBalance: 1650.0,
+//         amount: -200.0,
+//         reason: 'Payout to bank account',
+//         bookingId: null,
+//         createdAt: now.subtract(const Duration(hours: 5)),
+//       ),
+//       WalletLog(
+//         id: '3',
+//         beforeBalance: 1650.0,
+//         afterBalance: 2100.0,
+//         amount: 450.0,
+//         reason: 'Earnings from Booking #1235',
+//         bookingId: 'booking_1235',
+//         createdAt: now.subtract(const Duration(hours: 8)),
+//       ),
+//     ];
+//   }
 
-  /// Mock transaction logs
-  static List<TransactionLog> getMockTransactionLogs() {
-    final now = DateTime.now();
+//   /// Mock transaction logs
+//   static List<TransactionLog> getMockTransactionLogs() {
+//     final now = DateTime.now();
 
-    return [
-      TransactionLog(
-        id: '1',
-        customerId: 'cust_123',
-        driverId: 'driver_456',
-        amount: 350.0,
-        type: TransactionType.credit, // Matches server: Customer pays = DEBIT
-        category: TransactionCategory.bookingPayment,
-        description: 'Daily payout',
-        bookingId: 'booking_1234',
-        booking: null,
-        payoutId: null,
-        payout: null,
-        paymentMethod: PaymentMethod.online,
-        createdAt: now.subtract(const Duration(hours: 2)),
-      ),
-      TransactionLog(
-        id: '2',
-        customerId: null,
-        driverId: 'driver_456',
-        amount: 200.0,
-        type: TransactionType.credit, // Matches server: Driver receives payout = CREDIT
-        category: TransactionCategory.driverPayout,
-        description: 'Daily payout',
-        bookingId: null,
-        booking: null,
-        payoutId: 'payout_789',
-        payout: null,
-        paymentMethod: PaymentMethod.online,
-        createdAt: now.subtract(const Duration(hours: 5)),
-      ),
-    ];
-  }
+//     return [
+//       TransactionLog(
+//         id: '1',
+//         customerId: 'cust_123',
+//         driverId: 'driver_456',
+//         amount: 350.0,
+//         type: TransactionType.credit, // Matches server: Customer pays = DEBIT
+//         category: TransactionCategory.bookingPayment,
+//         description: 'Daily payout',
+//         bookingId: 'booking_1234',
+//         booking: null,
+//         payoutId: null,
+//         payout: null,
+//         paymentMethod: PaymentMethod.online,
+//         createdAt: now.subtract(const Duration(hours: 2)),
+//       ),
+//       TransactionLog(
+//         id: '2',
+//         customerId: null,
+//         driverId: 'driver_456',
+//         amount: 200.0,
+//         type: TransactionType.credit, // Matches server: Driver receives payout = CREDIT
+//         category: TransactionCategory.driverPayout,
+//         description: 'Daily payout',
+//         bookingId: null,
+//         booking: null,
+//         payoutId: 'payout_789',
+//         payout: null,
+//         paymentMethod: PaymentMethod.online,
+//         createdAt: now.subtract(const Duration(hours: 5)),
+//       ),
+//     ];
+//   }
 
-  /// Create a mock invoice
-  static Invoice _createMockInvoice({
-    required String id,
-    required String bookingId,
-    required String type,
-    required double totalPrice,
-    required double finalAmount,
-    required double distanceKm,
-  }) {
-    return Invoice(
-      id: id,
-      bookingId: bookingId,
-      type: InvoiceType.fromString(type),
-      vehicleModelName: 'Tata Ace',
-      basePrice: 100.0,
-      perKmPrice: 15.0,
-      baseKm: 5.0,
-      distanceKm: distanceKm,
-      weightInTons: 0.5,
-      effectiveBasePrice: 100.0,
-      totalPrice: totalPrice,
-      walletApplied: 0.0,
-      finalAmount: finalAmount,
-      isPaid: false,
-      paymentLinkUrl: 'https://rzp.io/123456789',
-      rzpPaymentLinkId: 'link_123456789',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-  }
+//   /// Create a mock invoice
+//   static Invoice _createMockInvoice({
+//     required String id,
+//     required String bookingId,
+//     required String type,
+//     required double totalPrice,
+//     required double finalAmount,
+//     required double distanceKm,
+//   }) {
+//     return Invoice(
+//       id: id,
+//       bookingId: bookingId,
+//       type: InvoiceType.fromString(type),
+//       vehicleModelName: 'Tata Ace',
+//       basePrice: 100.0,
+//       perKmPrice: 15.0,
+//       baseKm: 5.0,
+//       distanceKm: distanceKm,
+//       weightInTons: 0.5,
+//       effectiveBasePrice: 100.0,
+//       totalPrice: totalPrice,
+//       walletApplied: 0.0,
+//       finalAmount: finalAmount,
+//       isPaid: false,
+//       paymentLinkUrl: 'https://rzp.io/123456789',
+//       rzpPaymentLinkId: 'link_123456789',
+//       createdAt: DateTime.now(),
+//       updatedAt: DateTime.now(),
+//     );
+//   }
 
-  /// Create a mock booking
-  static Booking _createMockBooking({
-    required String id,
-    required int bookingNumber,
-    required String productName,
-    required ProductType productType,
-    required BookingStatus status,
-    required double totalPrice,
-    required double finalAmount,
-    required double distanceKm,
-    required DateTime createdAt,
-    DateTime? completedAt,
-  }) {
-    return Booking(
-      id: id,
-      bookingNumber: bookingNumber,
-      package: Package(
-        id: 'pkg_$id',
-        productType: productType,
-        approximateWeight: 500,
-        weightUnit: WeightUnit.kg,
-        productName: productName,
-      ),
-      pickupAddress: BookingAddress(
-        addressName: 'Pickup Location',
-        contactName: 'Sender Name',
-        contactPhone: '+919876543210',
-        formattedAddress: '123, MG Road, Koramangala, Bangalore 560034',
-        latitude: 12.9352,
-        longitude: 77.6245,
-      ),
-      dropAddress: BookingAddress(
-        addressName: 'Drop Location',
-        contactName: 'Receiver Name',
-        contactPhone: '+919876543211',
-        formattedAddress: '456, HSR Layout, Sector 2, Bangalore 560102',
-        latitude: 12.9141,
-        longitude: 77.6411,
-      ),
-      invoices: [
-        _createMockInvoice(
-          id: 'inv_$id',
-          bookingId: id,
-          type: 'FINAL',
-          totalPrice: totalPrice,
-          finalAmount: finalAmount,
-          distanceKm: distanceKm,
-        ),
-      ],
-      status: status,
-      createdAt: createdAt,
-      updatedAt: createdAt,
-      completedAt: completedAt,
-    );
-  }
+//   /// Create a mock booking
+//   static Booking _createMockBooking({
+//     required String id,
+//     required int bookingNumber,
+//     required String productName,
+//     required ProductType productType,
+//     required BookingStatus status,
+//     required double totalPrice,
+//     required double finalAmount,
+//     required double distanceKm,
+//     required DateTime createdAt,
+//     DateTime? completedAt,
+//   }) {
+//     return Booking(
+//       id: id,
+//       bookingNumber: bookingNumber,
+//       package: Package(
+//         id: 'pkg_$id',
+//         productType: productType,
+//         approximateWeight: 500,
+//         weightUnit: WeightUnit.kg,
+//         productName: productName,
+//       ),
+//       pickupAddress: BookingAddress(
+//         addressName: 'Pickup Location',
+//         contactName: 'Sender Name',
+//         contactPhone: '+919876543210',
+//         formattedAddress: '123, MG Road, Koramangala, Bangalore 560034',
+//         latitude: 12.9352,
+//         longitude: 77.6245,
+//       ),
+//       dropAddress: BookingAddress(
+//         addressName: 'Drop Location',
+//         contactName: 'Receiver Name',
+//         contactPhone: '+919876543211',
+//         formattedAddress: '456, HSR Layout, Sector 2, Bangalore 560102',
+//         latitude: 12.9141,
+//         longitude: 77.6411,
+//       ),
+//       invoices: [
+//         _createMockInvoice(
+//           id: 'inv_$id',
+//           bookingId: id,
+//           type: 'FINAL',
+//           totalPrice: totalPrice,
+//           finalAmount: finalAmount,
+//           distanceKm: distanceKm,
+//         ),
+//       ],
+//       status: status,
+//       createdAt: createdAt,
+//       updatedAt: createdAt,
+//       completedAt: completedAt,
+//     );
+//   }
 
-  /// Mock ride summary with today's completed rides
-  static RideSummary getMockRideSummary() {
-    final now = DateTime.now();
-    final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+//   /// Mock ride summary with today's completed rides
+//   static RideSummary getMockRideSummary() {
+//     final now = DateTime.now();
+//     final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-    // Create mock completed assignments for today
-    final todayAssignments = [
-      BookingAssignment(
-        id: 'assignment_1',
-        driverId: 'driver_456',
-        bookingId: 'booking_1001',
-        status: AssignmentStatus.accepted,
-        offeredAt: now.subtract(const Duration(hours: 4)),
-        respondedAt: now.subtract(const Duration(hours: 4)),
-        booking: _createMockBooking(
-          id: 'booking_1001',
-          bookingNumber: 10040,
-          productName: 'Vegetables',
-          productType: ProductType.agricultural,
-          status: BookingStatus.completed,
-          totalPrice: 650.0,
-          finalAmount: 650.0,
-          distanceKm: 18.2,
-          createdAt: now.subtract(const Duration(hours: 5)),
-          completedAt: now.subtract(const Duration(hours: 3)),
-        ),
-      ),
-      BookingAssignment(
-        id: 'assignment_2',
-        driverId: 'driver_456',
-        bookingId: 'booking_1002',
-        status: AssignmentStatus.accepted,
-        offeredAt: now.subtract(const Duration(hours: 2)),
-        respondedAt: now.subtract(const Duration(hours: 2)),
-        booking: _createMockBooking(
-          id: 'booking_1002',
-          bookingNumber: 10041,
-          productName: 'Electronics',
-          productType: ProductType.nonAgricultural,
-          status: BookingStatus.completed,
-          totalPrice: 450.0,
-          finalAmount: 450.0,
-          distanceKm: 8.5,
-          createdAt: now.subtract(const Duration(hours: 3)),
-          completedAt: now.subtract(const Duration(hours: 1)),
-        ),
-      ),
-    ];
+//     // Create mock completed assignments for today
+//     final todayAssignments = [
+//       BookingAssignment(
+//         id: 'assignment_1',
+//         driverId: 'driver_456',
+//         bookingId: 'booking_1001',
+//         status: AssignmentStatus.accepted,
+//         offeredAt: now.subtract(const Duration(hours: 4)),
+//         respondedAt: now.subtract(const Duration(hours: 4)),
+//         booking: _createMockBooking(
+//           id: 'booking_1001',
+//           bookingNumber: 10040,
+//           productName: 'Vegetables',
+//           productType: ProductType.agricultural,
+//           status: BookingStatus.completed,
+//           totalPrice: 650.0,
+//           finalAmount: 650.0,
+//           distanceKm: 18.2,
+//           createdAt: now.subtract(const Duration(hours: 5)),
+//           completedAt: now.subtract(const Duration(hours: 3)),
+//         ),
+//       ),
+//       BookingAssignment(
+//         id: 'assignment_2',
+//         driverId: 'driver_456',
+//         bookingId: 'booking_1002',
+//         status: AssignmentStatus.accepted,
+//         offeredAt: now.subtract(const Duration(hours: 2)),
+//         respondedAt: now.subtract(const Duration(hours: 2)),
+//         booking: _createMockBooking(
+//           id: 'booking_1002',
+//           bookingNumber: 10041,
+//           productName: 'Electronics',
+//           productType: ProductType.nonAgricultural,
+//           status: BookingStatus.completed,
+//           totalPrice: 450.0,
+//           finalAmount: 450.0,
+//           distanceKm: 8.5,
+//           createdAt: now.subtract(const Duration(hours: 3)),
+//           completedAt: now.subtract(const Duration(hours: 1)),
+//         ),
+//       ),
+//     ];
 
-    // Calculate net earnings after 7% commission
-    double totalGross = 0;
-    for (var assignment in todayAssignments) {
-      totalGross += assignment.booking.finalCost ?? 0;
-    }
-    final netEarnings = totalGross * (1 - 0.07);
+//     // Calculate net earnings after 7% commission
+//     double totalGross = 0;
+//     for (var assignment in todayAssignments) {
+//       totalGross += assignment.booking.finalCost ?? 0;
+//     }
+//     final netEarnings = totalGross * (1 - 0.07);
 
-    return RideSummary(
-      totalRides: todayAssignments.length,
-      netEarnings: netEarnings,
-      commissionRate: 0.07,
-      date: dateStr,
-      assignments: todayAssignments,
-    );
-  }
+//     return RideSummary(
+//       totalRides: todayAssignments.length,
+//       netEarnings: netEarnings,
+//       commissionRate: 0.07,
+//       date: dateStr,
+//       assignments: todayAssignments,
+//     );
+//   }
 
-  /// Mock current assignment (active ride)
-  static BookingAssignment? getMockCurrentAssignment() {
-    final now = DateTime.now();
+//   /// Mock current assignment (active ride)
+//   static BookingAssignment? getMockCurrentAssignment() {
+//     final now = DateTime.now();
 
-    return BookingAssignment(
-      id: 'assignment_active_1',
-      driverId: 'driver_456',
-      bookingId: 'booking_active_1',
-      status: AssignmentStatus.accepted,
-      offeredAt: now.subtract(const Duration(minutes: 30)),
-      respondedAt: now.subtract(const Duration(minutes: 28)),
-      booking: _createMockBooking(
-        id: 'booking_active_1',
-        bookingNumber: 10045,
-        productName: 'Rice Bags',
-        productType: ProductType.agricultural,
-        status: BookingStatus.pickupArrived,
-        totalPrice: 850.0,
-        finalAmount: 850.0,
-        distanceKm: 12.5,
-        createdAt: now.subtract(const Duration(minutes: 35)),
-      ),
-    );
-  }
+//     return BookingAssignment(
+//       id: 'assignment_active_1',
+//       driverId: 'driver_456',
+//       bookingId: 'booking_active_1',
+//       status: AssignmentStatus.accepted,
+//       offeredAt: now.subtract(const Duration(minutes: 30)),
+//       respondedAt: now.subtract(const Duration(minutes: 28)),
+//       booking: _createMockBooking(
+//         id: 'booking_active_1',
+//         bookingNumber: 10045,
+//         productName: 'Rice Bags',
+//         productType: ProductType.agricultural,
+//         status: BookingStatus.pickupArrived,
+//         totalPrice: 850.0,
+//         finalAmount: 850.0,
+//         distanceKm: 12.5,
+//         createdAt: now.subtract(const Duration(minutes: 35)),
+//       ),
+//     );
+//   }
 
-  /// Mock assignment history
-  static List<BookingAssignment> getMockAssignmentHistory() {
-    final now = DateTime.now();
+//   /// Mock assignment history
+//   static List<BookingAssignment> getMockAssignmentHistory() {
+//     final now = DateTime.now();
 
-    return [
-      BookingAssignment(
-        id: 'assignment_hist_1',
-        driverId: 'driver_456',
-        bookingId: 'booking_1001',
-        status: AssignmentStatus.accepted,
-        offeredAt: now.subtract(const Duration(days: 1, hours: 2)),
-        respondedAt: now.subtract(const Duration(days: 1, hours: 2)),
-        booking: _createMockBooking(
-          id: 'booking_1001',
-          bookingNumber: 10040,
-          productName: 'Vegetables',
-          productType: ProductType.agricultural,
-          status: BookingStatus.completed,
-          totalPrice: 680.0,
-          finalAmount: 680.0,
-          distanceKm: 18.2,
-          createdAt: now.subtract(const Duration(days: 1, hours: 3)),
-          completedAt: now.subtract(const Duration(days: 1, hours: 1)),
-        ),
-      ),
-      BookingAssignment(
-        id: 'assignment_hist_2',
-        driverId: 'driver_456',
-        bookingId: 'booking_1002',
-        status: AssignmentStatus.accepted,
-        offeredAt: now.subtract(const Duration(days: 2, hours: 5)),
-        respondedAt: now.subtract(const Duration(days: 2, hours: 5)),
-        booking: _createMockBooking(
-          id: 'booking_1002',
-          bookingNumber: 10035,
-          productName: 'Electronics - TV',
-          productType: ProductType.nonAgricultural,
-          status: BookingStatus.completed,
-          totalPrice: 450.0,
-          finalAmount: 450.0,
-          distanceKm: 8.5,
-          createdAt: now.subtract(const Duration(days: 2, hours: 6)),
-          completedAt: now.subtract(const Duration(days: 2, hours: 4)),
-        ),
-      ),
-    ];
-  }
-}
+//     return [
+//       BookingAssignment(
+//         id: 'assignment_hist_1',
+//         driverId: 'driver_456',
+//         bookingId: 'booking_1001',
+//         status: AssignmentStatus.accepted,
+//         offeredAt: now.subtract(const Duration(days: 1, hours: 2)),
+//         respondedAt: now.subtract(const Duration(days: 1, hours: 2)),
+//         booking: _createMockBooking(
+//           id: 'booking_1001',
+//           bookingNumber: 10040,
+//           productName: 'Vegetables',
+//           productType: ProductType.agricultural,
+//           status: BookingStatus.completed,
+//           totalPrice: 680.0,
+//           finalAmount: 680.0,
+//           distanceKm: 18.2,
+//           createdAt: now.subtract(const Duration(days: 1, hours: 3)),
+//           completedAt: now.subtract(const Duration(days: 1, hours: 1)),
+//         ),
+//       ),
+//       BookingAssignment(
+//         id: 'assignment_hist_2',
+//         driverId: 'driver_456',
+//         bookingId: 'booking_1002',
+//         status: AssignmentStatus.accepted,
+//         offeredAt: now.subtract(const Duration(days: 2, hours: 5)),
+//         respondedAt: now.subtract(const Duration(days: 2, hours: 5)),
+//         booking: _createMockBooking(
+//           id: 'booking_1002',
+//           bookingNumber: 10035,
+//           productName: 'Electronics - TV',
+//           productType: ProductType.nonAgricultural,
+//           status: BookingStatus.completed,
+//           totalPrice: 450.0,
+//           finalAmount: 450.0,
+//           distanceKm: 8.5,
+//           createdAt: now.subtract(const Duration(days: 2, hours: 6)),
+//           completedAt: now.subtract(const Duration(days: 2, hours: 4)),
+//         ),
+//       ),
+//     ];
+//   }
+// }

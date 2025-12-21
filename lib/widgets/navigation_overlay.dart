@@ -9,6 +9,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/screens/booking/payment_settlement_screen.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/widgets/otp_bottom_sheet.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NavigationOverlay extends ConsumerStatefulWidget {
   final BookingAssignment assignment;
@@ -104,6 +105,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildExpandedOverlay(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
+    final booking = widget.assignment.booking;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: BackdropFilter(
@@ -139,9 +142,59 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
                 ],
               ),
               const SizedBox(height: 12),
+              // Call button for arrived statuses
+              if (status == BookingStatus.pickupArrived || status == BookingStatus.dropArrived)
+                _buildCallButton(context, status, booking, tt, cs),
               if (status != BookingStatus.dropVerified) _buildActionButton(context, status, tt, cs),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCallButton(BuildContext context, BookingStatus status, dynamic booking, TextTheme tt, ColorScheme cs) {
+    final isPickup = status == BookingStatus.pickupArrived;
+    final phone = isPickup
+        ? booking.pickupAddress.contactPhone
+        : booking.dropAddress.contactPhone;
+    final contactName = isPickup
+        ? booking.pickupAddress.contactName
+        : booking.dropAddress.contactName;
+
+    if (phone.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: OutlinedButton(
+        onPressed: () async {
+          final url = Uri.parse('tel:$phone');
+          if (!await launchUrl(url)) {
+            if (context.mounted) SnackBars.error(context, 'Could not make call');
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.green,
+          side: BorderSide(color: Colors.green.withValues(alpha: 0.5)),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.call_rounded, size: 18, color: Colors.green),
+            const SizedBox(width: 8),
+            Text(
+              'Call ${contactName.isNotEmpty ? contactName.split(' ').first : 'Contact'}',
+              style: tt.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Colors.green,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -69,6 +69,8 @@ class LocationService {
           notificationText: "HelloTruck is tracking your location",
           notificationTitle: "Location Active",
           enableWakeLock: true,
+          enableWifiLock: true,
+          setOngoing: true, // Makes notification persistent (cannot be swiped away)
         ),
       );
     } else if (Platform.isIOS) {
