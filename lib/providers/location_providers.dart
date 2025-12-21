@@ -58,13 +58,14 @@ final locationUpdatesProvider = FutureProvider<void>((ref) async {
   Timer? timer;
 
   void sendLocation(Position position) {
-    AppLogger.log('sendLocation: $position');
     final driver = ref.read(driverProvider).value;
     if (driver == null ||
         driver.driverStatus != DriverStatus.available ||
         driver.verificationStatus != VerificationStatus.verified) {
+      AppLogger.log('sendLocation: Driver is not available or verified');
       return;
     }
+    AppLogger.log('sendLocation: $position');
     socketService.sendMessage('update-location', {
       'latitude': position.latitude,
       'longitude': position.longitude,

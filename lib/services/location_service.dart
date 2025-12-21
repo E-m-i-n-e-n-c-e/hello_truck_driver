@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:geolocator/geolocator.dart';
@@ -56,6 +57,12 @@ class AddressDetails {
 }
 
 class LocationService {
+  StreamSubscription<Position>? _positionSubscription;
+  final _positionController = StreamController<Position>.broadcast();
+
+  /// Returns the position stream (broadcast stream)
+  Stream<Position> get positionStream => _positionController.stream;
+
   // Platform-specific location settings
   static LocationSettings get _locationSettings {
     if (Platform.isAndroid) {
@@ -90,10 +97,29 @@ class LocationService {
     );
   }
 
-  // Stream of current position
-  Stream<Position> get positionStream => Geolocator.getPositionStream(
-        locationSettings: _locationSettings,
-      );
+  /// Start location tracking - starts the foreground service on Android
+  void startLocationUpdates() {
+    if (_positionSubscription != null) return; // Already tracking
+
+    _positionSubscription = Geolocator.getPositionStream(
+      locationSettings: _locationSettings,
+    ).listen(
+      (position) => _positionController.add(position),
+      onError: (error) => _positionController.addError(error),
+    );
+  }
+
+  /// Stop location updates and foreground service
+  Future<void> stopLocationUpdates() async {
+    await _positionSubscription?.cancel();
+    _positionSubscription = null;
+  }
+
+  /// Dispose the service
+  Future<void> dispose() async {
+    await stopLocationUpdates();
+    await _positionController.close();
+  }
 
   // Get current position once
   Future<Position> getCurrentPosition() async {

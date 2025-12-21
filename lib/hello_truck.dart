@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hello_truck_driver/models/auth_state.dart';
+import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
@@ -168,6 +169,22 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       }
       else if (previous?.value?.isOffline == true && next.value?.isOffline == false) {
         SnackBars.success(context, 'You are back online');
+      }
+    });
+
+    // Listen for driver status changes to start/stop location tracking
+    ref.listen(driverProvider, (previous, next) {
+      final driver = next.value;
+      if (driver == null) return;
+
+      final locationService = ref.read(locationServiceProvider);
+      final isAvailable = driver.driverStatus == DriverStatus.available &&
+          driver.verificationStatus == VerificationStatus.verified;
+
+      if (isAvailable) {
+        locationService.startLocationUpdates();
+      } else {
+        locationService.stopLocationUpdates();
       }
     });
 
