@@ -7,6 +7,7 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
+import '../../utils/currency_format.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -230,7 +231,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         _buildCompactStat(
           context,
           icon: Icons.currency_rupee_rounded,
-          value: (summary?.netEarnings ?? 0).toStringAsFixed(0),
+          value: (summary?.netEarnings ?? 0).toCurrency(),
           label: 'earned',
         ),
       ],
@@ -402,7 +403,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  '+₹${driverEarnings.toStringAsFixed(0)}',
+                                  '+${driverEarnings.toRupees()}',
                                   style: tt.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w800,
                                     color: Colors.green,

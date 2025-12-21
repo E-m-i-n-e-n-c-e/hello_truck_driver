@@ -8,6 +8,7 @@ import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
 import '../../utils/logger.dart';
+import '../../utils/currency_format.dart';
 
 class PaymentSettlementScreen extends ConsumerStatefulWidget {
   final Booking booking;
@@ -287,7 +288,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 ),
               ),
               Text(
-                amount.toStringAsFixed(0),
+                amount.toCurrency(),
                 style: tt.displaySmall?.copyWith(
                   color: cs.onPrimary,
                   fontWeight: FontWeight.w800,
@@ -312,7 +313,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                     ),
                   ),
                   Text(
-                    '₹${commission.toStringAsFixed(0)}',
+                    commission.toRupees(),
                     style: tt.titleMedium?.copyWith(
                       color: cs.onPrimary,
                       fontWeight: FontWeight.w700,
@@ -330,7 +331,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                     ),
                   ),
                   Text(
-                    '₹${(amount - commission).toStringAsFixed(0)}',
+                    (amount - commission).toRupees(),
                     style: tt.titleMedium?.copyWith(
                       color: cs.onPrimary,
                       fontWeight: FontWeight.w700,
@@ -492,7 +493,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           _buildDisclaimerPoint(
             cs,
             tt,
-            'If you select "Received Cash", $percentage% platform fee (₹${commission.toStringAsFixed(0)}) will be deducted from your wallet.',
+            'If you select "Received Cash", $percentage% platform fee (${commission.toRupees()}) will be deducted from your wallet.',
           ),
           const SizedBox(height: 8),
           _buildDisclaimerPoint(
@@ -614,7 +615,7 @@ class _CashConfirmationSheet extends StatelessWidget {
                       ),
                       children: [
                         TextSpan(
-                          text: '₹${commission.toStringAsFixed(0)}',
+                          text: commission.toRupees(),
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
                             color: cs.primary,

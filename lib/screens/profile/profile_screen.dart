@@ -12,6 +12,7 @@ import 'package:hello_truck_driver/screens/profile/documents_screen.dart';
 import 'package:hello_truck_driver/screens/profile/vehicle_screen.dart';
 import 'package:hello_truck_driver/screens/profile/address_screen.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
+import '../../utils/currency_format.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -332,7 +333,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '₹${driver.walletBalance.toStringAsFixed(2)}',
+                  driver.walletBalance.toRupees(),
                   style: tt.titleLarge?.copyWith(
                     color: cs.onPrimary,
                     fontWeight: FontWeight.w900,

@@ -8,6 +8,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import '../../utils/currency_format.dart';
 
 void showFinishRideModal(BuildContext context, BookingAssignment assignment, {required VoidCallback whenComplete}) {
   showModalBottomSheet(
@@ -171,7 +172,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                         context,
                         icon: Icons.currency_rupee_rounded,
                         label: 'Earnings',
-                        value: '₹${booking.finalCost?.toStringAsFixed(0) ?? booking.estimatedCost.toStringAsFixed(0)}',
+                        value: (booking.finalCost ?? booking.estimatedCost).toRupees(),
                       ),
                     ),
                   ],

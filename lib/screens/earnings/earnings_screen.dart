@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/models/transaction_log.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/payment_providers.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
+import '../../utils/currency_format.dart';
 
 class EarningsScreen extends ConsumerStatefulWidget {
   const EarningsScreen({super.key});
@@ -206,7 +207,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '₹${driver.walletBalance.toStringAsFixed(2)}',
+                        driver.walletBalance.toRupees(),
                         style: tt.headlineMedium?.copyWith(
                           color: cs.onPrimary,
                           fontWeight: FontWeight.w900,
@@ -478,7 +479,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
           ),
           const SizedBox(width: 12),
           Text(
-            '${isCredit ? '+' : '-'}₹${log.amount.abs().toStringAsFixed(2)}',
+            '${isCredit ? '+' : '-'}${log.amount.abs().toRupees()}',
             style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
               color: isCredit ? Colors.green : cs.error,
@@ -545,7 +546,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                 ),
               ),
               Text(
-                '${isCredit ? "+" : "-"}₹${log.amount.toStringAsFixed(2)}',
+                '${isCredit ? "+" : "-"}${log.amount.toRupees()}',
                 style: tt.titleMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: amountColor,
