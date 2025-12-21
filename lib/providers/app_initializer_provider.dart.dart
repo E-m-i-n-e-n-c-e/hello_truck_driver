@@ -13,6 +13,7 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
   await socketService.connect(api);
   final fcmService = ref.read(fcmServiceProvider);
   await fcmService.initialize(api);
+  final locationService = ref.read(locationServiceProvider);
 
   final List<FutureProvider<Object?>> futureProvidersToEagerInit = [
     currentAssignmentProvider,
@@ -36,5 +37,6 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
     AppLogger.log('AppInitializerProvider disposed');
     socketService.dispose();
     fcmService.stop();
+    locationService.dispose();
   });
 });
