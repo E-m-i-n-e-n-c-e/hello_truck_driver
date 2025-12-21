@@ -142,8 +142,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
                 ],
               ),
               const SizedBox(height: 12),
-              // Call button for arrived statuses
-              if (status == BookingStatus.pickupArrived || status == BookingStatus.dropArrived)
+              // Call button for all navigation statuses
+              if (status != BookingStatus.dropVerified)
                 _buildCallButton(context, status, booking, tt, cs),
               if (status != BookingStatus.dropVerified) _buildActionButton(context, status, tt, cs),
             ],
@@ -154,11 +154,13 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildCallButton(BuildContext context, BookingStatus status, dynamic booking, TextTheme tt, ColorScheme cs) {
-    final isPickup = status == BookingStatus.pickupArrived;
-    final phone = isPickup
+    // Pickup phase: confirmed, pickupArrived
+    // Drop phase: pickupVerified, inTransit, dropArrived
+    final isPickupPhase = status == BookingStatus.confirmed || status == BookingStatus.pickupArrived;
+    final phone = isPickupPhase
         ? booking.pickupAddress.contactPhone
         : booking.dropAddress.contactPhone;
-    final contactName = isPickup
+    final contactName = isPickupPhase
         ? booking.pickupAddress.contactName
         : booking.dropAddress.contactName;
 
