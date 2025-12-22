@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/document_viewer.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/document_upload_dialog.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class DocumentsScreen extends ConsumerWidget {
   const DocumentsScreen({super.key});
@@ -14,6 +15,7 @@ class DocumentsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final documentsAsync = ref.watch(documentsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -21,7 +23,7 @@ class DocumentsScreen extends ConsumerWidget {
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          'Documents',
+          l10n.titleDocuments,
           style: tt.titleLarge?.copyWith(
             fontWeight: FontWeight.w800,
           ),
@@ -70,7 +72,7 @@ class DocumentsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Failed to load documents',
+              AppLocalizations.of(context)!.failedToLoadDocuments,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -87,7 +89,7 @@ class DocumentsScreen extends ConsumerWidget {
             FilledButton.icon(
               onPressed: () => ref.invalidate(documentsProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -119,14 +121,14 @@ class DocumentsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'No documents found',
+              AppLocalizations.of(context)!.noDocumentsFound,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Complete your onboarding to upload documents',
+              AppLocalizations.of(context)!.completeOnboardingToUploadDocuments,
               textAlign: TextAlign.center,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.7),
@@ -141,6 +143,7 @@ class DocumentsScreen extends ConsumerWidget {
   Widget _buildDocumentsList(BuildContext context, WidgetRef ref, DriverDocuments documents) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -179,7 +182,7 @@ class DocumentsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'PAN Number',
+                        l10n.panNumber,
                         style: tt.labelMedium?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w600,
@@ -205,7 +208,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'Driving License',
+            title: l10n.drivingLicense,
             documentType: 'license',
             icon: Icons.drive_eta_rounded,
             expiryDate: documents.licenseExpiry,
@@ -215,7 +218,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'RC Book',
+            title: l10n.rcBook,
             documentType: 'rcBook',
             icon: Icons.local_shipping_rounded,
           ),
@@ -224,7 +227,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'FC Certificate',
+            title: l10n.fcCertificate,
             documentType: 'fc',
             icon: Icons.verified_rounded,
             expiryDate: documents.fcExpiry,
@@ -234,7 +237,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'Insurance',
+            title: l10n.insuranceCertificate,
             documentType: 'insurance',
             icon: Icons.security_rounded,
             expiryDate: documents.insuranceExpiry,
@@ -244,7 +247,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'Aadhar Card',
+            title: l10n.aadharCard,
             documentType: 'aadhar',
             icon: Icons.person_rounded,
           ),
@@ -253,7 +256,7 @@ class DocumentsScreen extends ConsumerWidget {
           _buildDocumentCard(
             context,
             ref,
-            title: 'Electricity Bill',
+            title: l10n.electricityBill,
             documentType: 'ebBill',
             icon: Icons.receipt_long_rounded,
           ),
@@ -273,6 +276,7 @@ class DocumentsScreen extends ConsumerWidget {
   }) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isExpired = expiryDate != null && expiryDate.isBefore(DateTime.now());
     final isExpiringSoon = expiryDate != null &&
@@ -340,8 +344,8 @@ class DocumentsScreen extends ConsumerWidget {
                           const SizedBox(width: 4),
                           Text(
                             isExpired
-                                ? 'Expired on ${_formatDate(expiryDate)}'
-                                : 'Valid until ${_formatDate(expiryDate)}',
+                                ? l10n.expiredOn(_formatDate(expiryDate))
+                                : l10n.validUntil(_formatDate(expiryDate)),
                             style: tt.bodySmall?.copyWith(
                               color: statusColor,
                               fontWeight: FontWeight.w600,
@@ -376,7 +380,7 @@ class DocumentsScreen extends ConsumerWidget {
                   ),
                   icon: Icon(Icons.visibility_rounded, size: 18, color: cs.primary),
                   label: Text(
-                    'View',
+                    l10n.view,
                     style: tt.labelMedium?.copyWith(
                       color: cs.primary,
                       fontWeight: FontWeight.w600,
@@ -396,7 +400,7 @@ class DocumentsScreen extends ConsumerWidget {
                   ),
                   icon: const Icon(Icons.upload_rounded, size: 18),
                   label: Text(
-                    'Re-upload',
+                    l10n.reupload,
                     style: tt.labelMedium?.copyWith(
                       color: cs.onPrimary,
                       fontWeight: FontWeight.w600,
@@ -427,7 +431,7 @@ class DocumentsScreen extends ConsumerWidget {
         currentUrl: '',
         onSuccess: () {
           ref.invalidate(documentsProvider);
-          SnackBars.success(context, '$title re-uploaded successfully');
+          SnackBars.success(context, AppLocalizations.of(context)!.reuploadedSuccess(title));
         },
       ),
     );

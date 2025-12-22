@@ -8,7 +8,10 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/utils/format_utils.dart';
+import 'package:hello_truck_driver/utils/document_expiry_utils.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
+import 'package:hello_truck_driver/utils/l10n_extensions.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -79,6 +82,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final driverName = driverAsync.whenOrNull(
       data: (driver) => driver.firstName ?? 'Driver',
     ) ?? 'Driver';
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -87,7 +91,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Hello, $driverName 👋',
+                l10n.helloDriver(driverName as String),
                 style: tt.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: cs.onSurface,
@@ -95,7 +99,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Stay ready. Earn more.',
+                l10n.stayReadyEarnMore,
                 style: tt.bodyMedium?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.7),
                 ),
@@ -123,12 +127,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       return const SizedBox.shrink();
     }
 
-    final expiryAlertsAsync = ref.watch(expiryAlertsProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final documentsAsync = ref.watch(documentsProvider);
 
-    return expiryAlertsAsync.when(
+    return documentsAsync.when(
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
-      data: (alerts) {
+      data: (documents) {
+        if (documents == null) {
+          return const SizedBox.shrink();
+        }
+
+        final alerts = calculateExpiryAlerts(documents, l10n);
+
         if (!alerts.hasAlerts && !alerts.hasExpiredDocuments) {
           return const SizedBox.shrink();
         }
@@ -183,6 +194,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildRideSummaryContent(BuildContext context, RideSummary? summary) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
@@ -203,7 +215,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                "Today's Summary",
+                l10n.todaysSummary,
                 style: tt.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: cs.onPrimary,
@@ -225,15 +237,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           context,
           icon: Icons.route_rounded,
           value: summary?.totalRides.toString() ?? '0',
-          label: 'rides',
+          label: l10n.ridesLabel,
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: 12),
         // Earnings stat
         _buildCompactStat(
           context,
           icon: Icons.currency_rupee_rounded,
-          value: (summary?.netEarnings ?? 0).toCurrency(),
-          label: 'earned',
+          value: (summary?.netEarnings ?? 0).toStringAsFixed(0),
+          label: l10n.earned,
         ),
       ],
     );
@@ -284,6 +296,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildQuickStats(BuildContext context) {
     final driverAsync = ref.watch(driverProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     // Get driver status with proper handling for all statuses
     final driverStatus = driverAsync.whenOrNull(
@@ -291,25 +304,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
 
     // Determine status display text and color
-    String statusText = 'Unavailable';
+    String statusText = l10n.driverStatusUnavailable;
     Color statusColor = Colors.grey;
 
     if (driverStatus != null) {
+      statusText = driverStatus.toLocalizedString(context);
       switch (driverStatus) {
         case DriverStatus.available:
-          statusText = 'Available';
           statusColor = Colors.green;
           break;
         case DriverStatus.onRide:
-          statusText = 'On Ride';
           statusColor = Colors.blue;
           break;
         case DriverStatus.rideOffered:
-          statusText = 'Ride Offered';
           statusColor = Colors.orange;
           break;
         case DriverStatus.unavailable:
-          statusText = 'Unavailable';
           statusColor = Colors.grey;
           break;
       }
@@ -321,7 +331,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           flex: 5,
           child: _QuickStatCard(
             icon: Icons.verified_rounded,
-            label: 'Status',
+            label: l10n.status,
             value: statusText,
             color: statusColor,
           ),
@@ -330,7 +340,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           flex: 3,
           child: _QuickStatCard(
             icon: Icons.star_rounded,
-            label: 'Score',
+            label: l10n.score,
             value: driverAsync.whenOrNull(data: (d) => d.score.toString()) ?? '0',
             color: Colors.amber,
           ),
@@ -343,6 +353,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final rideSummaryAsync = ref.watch(rideSummaryProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return rideSummaryAsync.when(
       loading: () => const SizedBox.shrink(),
@@ -358,7 +369,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 4),
               child: Text(
-                "Today's Rides",
+                l10n.todaysRides,
                 style: tt.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: cs.onSurface,
@@ -410,14 +421,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Booking #${booking.bookingNumber}',
+                                    l10n.bookingNumber(booking.bookingNumber.toString()),
                                     style: tt.titleSmall?.copyWith(
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Completed',
+                                    l10n.completed,
                                     style: tt.bodySmall?.copyWith(
                                       color: Colors.green,
                                       fontWeight: FontWeight.w600,
@@ -437,7 +448,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'earned',
+                                  l10n.earned,
                                   style: tt.bodySmall?.copyWith(
                                     color: cs.onSurface.withValues(alpha: 0.6),
                                   ),
@@ -536,6 +547,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildEmptyRidesCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,7 +555,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         Padding(
           padding: const EdgeInsets.only(left: 4),
           child: Text(
-            "Today's Rides",
+            l10n.todaysRides,
             style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: cs.onSurface,
@@ -579,7 +591,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'No rides completed yet',
+                l10n.noRidesCompletedYet,
                 style: tt.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: cs.onSurface,
@@ -587,7 +599,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Complete your first ride today!',
+                l10n.completeFirstRide,
                 style: tt.bodySmall?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.6),
                 ),
@@ -601,16 +613,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Future<void> _showLogoutDialog(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Logout', style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logoutConfirmTitle, style: TextStyle(color: cs.primary, fontWeight: FontWeight.bold)),
+        content: Text(l10n.logoutConfirmMessage),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('CANCEL', style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7))),
+            child: Text(l10n.cancel.toUpperCase(), style: TextStyle(color: cs.onSurface.withValues(alpha: 0.7))),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -618,7 +631,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               backgroundColor: cs.primary,
               foregroundColor: cs.onPrimary,
             ),
-            child: const Text('LOGOUT'),
+            child: Text(l10n.logout.toUpperCase()),
           ),
         ],
       ),
@@ -641,6 +654,7 @@ class _AlertCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final isExpired = alerts.hasExpiredDocuments;
     final color = isExpired ? cs.error : Colors.orange;
@@ -673,7 +687,7 @@ class _AlertCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isExpired ? 'Document Expired!' : 'Document Expiring Soon',
+                  isExpired ? l10n.documentExpired : l10n.documentExpiringSoon,
                   style: tt.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: color,
@@ -691,7 +705,7 @@ class _AlertCard extends StatelessWidget {
                 )),
                 if (isExpired)
                   Text(
-                    'You cannot take bookings until documents are updated.',
+                    l10n.cannotTakeBookings,
                     style: tt.bodySmall?.copyWith(
                       color: cs.error,
                       fontWeight: FontWeight.w500,
@@ -708,7 +722,7 @@ class _AlertCard extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              'Dismiss',
+              l10n.dismiss,
               style: tt.bodySmall?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w600,

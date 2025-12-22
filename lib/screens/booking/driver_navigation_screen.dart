@@ -11,6 +11,7 @@ import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/providers/navigation_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 import 'package:hello_truck_driver/widgets/navigation_overlay.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 import '../../utils/logger.dart';
 
@@ -38,9 +39,11 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   Future<void> _initSession() async {
     try {
       if (!await GoogleMapsNavigator.areTermsAccepted()) {
+        if (!mounted) return;
+        final l10n = AppLocalizations.of(context)!;
         await GoogleMapsNavigator.showTermsAndConditionsDialog(
-          'Hello Truck Navigation',
-          'Hello Truck',
+          l10n.termsAndConditionsTitle,
+          l10n.termsAndConditionsCompanyName,
         );
       }
       if (!await GoogleMapsNavigator.isInitialized()) {
@@ -53,13 +56,14 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to start navigation session')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.failedToStartNavigation)),
       );
       Navigator.of(context).pop();
     }
   }
 
   Future<void> _startGuidance(GoogleNavigationViewController c) async {
+    final l10n = AppLocalizations.of(context)!;
     await c.setMyLocationEnabled(true);
 
     final booking = widget.assignment.booking;
@@ -70,11 +74,11 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
         waypoints: [
           if (isPickup)
           NavigationWaypoint.withLatLngTarget(
-            title: 'Pickup Location',
+            title: l10n.pickupLocation,
             target: LatLng(latitude: booking.pickupAddress.latitude, longitude: booking.pickupAddress.longitude),
           ),
           NavigationWaypoint.withLatLngTarget(
-            title: 'Drop Location',
+            title: l10n.dropLocation,
             target: LatLng(latitude: booking.dropAddress.latitude, longitude: booking.dropAddress.longitude),
           ),
         ],
@@ -103,8 +107,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
               latitude: booking.pickupAddress.latitude,
               longitude: booking.pickupAddress.longitude,
             ),
-            infoWindow: const InfoWindow(
-              title: 'Pickup Location',
+            infoWindow: InfoWindow(
+              title: l10n.pickupLocation,
             ),
           ),
         if(!isPickup)
@@ -113,8 +117,8 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
             latitude: booking.dropAddress.latitude,
             longitude: booking.dropAddress.longitude,
           ),
-          infoWindow: const InfoWindow(
-            title: 'Drop Location',
+          infoWindow: InfoWindow(
+            title: l10n.dropLocation,
           ),
         ),
       ]);
@@ -125,7 +129,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Route error: $status')),
+        SnackBar(content: Text(l10n.routeError(status.toString()))),
       );
     }
   }
@@ -234,6 +238,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   Future<void> _showExitDialog() async {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final shouldExit = await showDialog<bool>(
       context: context,
@@ -254,7 +259,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Exit Navigation?',
+                    l10n.exitNavigationTitle,
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: cs.onSurface,
@@ -267,7 +272,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
 
             // Description
             Text(
-              'This will stop navigation and location updates',
+              l10n.exitNavigationMessage,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.7),
               ),
@@ -297,7 +302,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Consequences:',
+                        l10n.consequences,
                         style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Colors.orange.shade900,
@@ -306,11 +311,11 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                     ],
                   ),
                   const SizedBox(height: 10),
-                  _buildWarningPoint(cs, tt, 'Navigation updates will stop'),
+                  _buildWarningPoint(cs, tt, l10n.warningNavigationStop),
                   const SizedBox(height: 6),
-                  _buildWarningPoint(cs, tt, 'Customer won\'t see your location'),
+                  _buildWarningPoint(cs, tt, l10n.warningLocationInvisible),
                   const SizedBox(height: 6),
-                  _buildWarningPoint(cs, tt, 'May affect your rating'),
+                  _buildWarningPoint(cs, tt, l10n.warningRating),
                 ],
               ),
             ),
@@ -333,7 +338,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                       ),
                     ),
                     child: Text(
-                      'Cancel',
+                      l10n.cancel,
                       style: tt.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: cs.onSurface,
@@ -356,7 +361,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
                       ),
                     ),
                     child: Text(
-                      'Exit Anyway',
+                      l10n.exitAnyway,
                       style: tt.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -408,7 +413,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   Widget build(BuildContext context) {
     final booking = widget.assignment.booking;
     final isPickup = booking.status == BookingStatus.confirmed || booking.status == BookingStatus.pickupArrived;
-    final title = isPickup ? 'Navigating to Pickup' : 'Navigating to Drop';
+    final title = isPickup ? AppLocalizations.of(context)!.navigatingToPickup : AppLocalizations.of(context)!.navigatingToDrop;
 
     // Watch for assignment updates to get real-time status changes
     final currentAssignmentAsync = ref.watch(currentAssignmentProvider);

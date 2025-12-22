@@ -9,6 +9,7 @@ import 'package:hello_truck_driver/widgets/snackbars.dart';
 
 import '../../utils/logger.dart';
 import '../../utils/format_utils.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class PaymentSettlementScreen extends ConsumerStatefulWidget {
   final Booking booking;
@@ -46,7 +47,8 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     AppLogger.log("Payment success handler called");
     if (!mounted) return;
 
-    SnackBars.success(context, 'Payment received successfully! 💰');
+    final l10n = AppLocalizations.of(context)!;
+    SnackBars.success(context, l10n.paymentReceivedSuccess);
 
     // Delay to let user see the message
     Future.delayed(const Duration(seconds: 2), () {
@@ -67,7 +69,8 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
       ref.invalidate(currentAssignmentProvider);
 
       if (mounted) {
-        SnackBars.success(context, 'Payment settled successfully! 💰');
+        final l10n = AppLocalizations.of(context)!;
+        SnackBars.success(context, l10n.paymentSettledSuccess);
         Navigator.of(context).pop(true); // Return true to indicate success
       }
     } catch (e) {
@@ -95,6 +98,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
 
     if(currentAssignmentAsync.hasValue &&
@@ -124,7 +128,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
         backgroundColor: cs.surface,
         appBar: AppBar(
           title: Text(
-            'Payment Settlement',
+            l10n.paymentSettlementTitle,
             style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           backgroundColor: cs.surface,
@@ -150,7 +154,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                         ),
                       )
                     : Icon(Icons.refresh_rounded),
-                tooltip: 'Check Payment Status',
+                tooltip: l10n.checkPaymentStatusTooltip,
               ),
             ),
           ],
@@ -171,7 +175,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
 
               // Payment Options
               Text(
-                'Select Payment Method',
+                l10n.selectPaymentMethod,
                 style: tt.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: cs.onSurface,
@@ -202,6 +206,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   }
 
   Widget _buildPaymentAlert(ColorScheme cs, TextTheme tt) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -212,7 +217,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           width: 1.5,
         ),
       ),
-      child: Row(
+    child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -232,7 +237,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Payment Pending',
+                  l10n.paymentPendingTitle,
                   style: tt.titleSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: Colors.orange.shade900,
@@ -240,7 +245,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Customer hasn\'t paid yet. Choose how to receive payment below.',
+                  l10n.paymentPendingMessage,
                   style: tt.bodySmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.8),
                   ),
@@ -264,6 +269,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     double walletChange,
     double commissionRate,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final hasWalletAdjustment = walletApplied != 0;
 
     return Container(
@@ -287,7 +293,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
         children: [
           // Cash to Collect (main highlight)
           Text(
-            'Cash to Collect',
+            l10n.cashToCollect,
             style: tt.bodyLarge?.copyWith(
               color: cs.onPrimary.withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,
@@ -320,12 +326,12 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           const SizedBox(height: 16),
 
           // Breakdown rows
-          _buildBreakdownRow(tt, cs, 'Service Cost', totalPrice.toRupees()),
+          _buildBreakdownRow(tt, cs, l10n.serviceCost, totalPrice.toRupees()),
           if (hasWalletAdjustment) ...[
             const SizedBox(height: 8),
             _buildBreakdownRow(
               tt, cs,
-              walletApplied > 0 ? 'Customer Wallet Used' : 'Customer Debt Recovery',
+              walletApplied > 0 ? l10n.customerWalletUsed : l10n.customerDebtRecovery,
               walletApplied > 0 ? '-${walletApplied.toRupees()}' : '+${(-walletApplied).toRupees()}',
             ),
           ],
@@ -341,7 +347,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Platform Fee (${(commissionRate * 100).toStringAsFixed(0)}%)',
+                    l10n.platformFeePercentage((commissionRate * 100).toStringAsFixed(0)),
                     style: tt.bodySmall?.copyWith(
                       color: cs.onPrimary.withValues(alpha: 0.8),
                     ),
@@ -359,7 +365,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Your Earnings',
+                    l10n.yourEarnings,
                     style: tt.bodySmall?.copyWith(
                       color: cs.onPrimary.withValues(alpha: 0.8),
                     ),
@@ -396,8 +402,8 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                   const SizedBox(width: 6),
                   Text(
                     walletChange >= 0
-                        ? 'Wallet Credit: +${walletChange.abs().toRupees()}'
-                        : 'Wallet Debit: ${walletChange.toRupees()}',
+                        ? l10n.walletCreditAmount(walletChange.abs().toRupees())
+                        : l10n.walletDebitAmount(walletChange.toRupees()),
                     style: tt.bodySmall?.copyWith(
                       color: cs.onPrimary,
                       fontWeight: FontWeight.w600,
@@ -434,6 +440,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   }
 
   Widget _buildCashOption(ColorScheme cs, TextTheme tt, double commission) {
+    final l10n = AppLocalizations.of(context)!;
     return InkWell(
       onTap: _isProcessing ? null : () => _showCashConfirmation(cs, tt, commission),
       borderRadius: BorderRadius.circular(16),
@@ -466,7 +473,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Received Cash',
+                    l10n.receivedCashTitle,
                     style: tt.titleMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: cs.onSurface,
@@ -474,7 +481,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'I collected cash from customer',
+                    l10n.receivedCashSubtitle,
                     style: tt.bodyMedium?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.7),
                     ),
@@ -494,6 +501,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   }
 
   Widget _buildOnlineOption(ColorScheme cs, TextTheme tt, String? paymentLink) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -523,7 +531,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Customer Pays via App',
+                  l10n.onlinePaymentTitle,
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: cs.onSurface,
@@ -531,7 +539,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Ask customer to pay via payment link in their app',
+                  l10n.onlinePaymentSubtitle,
                   style: tt.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
@@ -545,6 +553,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
   }
 
   Widget _buildDisclaimerCard(ColorScheme cs, TextTheme tt, double commission, double commissionRate) {
+    final l10n = AppLocalizations.of(context)!;
     final percentage = (commissionRate * 100).toStringAsFixed(0);
 
     return Container(
@@ -568,7 +577,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
               ),
               const SizedBox(width: 8),
               Text(
-                'Important Information',
+                l10n.importantInformation,
                 style: tt.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: cs.onSurface,
@@ -580,19 +589,19 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           _buildDisclaimerPoint(
             cs,
             tt,
-            'Platform fee ($percentage%) is calculated on the full service cost, not the cash collected.',
+            l10n.platformFeeDisclaimer(percentage),
           ),
           const SizedBox(height: 8),
           _buildDisclaimerPoint(
             cs,
             tt,
-            'If customer used wallet credit, you\'ll receive a wallet credit. If customer had debt, extra amount collected will be debited.',
+            l10n.walletAdjustmentDisclaimer,
           ),
           const SizedBox(height: 8),
           _buildDisclaimerPoint(
             cs,
             tt,
-            'Make sure you have collected the exact "Cash to Collect" amount shown above.',
+            l10n.exactCashCollectionWarning,
           ),
         ],
       ),
@@ -649,6 +658,7 @@ class _CashConfirmationSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -663,7 +673,7 @@ class _CashConfirmationSheet extends StatelessWidget {
         children: [
           // Title
           Text(
-            'Confirm Cash Payment',
+            l10n.confirmCashPaymentTitle,
             style: tt.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: cs.onSurface,
@@ -673,7 +683,7 @@ class _CashConfirmationSheet extends StatelessWidget {
 
           // Description
           Text(
-            'By confirming, you declare that you have received the full cash payment from the customer.',
+            l10n.confirmCashPaymentMessage,
             style: tt.bodyMedium?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.75),
               height: 1.4,
@@ -715,7 +725,7 @@ class _CashConfirmationSheet extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: ' platform fee will be deducted from your wallet',
+                          text: l10n.platformFeeDeductionSuffix,
                         ),
                       ],
                     ),
@@ -741,7 +751,7 @@ class _CashConfirmationSheet extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    'Cancel',
+                    l10n.cancel,
                     style: tt.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: cs.onSurface,
@@ -769,7 +779,7 @@ class _CashConfirmationSheet extends StatelessWidget {
                       Icon(Icons.check_circle_rounded, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Confirm ',
+                        l10n.confirm,
                         style: tt.titleSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: Colors.white,

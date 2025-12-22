@@ -10,6 +10,7 @@ import 'package:hello_truck_driver/widgets/location_permission_handler.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
 import 'package:hello_truck_driver/widgets/address_search_widget.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class AddressStep extends ConsumerStatefulWidget {
   final OnboardingController controller;
@@ -108,7 +109,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
         onLocationSelected: (LatLng location, String address) {
           _updateLocationAndAddress(location);
         },
-        title: 'Search for Address',
+        title: AppLocalizations.of(context)!.searchAddress,
       ),
     );
   }
@@ -116,6 +117,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: widget.controller,
@@ -138,14 +140,14 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           // Title
           OnboardingStepTitle(
             controller: widget.controller,
-            title: 'Enter Your Address',
+            title: l10n.addressStepTitle,
           ),
 
           const SizedBox(height: 12),
 
           OnboardingStepDescription(
             controller: widget.controller,
-            description: 'Tap the search icon to search for your address and tap on the map or drag the marker to select your precise location.',
+            description: l10n.addressStepDescription,
           ),
 
           const SizedBox(height: 32),
@@ -202,7 +204,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Getting your location...',
+                              l10n.gettingLocation,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                 color: colorScheme.onSurface.withValues(alpha: 0.7),
                               ),
@@ -316,7 +318,7 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           const SizedBox(height: 24),
 
           OnboardingNote(
-            note: 'Please enter your address as it appears on your electricity bill.',
+            note: l10n.addressNote,
           ),
 
           const SizedBox(height: 40),
@@ -333,8 +335,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.addressLine1Controller,
           focusNode: widget.controller.addressLine1Focus,
-          label: 'Address Line 1',
-          hint: 'House/Building, Street',
+          label: AppLocalizations.of(context)!.addressLine1,
+          hint: AppLocalizations.of(context)!.addressLine1Hint,
           icon: Icons.home_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.landmarkFocus.requestFocus(),
@@ -347,8 +349,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.landmarkController,
           focusNode: widget.controller.landmarkFocus,
-          label: 'Landmark (Optional)',
-          hint: 'Near landmark or area',
+          label: AppLocalizations.of(context)!.landmark,
+          hint: AppLocalizations.of(context)!.landmarkHint,
           icon: Icons.place_rounded,
           onSubmitted: (_) => widget.controller.pincodeFocus.requestFocus(),
         ),
@@ -360,8 +362,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.pincodeController,
           focusNode: widget.controller.pincodeFocus,
-          label: 'Pincode',
-          hint: 'Enter Pincode',
+          label: AppLocalizations.of(context)!.pincode,
+          hint: AppLocalizations.of(context)!.enterPincode,
           icon: Icons.pin_drop_rounded,
           isRequired: true,
           keyboardType: TextInputType.number,
@@ -379,8 +381,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.cityController,
           focusNode: widget.controller.cityFocus,
-          label: 'City',
-          hint: 'City name',
+          label: AppLocalizations.of(context)!.city,
+          hint: AppLocalizations.of(context)!.cityName,
           icon: Icons.location_city_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.districtFocus.requestFocus(),
@@ -393,8 +395,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.districtController,
           focusNode: widget.controller.districtFocus,
-          label: 'District',
-          hint: 'District name',
+          label: AppLocalizations.of(context)!.district,
+          hint: AppLocalizations.of(context)!.districtName,
           icon: Icons.map_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.stateFocus.requestFocus(),
@@ -407,8 +409,8 @@ class _AddressStepState extends ConsumerState<AddressStep> {
           controller: widget.controller,
           textController: widget.controller.stateController,
           focusNode: widget.controller.stateFocus,
-          label: 'State',
-          hint: 'State name',
+          label: AppLocalizations.of(context)!.state,
+          hint: AppLocalizations.of(context)!.stateName,
           icon: Icons.public_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.onNext(),

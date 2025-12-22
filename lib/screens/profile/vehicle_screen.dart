@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/vehicle.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class VehicleScreen extends ConsumerWidget {
   const VehicleScreen({super.key});
@@ -11,6 +12,7 @@ class VehicleScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final vehicleAsync = ref.watch(vehicleProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -18,7 +20,7 @@ class VehicleScreen extends ConsumerWidget {
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          'Vehicle',
+          l10n.titleVehicle,
           style: tt.titleLarge?.copyWith(
             fontWeight: FontWeight.w800,
           ),
@@ -67,7 +69,7 @@ class VehicleScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Failed to load vehicle',
+              AppLocalizations.of(context)!.failedToLoadVehicle,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -84,7 +86,7 @@ class VehicleScreen extends ConsumerWidget {
             FilledButton.icon(
               onPressed: () => ref.invalidate(vehicleProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -116,14 +118,14 @@ class VehicleScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'No vehicle found',
+              AppLocalizations.of(context)!.noVehicleFound,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Complete your onboarding to add vehicle details',
+              AppLocalizations.of(context)!.completeOnboardingToAddVehicle,
               textAlign: TextAlign.center,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.7),
@@ -138,6 +140,7 @@ class VehicleScreen extends ConsumerWidget {
   Widget _buildVehicleDetails(BuildContext context, Vehicle vehicle) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -177,7 +180,7 @@ class VehicleScreen extends ConsumerWidget {
 
           // Vehicle Details Section
           Text(
-            'Vehicle Details',
+            l10n.titleVehicle,
             style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -195,17 +198,17 @@ class VehicleScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                _buildInfoRow(context, 'Vehicle Number', vehicle.vehicleNumber),
+                _buildInfoRow(context, l10n.vehicleNumberLabel, vehicle.vehicleNumber),
                 _buildDivider(context),
-                _buildInfoRow(context, 'Model', vehicle.vehicleModelName),
+                _buildInfoRow(context, l10n.vehicleModel, vehicle.vehicleModelName),
                 _buildDivider(context),
-                _buildInfoRow(context, 'Type', _formatEnumValue(vehicle.vehicleType.value)),
+                _buildInfoRow(context, l10n.vehicleType, _formatEnumValue(vehicle.vehicleType.value)),
                 _buildDivider(context),
-                _buildInfoRow(context, 'Body Type', _formatEnumValue(vehicle.vehicleBodyType.value)),
+                _buildInfoRow(context, l10n.vehicleBodyType, _formatEnumValue(vehicle.vehicleBodyType.value)),
                 _buildDivider(context),
-                _buildInfoRow(context, 'Body Length', '${vehicle.vehicleBodyLength} ft'),
+                _buildInfoRow(context, l10n.vehicleBodyLength, '${vehicle.vehicleBodyLength} ft'),
                 _buildDivider(context),
-                _buildInfoRow(context, 'Fuel Type', _formatEnumValue(vehicle.fuelType.value)),
+                _buildInfoRow(context, l10n.fuelType, _formatEnumValue(vehicle.fuelType.value)),
               ],
             ),
           ),
@@ -213,7 +216,7 @@ class VehicleScreen extends ConsumerWidget {
 
           // Owner Details Section (if owner exists, otherwise driver is owner)
           Text(
-            'Owner Details',
+            l10n.vehicleOwnerDetails,
             style: tt.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
@@ -251,7 +254,7 @@ class VehicleScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Self Owned',
+                          l10n.selfOwned,
                           style: tt.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: Colors.green,
@@ -259,7 +262,7 @@ class VehicleScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'You are the owner of this vehicle',
+                          l10n.selfOwnedDescription,
                           style: tt.bodyMedium?.copyWith(
                             color: cs.onSurface.withValues(alpha: 0.7),
                           ),
@@ -282,13 +285,13 @@ class VehicleScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _buildInfoRow(context, 'Owner Name', vehicle.owner!.name),
+                   _buildInfoRow(context, l10n.ownerName, vehicle.owner!.name),
                   _buildDivider(context),
-                  _buildInfoRow(context, 'Contact', vehicle.owner!.contactNumber),
+                  _buildInfoRow(context, l10n.contactNumber, vehicle.owner!.contactNumber),
                   _buildDivider(context),
-                  _buildInfoRow(context, 'Address', '${vehicle.owner!.addressLine1}, ${vehicle.owner!.city}'),
+                  _buildInfoRow(context, l10n.titleAddress, '${vehicle.owner!.addressLine1}, ${vehicle.owner!.city}'),
                   _buildDivider(context),
-                  _buildInfoRow(context, 'Pincode', vehicle.owner!.pincode),
+                  _buildInfoRow(context, l10n.pincode, vehicle.owner!.pincode),
                 ],
               ),
             ),

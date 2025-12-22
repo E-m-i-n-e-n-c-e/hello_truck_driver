@@ -4,6 +4,7 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class ReadyModal extends ConsumerStatefulWidget {
   const ReadyModal({super.key});
@@ -62,13 +63,15 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
       ref.invalidate(driverProvider);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         Navigator.of(context).pop();
-        SnackBars.success(context, 'You are now available for rides');
+        SnackBars.success(context, l10n.nowAvailableForRides);
       }
     } catch (e) {
       if(mounted) {
+        final l10n = AppLocalizations.of(context)!;
         Navigator.of(context).pop();
-        SnackBars.error(context, 'Failed to mark driver as ready: $e');
+        SnackBars.error(context, l10n.failedToMarkReady(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -89,8 +92,9 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         Navigator.of(context).pop();
-        SnackBars.error(context, 'Failed to mark prompt as seen: $e');
+        SnackBars.error(context, l10n.failedToMarkPromptSeen(e.toString()));
       }
     } finally {
       if (mounted) {
@@ -104,6 +108,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final screenSize = MediaQuery.of(context).size;
+    final l10n = AppLocalizations.of(context)!;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, result) => markAsReadyPromptSeen(ref),
@@ -183,7 +188,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              'Ready to take rides today?',
+                              l10n.readyToTakeRides,
                               style: tt.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 color: cs.onPrimary,
@@ -192,7 +197,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Start earning by accepting ride requests from customers near you',
+                              l10n.startEarningDesc,
                               style: tt.bodyLarge?.copyWith(
                                 color: cs.onPrimary.withValues(alpha: 0.9),
                                 height: 1.4,
@@ -212,22 +217,22 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                             _buildBenefitItem(
                               context,
                               Icons.notifications_active_rounded,
-                              'Get instant notifications',
-                              'Receive ride requests immediately',
+                              l10n.getInstantNotifications,
+                              l10n.receiveRideRequestsImmediately,
                             ),
                             const SizedBox(height: 12),
                             _buildBenefitItem(
                               context,
                               Icons.location_on_rounded,
-                              'Find nearby rides',
-                              'Connect with customers in your area',
+                              l10n.findNearbyRides,
+                              l10n.connectWithCustomers,
                             ),
                             const SizedBox(height: 12),
                             _buildBenefitItem(
                               context,
                               Icons.currency_rupee_rounded,
-                              'Start earning today',
-                              'Maximize your daily income potential',
+                              l10n.startEarningToday,
+                              l10n.maximizeDailyIncome,
                             ),
 
                             const SizedBox(height: 28),
@@ -254,7 +259,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                       ),
                                     ),
                                     child: Text(
-                                      'Maybe later',
+                                      l10n.maybeLater,
                                       style: tt.titleSmall?.copyWith(
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -293,7 +298,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
                                               Icon(Icons.check_circle_rounded, size: 20),
                                               const SizedBox(width: 8),
                                               Text(
-                                                "I'm ready!",
+                                                l10n.imReady,
                                                 style: tt.titleMedium?.copyWith(
                                                   fontWeight: FontWeight.w700,
                                                   color: cs.onPrimary,
@@ -310,7 +315,7 @@ class _ReadyModalState extends ConsumerState<ReadyModal>
 
                             // Footer text
                             Text(
-                              'You can change this anytime from the Rides tab',
+                              l10n.changeFromRidesTab,
                               style: tt.bodySmall?.copyWith(
                                 color: cs.onSurface.withValues(alpha: 0.5),
                               ),

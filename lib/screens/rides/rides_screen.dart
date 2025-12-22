@@ -4,14 +4,16 @@ import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
-import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/utils/format_utils.dart';
+import 'package:hello_truck_driver/utils/document_expiry_utils.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/widgets/action_modal.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
+import 'package:hello_truck_driver/utils/l10n_extensions.dart';
 
 class RidesScreen extends ConsumerStatefulWidget {
   const RidesScreen({super.key});
@@ -57,7 +59,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                     children: [
                       // Header
                       Text(
-                        'Rides',
+                        AppLocalizations.of(context)!.rides,
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,
@@ -118,9 +120,9 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                           ),
                           overlayColor: WidgetStateProperty.all(Colors.transparent),
                           splashFactory: NoSplash.splashFactory,
-                          tabs: const [
-                            Tab(text: 'Active'),
-                            Tab(text: 'History'),
+                          tabs: [
+                            Tab(text: AppLocalizations.of(context)!.tabActive),
+                            Tab(text: AppLocalizations.of(context)!.tabHistory),
                           ],
                         ),
                       ),
@@ -144,6 +146,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
 
   Widget _buildActiveRidesList(BuildContext context) {
     final currentAssignmentAsync = ref.watch(currentAssignmentProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return currentAssignmentAsync.when(
       loading: () => Center(
@@ -172,7 +175,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               ),
               const SizedBox(height: 20),
               Text(
-                'Failed to load active ride',
+                l10n.failedToLoadActiveRide,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -189,7 +192,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               FilledButton.icon(
                 onPressed: () => ref.invalidate(currentAssignmentProvider),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -199,8 +202,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
         if (assignment == null) {
           return _buildEmptyState(
             context,
-            'No active rides',
-            'Your active rides will appear here',
+            l10n.noActiveRides,
+            l10n.noActiveRidesSubtitle,
             Icons.directions_car_filled_rounded,
           );
         }
@@ -216,6 +219,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
 
   Widget _buildHistoryRidesList(BuildContext context) {
     final historyAsync = ref.watch(assignmentHistoryProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return historyAsync.when(
       loading: () => Center(
@@ -244,7 +248,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               ),
               const SizedBox(height: 20),
               Text(
-                'Failed to load ride history',
+                l10n.failedToLoadRideHistory,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -261,7 +265,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               FilledButton.icon(
                 onPressed: () => ref.invalidate(assignmentHistoryProvider),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Retry'),
+                label: Text(l10n.retry),
               ),
             ],
           ),
@@ -271,8 +275,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
         if (items.isEmpty) {
           return _buildEmptyState(
             context,
-            'No ride history',
-            'Your completed rides will appear here',
+            l10n.noRideHistory,
+            l10n.noRideHistorySubtitle,
             Icons.history_rounded,
           );
         }
@@ -334,15 +338,17 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final driverAsync = ref.watch(driverProvider);
-    final expiryAlertsAsync = ref.watch(expiryAlertsProvider);
+    final documentsAsync = ref.watch(documentsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     // Check statuses
     final driver = driverAsync.value;
     final isPendingVerification = driver?.verificationStatus == VerificationStatus.pending;
     final isRejectedVerification = driver?.verificationStatus == VerificationStatus.rejected;
 
-    // Check if any documents are expired
-    final expiryAlerts = expiryAlertsAsync.value;
+    // Compute expiry alerts from documents at UI level
+    final documents = documentsAsync.value;
+    final expiryAlerts = documents != null ? calculateExpiryAlerts(documents, l10n) : null;
     final hasExpiredDocs = expiryAlerts?.hasExpiredDocuments ?? false;
 
     // Determine if toggle should be disabled
@@ -354,18 +360,18 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     IconData warningIcon = Icons.warning_rounded;
 
     if (isRejectedVerification) {
-      disabledReason = 'Your verification was rejected. Please contact support to resolve the issue.';
+      disabledReason = l10n.verificationRejectedMessage;
       warningColor = cs.error; // Use red for rejection
       warningIcon = Icons.error_rounded;
     } else if (isPendingVerification) {
-      disabledReason = 'Your account is pending verification. You cannot accept rides until your documents are verified.';
+      disabledReason = l10n.verificationPendingMessage;
       warningColor = Colors.orange;
     } else if (hasExpiredDocs) {
       final expiredDocs = <String>[];
-      if (expiryAlerts?.isLicenseExpired ?? false) expiredDocs.add('License');
-      if (expiryAlerts?.isFcExpired ?? false) expiredDocs.add('FC');
-      if (expiryAlerts?.isInsuranceExpired ?? false) expiredDocs.add('Insurance');
-      disabledReason = 'Your ${expiredDocs.join(", ")} ${expiredDocs.length == 1 ? "has" : "have"} expired. Please update ${expiredDocs.length == 1 ? "it" : "them"} to accept rides.';
+      if (expiryAlerts?.isLicenseExpired ?? false) expiredDocs.add(l10n.license);
+      if (expiryAlerts?.isFcExpired ?? false) expiredDocs.add(l10n.fc);
+      if (expiryAlerts?.isInsuranceExpired ?? false) expiredDocs.add(l10n.insurance);
+      disabledReason = l10n.documentsExpiredMessage(expiredDocs.join(", "));
       warningColor = Colors.orange;
     }
 
@@ -417,10 +423,10 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
               children: [
                 Text(
                   shouldDisable
-                      ? 'Cannot Accept Rides'
+                      ? l10n.cannotAcceptRides
                       : isAvailable
-                          ? 'You\'re available'
-                          : 'You\'re unavailable',
+                          ? l10n.youAreAvailable
+                          : l10n.youAreUnavailable,
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: cs.onSurface,
@@ -431,8 +437,8 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                   shouldDisable
                       ? disabledReason!
                       : isAvailable
-                          ? 'Ready to accept new ride requests'
-                          : 'Turn on to start receiving rides',
+                          ? l10n.readyToAcceptRequests
+                          : l10n.turnOnToReceiveRides,
                   style: tt.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
@@ -460,10 +466,10 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                           // Refresh driver profile
                           ref.invalidate(driverProvider);
                           if (context.mounted) {
-                            SnackBars.success(context, v ? 'You are now available' : 'You are now unavailable');
+                            SnackBars.success(context, v ? l10n.youAreNowAvailable : l10n.youAreNowUnavailable);
                           }
                         } catch (e) {
-                          if (context.mounted) SnackBars.error(context, 'Failed to update status');
+                          if (context.mounted) SnackBars.error(context, l10n.failedToUpdateStatus);
                         } finally {
                           if (mounted) setState(() => _toggling = false);
                         }
@@ -503,7 +509,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Booking #${booking.bookingNumber}',
+                      AppLocalizations.of(context)!.bookingNumber(booking.bookingNumber.toString()),
                       style: tt.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: cs.onSurface,
@@ -511,7 +517,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _getPackageTitle(package),
+                      _getPackageTitle(context, package),
                       style: tt.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.7),
                       ),
@@ -526,7 +532,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  booking.status.value.replaceAll('_', ' '),
+                  booking.status.toLocalizedString(context),
                   style: tt.labelMedium?.copyWith(
                     color: cs.primary,
                     fontWeight: FontWeight.w700,
@@ -568,7 +574,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Pickup',
+                            AppLocalizations.of(context)!.pickup,
                             style: tt.labelSmall?.copyWith(
                               color: cs.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w600,
@@ -627,7 +633,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Drop',
+                            AppLocalizations.of(context)!.drop,
                             style: tt.labelSmall?.copyWith(
                               color: cs.onSurface.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w600,
@@ -658,7 +664,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             spacing: 8,
             runSpacing: 8,
             children: [
-              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
+              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(context, package)),
               _chip(context, icon: Icons.straighten_rounded, label: booking.distanceKm.toDistance()),
               _chip(context, icon: Icons.currency_rupee_rounded, label: (booking.finalCost ?? booking.estimatedCost).toCurrency()),
               if (booking.scheduledAt != null)
@@ -687,19 +693,19 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     switch (booking.status) {
       case BookingStatus.confirmed:
       case BookingStatus.pickupArrived:
-        buttonText = 'Navigate to Pickup';
+        buttonText = AppLocalizations.of(context)!.navigateToPickup;
         buttonIcon = Icons.navigation_rounded;
         buttonColor = Colors.green;
         break;
       case BookingStatus.pickupVerified:
       case BookingStatus.inTransit:
       case BookingStatus.dropArrived:
-        buttonText = 'Navigate to Drop';
+        buttonText = AppLocalizations.of(context)!.navigateToDrop;
         buttonIcon = Icons.navigation_rounded;
         buttonColor = Colors.red;
         break;
       case BookingStatus.dropVerified:
-        buttonText = 'Complete Ride';
+        buttonText = AppLocalizations.of(context)!.completeRide;
         buttonIcon = Icons.check_circle_rounded;
         buttonColor = Colors.green;
         break;
@@ -765,7 +771,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Booking #${booking.bookingNumber}',
+                      AppLocalizations.of(context)!.bookingNumber(booking.bookingNumber.toString()),
                       style: tt.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: cs.onSurface,
@@ -773,7 +779,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      _getPackageTitle(package),
+                      _getPackageTitle(context, package),
                       style: tt.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.7),
                       ),
@@ -788,7 +794,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
                   borderRadius: BorderRadius.circular(7),
                 ),
                 child: Text(
-                  booking.status.value.replaceAll('_', ' '),
+                  booking.status.toLocalizedString(context),
                   style: tt.labelSmall?.copyWith(
                     color: _getStatusColor(booking.status, cs),
                     fontWeight: FontWeight.w700,
@@ -871,7 +877,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             spacing: 8,
             runSpacing: 6,
             children: [
-              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
+              _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(context, package)),
               _chip(context, icon: Icons.straighten_rounded, label: booking.distanceKm.toDistance()),
               _chip(context, icon: Icons.currency_rupee_rounded, label: (booking.finalCost ?? booking.estimatedCost).toCurrency()),
             ],
@@ -919,17 +925,17 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
     );
   }
 
-  String _getPackageTitle(Package package) {
+  String _getPackageTitle(BuildContext context, Package package) {
     if (package.productType.value == 'AGRICULTURAL') {
-      return package.productName ?? 'Agricultural Product';
+      return package.productName ?? AppLocalizations.of(context)!.agriculturalProduct;
     } else {
-      return package.description ?? 'Package Delivery';
+      return package.description ?? AppLocalizations.of(context)!.packageDelivery;
     }
   }
 
-  String _getFormattedWeight(Package package) {
+  String _getFormattedWeight(BuildContext context, Package package) {
     final weight = package.approximateWeight;
-    final unit = package.weightUnit.value;
+    final unit = package.weightUnit.toLocalizedString(context);
     return '$weight $unit';
   }
 }

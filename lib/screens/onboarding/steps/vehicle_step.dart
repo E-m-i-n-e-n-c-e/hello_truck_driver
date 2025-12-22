@@ -7,6 +7,7 @@ import 'package:hello_truck_driver/screens/onboarding/widgets/document_upload_ca
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class VehicleStep extends ConsumerStatefulWidget {
   final OnboardingController controller;
@@ -26,6 +27,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: widget.controller,
@@ -48,14 +50,14 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           // Title
           OnboardingStepTitle(
             controller: widget.controller,
-            title: 'Vehicle Details',
+            title: l10n.vehicleStepTitle,
           ),
 
           const SizedBox(height: 12),
 
           OnboardingStepDescription(
             controller: widget.controller,
-            description: 'Enter your vehicle information and owner details for registration.',
+            description: l10n.vehicleStepDescription,
           ),
 
           const SizedBox(height: 32),
@@ -84,8 +86,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           textController: widget.controller.vehicleNumberController,
           focusNode: widget.controller.vehicleNumberFocus,
-          label: 'Vehicle Number',
-          hint: 'Enter vehicle registration number',
+          label: AppLocalizations.of(context)!.vehicleNumber,
+          hint: AppLocalizations.of(context)!.enterVehicleNumber,
           icon: Icons.confirmation_number_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.vehicleBodyLengthFocus.requestFocus(),
@@ -96,7 +98,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
         // Vehicle Type Dropdown
         OnboardingDropdown(
           controller: widget.controller,
-          label: 'Vehicle Type',
+          label: AppLocalizations.of(context)!.vehicleType,
           icon: Icons.directions_car_rounded,
           value: widget.controller.selectedVehicleType?.value,
           items: VehicleType.values.map((type) =>
@@ -124,8 +126,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           textController: widget.controller.vehicleBodyLengthController,
           focusNode: widget.controller.vehicleBodyLengthFocus,
-          label: 'Vehicle Body Length (ft)',
-          hint: 'Enter body length',
+          label: AppLocalizations.of(context)!.vehicleBodyLength,
+          hint: AppLocalizations.of(context)!.enterBodyLength,
           icon: Icons.straighten_rounded,
           keyboardType: TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
@@ -139,8 +141,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
 
         // Vehicle Image Upload
         DocumentUploadCard(
-          title: 'Vehicle Image',
-          subtitle: 'Upload a clear image of your vehicle',
+          title: AppLocalizations.of(context)!.vehicleImage,
+          subtitle: AppLocalizations.of(context)!.uploadVehicleImage,
           icon: Icons.directions_car_rounded,
           documentType: 'vehicleImage',
           selectedFile: widget.controller.selectedVehicleImage,
@@ -173,7 +175,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
         // Vehicle Body Type Dropdown
         OnboardingDropdown(
           controller: widget.controller,
-          label: 'Vehicle Body Type',
+          label: AppLocalizations.of(context)!.vehicleBodyType,
           icon: Icons.inventory_2_rounded,
           value: widget.controller.selectedVehicleBodyType?.value,
           items: VehicleBodyType.values.map((type) =>
@@ -193,7 +195,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
         // Fuel Type Dropdown
         OnboardingDropdown(
           controller: widget.controller,
-          label: 'Fuel Type',
+          label: AppLocalizations.of(context)!.fuelType,
           icon: Icons.local_gas_station_rounded,
           value: widget.controller.selectedFuelType?.value,
           items: FuelType.values.map((type) =>
@@ -214,12 +216,13 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
 
   Widget _buildVehicleOwnerSection(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Vehicle Owner Details',
+          l10n.vehicleOwnerDetails,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
             color: colorScheme.primary,
@@ -252,13 +255,13 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
               }
             },
             title: Text(
-              'Same as Driver',
+              l10n.sameAsDriver,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
             ),
             subtitle: Text(
-              'Vehicle owner details are same as driver',
+              l10n.sameAsDriverSubtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -284,8 +287,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           textController: widget.controller.ownerNameController,
           focusNode: widget.controller.ownerNameFocus,
-          label: 'Owner Name',
-          hint: 'Enter owner full name',
+          label: AppLocalizations.of(context)!.ownerName,
+          hint: AppLocalizations.of(context)!.enterOwnerName,
           icon: Icons.person_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.ownerContactFocus.requestFocus(),
@@ -298,8 +301,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
           controller: widget.controller,
           textController: widget.controller.ownerContactController,
           focusNode: widget.controller.ownerContactFocus,
-          label: 'Contact Number',
-          hint: 'Enter contact number',
+          label: AppLocalizations.of(context)!.contactNumber,
+          hint: AppLocalizations.of(context)!.enterContactNumber,
           icon: Icons.phone_rounded,
           isRequired: true,
           keyboardType: TextInputType.phone,
@@ -402,8 +405,8 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
 
         // Owner Aadhar Upload
         DocumentUploadCard(
-          title: 'Owner Aadhar Card',
-          subtitle: 'Upload owner\'s Aadhar card',
+          title: AppLocalizations.of(context)!.ownerAadharCard,
+          subtitle: AppLocalizations.of(context)!.uploadOwnerAadhar,
           icon: Icons.credit_card_rounded,
           documentType: 'ownerAadhar',
           selectedFile: widget.controller.selectedOwnerAadhar,
@@ -436,6 +439,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
 
   Widget _buildVehicleModelDropdown() {
     final vehicleModelsAsync = ref.watch(vehicleModelsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return vehicleModelsAsync.when(
       data: (models) {
@@ -447,7 +451,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
               color: Theme.of(context).colorScheme.errorContainer,
             ),
             child: Text(
-              'No vehicle models available',
+              l10n.noVehicleModels,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onErrorContainer,
               ),
@@ -457,7 +461,7 @@ class _VehicleStepState extends ConsumerState<VehicleStep> {
 
         return OnboardingDropdown(
           controller: widget.controller,
-          label: 'Vehicle Model',
+          label: AppLocalizations.of(context)!.vehicleModel,
           icon: Icons.model_training_rounded,
           value: widget.controller.selectedVehicleModelName,
           items: models.map((model) =>

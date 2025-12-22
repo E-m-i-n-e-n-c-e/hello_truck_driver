@@ -4,6 +4,7 @@ import 'package:hello_truck_driver/models/documents.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class DocumentViewer extends ConsumerWidget {
   final String documentType;
@@ -46,21 +47,23 @@ class DocumentViewer extends ConsumerWidget {
     return ref.watch(documentsProvider).when(
       data: (documents) {
         if (documents == null) {
+          final l10n = AppLocalizations.of(context)!;
           return _buildErrorState(
             context,
             ref,
-            'Documents not found',
-            'The documents may not be uploaded yet.',
+            l10n.documentsNotFound,
+            l10n.documentsNotUploadedYet,
           );
         }
 
         final String url = _getDocumentUrl(documents, documentType);
         if (url.isEmpty) {
+          final l10n = AppLocalizations.of(context)!;
           return _buildErrorState(
             context,
             ref,
-            'Document not found',
-            'This document has not been uploaded yet.',
+            l10n.documentNotFound,
+            l10n.documentNotUploadedYet,
           );
         }
 
@@ -69,22 +72,26 @@ class DocumentViewer extends ConsumerWidget {
             ? _buildPdfViewer(context, ref, url)
             : _buildImageViewer(context, ref, url);
       },
-      loading: () => const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Loading document...'),
-          ],
-        ),
-      ),
+      loading: () {
+        final l10n = AppLocalizations.of(context)!;
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text(l10n.loadingDocument),
+            ],
+          ),
+        );
+      },
       error: (error, stack) {
+        final l10n = AppLocalizations.of(context)!;
         return _buildErrorState(
           context,
           ref,
-          'Failed to load document',
-          'Check your internet connection and try again.\n\nError: $error',
+          l10n.failedToLoadDocument,
+          '${l10n.checkInternetAndRetry}\n\nError: $error',
         );
       },
     );
@@ -121,8 +128,9 @@ class DocumentViewer extends ConsumerWidget {
         // Handle PDF load failure
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
+            final l10n = AppLocalizations.of(context)!;
             Navigator.of(context).pop();
-            SnackBars.retry(context, 'Failed to load PDF: ${details.description}', () {
+            SnackBars.retry(context, l10n.failedToLoadPdf(details.description), () {
               ref.invalidate(driverProvider);
             });
           }
@@ -144,6 +152,7 @@ class DocumentViewer extends ConsumerWidget {
           fit: BoxFit.contain,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
+            final l10n = AppLocalizations.of(context)!;
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -154,17 +163,18 @@ class DocumentViewer extends ConsumerWidget {
                         : null,
                   ),
                   const SizedBox(height: 16),
-                  Text('Loading image...'),
+                  Text(l10n.loadingImage),
                 ],
               ),
             );
           },
           errorBuilder: (context, error, stackTrace) {
+            final l10n = AppLocalizations.of(context)!;
             return _buildErrorState(
               context,
               ref,
-              'Failed to load document',
-              'The document could not be loaded. Please check your internet connection and try again.\n\nError: $error',
+              l10n.failedToLoadDocument,
+              '${l10n.documentLoadError}\n\nError: $error',
             );
           },
         ),
@@ -209,7 +219,7 @@ class DocumentViewer extends ConsumerWidget {
               ref.invalidate(documentsProvider);
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Retry'),
+            label: Text(AppLocalizations.of(context)!.retry),
           ),
         ],
       ),

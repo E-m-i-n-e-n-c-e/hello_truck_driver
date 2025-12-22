@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -13,6 +14,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Container(
@@ -23,10 +25,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
         ),
         child: NavigationBar(
           destinations: [
-            _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: 'Home', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.directions_car_filled_rounded, index: 1, label: 'Rides', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: 'Earnings', colorScheme: colorScheme),
-            _buildNavItem(icon: Icons.person_rounded, index: 3, label: 'Profile', colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.dashboard_rounded, index: 0, label: l10n.home, colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.directions_car_filled_rounded, index: 1, label: l10n.rides, colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.account_balance_wallet_rounded, index: 2, label: l10n.earnings, colorScheme: colorScheme),
+            _buildNavItem(icon: Icons.person_rounded, index: 3, label: l10n.profile, colorScheme: colorScheme),
           ],
         ),
       ),

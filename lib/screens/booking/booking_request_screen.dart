@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hello_truck_driver/utils/format_utils.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 import '../../models/booking.dart';
 
 const int _totalSeconds = 30;
@@ -97,6 +98,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   }
 
   void _setupMapMarkers() {
+    final l10n = AppLocalizations.of(context)!;
     final pickupLatLng = LatLng(
       widget.booking.pickupAddress.latitude,
       widget.booking.pickupAddress.longitude,
@@ -111,7 +113,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
         markerId: const MarkerId('pickup'),
         position: pickupLatLng,
         infoWindow: InfoWindow(
-          title: 'Pickup',
+          title: l10n.pickup,
           snippet: widget.booking.pickupAddress.formattedAddress,
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
@@ -120,7 +122,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
         markerId: const MarkerId('drop'),
         position: dropLatLng,
         infoWindow: InfoWindow(
-          title: 'Drop',
+          title: l10n.drop,
           snippet: widget.booking.dropAddress.formattedAddress,
         ),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
@@ -383,6 +385,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   }
 
   Widget _buildHeader(ColorScheme cs, TextTheme tt) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Container(
@@ -403,14 +406,14 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'New Ride Request',
+                l10n.newRideRequest,
                 style: tt.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: cs.onSurface,
                 ),
               ),
               Text(
-                'Booking #${widget.booking.bookingNumber}',
+                '${l10n.bookingNumberPrefix}${widget.booking.bookingNumber}',
                 style: tt.bodyMedium?.copyWith(
                   color: cs.onSurface.withValues(alpha: 0.7),
                 ),
@@ -521,6 +524,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   }
 
   Widget _buildDetailsSection(ColorScheme cs, TextTheme tt) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -575,7 +579,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
             tt,
             Icons.location_on_rounded,
             cs.primary,
-            'Pickup',
+            l10n.pickup,
             widget.booking.pickupAddress.formattedAddress,
           ),
           const SizedBox(height: 12),
@@ -584,7 +588,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
             tt,
             Icons.flag_rounded,
             cs.error,
-            'Drop',
+            l10n.drop,
             widget.booking.dropAddress.formattedAddress,
           ),
 
@@ -600,7 +604,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Pickup: ${widget.booking.formattedPickupTime}',
+                  '${l10n.pickupPrefix}${widget.booking.formattedPickupTime}',
                   style: tt.bodySmall?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
@@ -654,6 +658,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
   }
 
   Widget _buildActionButtons(ColorScheme cs, TextTheme tt) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         // Reject button
@@ -677,7 +682,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
               ),
             ),
             child: Text(
-              'Reject',
+              l10n.reject,
               style: tt.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: cs.error,
@@ -713,7 +718,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 Icon(Icons.check_circle_rounded, size: 22),
                 const SizedBox(width: 8),
                 Text(
-                  'Accept Ride',
+                  l10n.acceptRide,
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: cs.onPrimary,

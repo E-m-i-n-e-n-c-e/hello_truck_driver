@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class OnboardingBottomSection extends StatelessWidget {
   final OnboardingController controller;
@@ -112,8 +113,8 @@ class OnboardingBottomSection extends StatelessWidget {
                               children: [
                                 Text(
                                   isLastStep
-                                      ? 'Complete Profile'
-                                      : (nextButtonText ?? controller.getButtonText()),
+                                      ? AppLocalizations.of(context)!.completeSetup
+                                      : (nextButtonText ?? controller.getButtonText(context)),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,

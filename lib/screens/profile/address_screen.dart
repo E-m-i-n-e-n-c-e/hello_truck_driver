@@ -13,6 +13,7 @@ import 'package:hello_truck_driver/widgets/location_permission_handler.dart';
 import 'package:hello_truck_driver/widgets/address_search_widget.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/api/address_api.dart' as address_api;
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class AddressScreen extends ConsumerStatefulWidget {
   const AddressScreen({super.key});
@@ -145,7 +146,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
         _cityController.text.isEmpty ||
         _districtController.text.isEmpty ||
         _stateController.text.isEmpty) {
-      SnackBars.error(context, 'Please fill all required fields');
+      SnackBars.error(context, AppLocalizations.of(context)!.fillAllRequired);
       return;
     }
 
@@ -190,12 +191,12 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
           _isEditing = false;
           _isSaving = false;
         });
-        SnackBars.success(context, 'Address updated successfully');
+        SnackBars.success(context, AppLocalizations.of(context)!.addressUpdatedSuccess);
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        SnackBars.error(context, 'Failed to save address: $e');
+        SnackBars.error(context, AppLocalizations.of(context)!.failedToSaveAddress(e.toString()));
       }
     }
   }
@@ -205,6 +206,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final addressAsync = ref.watch(addressProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -212,7 +214,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
         backgroundColor: cs.surface,
         surfaceTintColor: Colors.transparent,
         title: Text(
-          'Address',
+          l10n.titleAddress,
           style: tt.titleLarge?.copyWith(
             fontWeight: FontWeight.w800,
           ),
@@ -231,7 +233,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
               },
               icon: Icon(Icons.edit_rounded, size: 18, color: cs.primary),
               label: Text(
-                'Edit',
+                l10n.edit,
                 style: tt.labelLarge?.copyWith(
                   color: cs.primary,
                   fontWeight: FontWeight.w700,
@@ -287,7 +289,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Failed to load address',
+              AppLocalizations.of(context)!.failedToLoadAddress,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -304,7 +306,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             FilledButton.icon(
               onPressed: () => ref.invalidate(addressProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -336,14 +338,14 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'No address found',
+              AppLocalizations.of(context)!.noAddressFound,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Add your address to continue',
+              AppLocalizations.of(context)!.addressFoundSubtitle,
               textAlign: TextAlign.center,
               style: tt.bodyMedium?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.7),
@@ -356,7 +358,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                 setState(() => _isEditing = true);
               },
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Add Address'),
+              label: Text(AppLocalizations.of(context)!.addAddress),
             ),
           ],
         ),
@@ -366,6 +368,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
   Widget _buildViewMode(BuildContext context, DriverAddress address) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -423,19 +426,19 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             ),
             child: Column(
               children: [
-                _buildInfoRow(context, Icons.home_rounded, 'Address', address.addressLine1),
+                _buildInfoRow(context, Icons.home_rounded, l10n.titleAddress, address.addressLine1),
                 if (address.landmark?.isNotEmpty == true) ...[
                   _buildDivider(context),
-                  _buildInfoRow(context, Icons.place_rounded, 'Landmark', address.landmark!),
+                  _buildInfoRow(context, Icons.place_rounded, l10n.landmark, address.landmark!),
                 ],
                 _buildDivider(context),
-                _buildInfoRow(context, Icons.pin_drop_rounded, 'Pincode', address.pincode),
+                _buildInfoRow(context, Icons.pin_drop_rounded, l10n.pincode, address.pincode),
                 _buildDivider(context),
-                _buildInfoRow(context, Icons.location_city_rounded, 'City', address.city),
+                _buildInfoRow(context, Icons.location_city_rounded, l10n.city, address.city),
                 _buildDivider(context),
-                _buildInfoRow(context, Icons.map_rounded, 'District', address.district),
+                _buildInfoRow(context, Icons.map_rounded, l10n.district, address.district),
                 _buildDivider(context),
-                _buildInfoRow(context, Icons.public_rounded, 'State', address.state),
+                _buildInfoRow(context, Icons.public_rounded, l10n.state, address.state),
               ],
             ),
           ),
@@ -448,6 +451,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   Widget _buildEditMode(BuildContext context, DriverAddress? address) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -552,7 +556,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap on map or drag marker to select location',
+            l10n.tapMapToSelect,
             style: tt.bodySmall?.copyWith(
               color: cs.onSurface.withValues(alpha: 0.6),
             ),
@@ -562,7 +566,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
           // Address Form
           _buildTextField(
             controller: _addressLine1Controller,
-            label: 'Address Line 1 *',
+            label: '${l10n.addressLine1} *',
             hint: 'House/Building, Street',
             icon: Icons.home_rounded,
           ),
@@ -570,7 +574,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
           _buildTextField(
             controller: _landmarkController,
-            label: 'Landmark (Optional)',
+            label: '${l10n.landmark} (Optional)',
             hint: 'Near landmark or area',
             icon: Icons.place_rounded,
           ),
@@ -578,7 +582,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
           _buildTextField(
             controller: _pincodeController,
-            label: 'Pincode *',
+            label: '${l10n.pincode} *',
             hint: 'Enter pincode',
             icon: Icons.pin_drop_rounded,
             keyboardType: TextInputType.number,
@@ -591,7 +595,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
           _buildTextField(
             controller: _cityController,
-            label: 'City *',
+            label: '${l10n.city} *',
             hint: 'City name',
             icon: Icons.location_city_rounded,
           ),
@@ -599,7 +603,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
           _buildTextField(
             controller: _districtController,
-            label: 'District *',
+            label: '${l10n.district} *',
             hint: 'District name',
             icon: Icons.map_rounded,
           ),
@@ -607,7 +611,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
           _buildTextField(
             controller: _stateController,
-            label: 'State *',
+            label: '${l10n.state} *',
             hint: 'State name',
             icon: Icons.public_rounded,
           ),
@@ -629,7 +633,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                     ),
                   ),
                   child: Text(
-                    'Cancel',
+                    l10n.cancel,
                     style: tt.labelLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -656,7 +660,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                           ),
                         )
                       : Text(
-                          'Save',
+                          l10n.save,
                           style: tt.labelLarge?.copyWith(
                             color: cs.onPrimary,
                             fontWeight: FontWeight.w700,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 import '../models/place_prediction.dart';
 import '../services/google_places_service.dart';
 
@@ -108,6 +109,7 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.9,
       decoration: BoxDecoration(
@@ -142,7 +144,7 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
                   ),
                 const SizedBox(width: 10),
                 Text(
-                  widget.title ?? 'Search for Address',
+                  widget.title ?? l10n.searchForAddress,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -158,7 +160,7 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Search for location...',
+                hintText: l10n.searchLocationHint,
                 prefixIcon: Icon(Icons.search, color: colorScheme.primary),
                 suffixIcon: _isLoading
                     ? SizedBox(
@@ -216,7 +218,7 @@ class _AddressSearchWidgetState extends ConsumerState<AddressSearchWidget> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Start typing to search for locations',
+                          l10n.startTypingToSearch,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey.shade600,

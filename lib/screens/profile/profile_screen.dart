@@ -12,7 +12,9 @@ import 'package:hello_truck_driver/screens/profile/dialogs/email_link_dialog.dar
 import 'package:hello_truck_driver/screens/profile/documents_screen.dart';
 import 'package:hello_truck_driver/screens/profile/vehicle_screen.dart';
 import 'package:hello_truck_driver/screens/profile/address_screen.dart';
+import 'package:hello_truck_driver/screens/settings/language_screen.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -22,14 +24,15 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  String _getVerificationStatusText(String status) {
+  String _getVerificationStatusText(BuildContext context, String status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return 'Pending Verification';
+        return l10n.pendingVerification;
       case 'VERIFIED':
-        return 'Verified';
+        return l10n.verified;
       case 'REJECTED':
-        return 'Verification Rejected';
+        return l10n.verificationRejected;
       default:
         return status;
     }
@@ -89,7 +92,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 20),
             Text(
-              'Failed to load profile',
+              AppLocalizations.of(context)!.failedToLoadProfile,
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -106,7 +109,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             FilledButton.icon(
               onPressed: () => ref.invalidate(driverProvider),
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -127,7 +130,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: [
             // Header
             Text(
-              'Profile',
+              AppLocalizations.of(context)!.profile,
               style: tt.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: cs.onSurface,
@@ -148,13 +151,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             const SizedBox(height: 24),
 
             // Personal Information Section
-            _buildSectionHeader(context, 'Personal Information'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.personalInformation),
             const SizedBox(height: 12),
             _buildPersonalInfoSection(context, driver),
             const SizedBox(height: 24),
 
             // Account Section
-            _buildSectionHeader(context, 'Account'),
+            _buildSectionHeader(context, AppLocalizations.of(context)!.account),
             const SizedBox(height: 12),
             _buildAccountSection(context, driver),
             const SizedBox(height: 24),
@@ -271,7 +274,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        _getVerificationStatusText(driver.verificationStatus.value),
+                        _getVerificationStatusText(context, driver.verificationStatus.value),
                         style: tt.labelSmall?.copyWith(
                           color: _getVerificationStatusColor(driver.verificationStatus.value, cs),
                           fontWeight: FontWeight.w700,
@@ -325,7 +328,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Wallet Balance',
+                  AppLocalizations.of(context)!.walletBalance,
                   style: tt.labelMedium?.copyWith(
                     color: cs.onPrimary.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w600,
@@ -360,8 +363,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _buildQuickAccessCard(
           context,
           icon: Icons.description_rounded,
-          title: 'Documents',
-          subtitle: 'License, RC, Insurance & more',
+          title: AppLocalizations.of(context)!.documents,
+          subtitle: AppLocalizations.of(context)!.documentsSubtitle,
           onTap: () {
             Navigator.push(
               context,
@@ -375,8 +378,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _buildQuickAccessCard(
           context,
           icon: Icons.local_shipping_rounded,
-          title: 'Vehicle',
-          subtitle: 'Vehicle details & owner info',
+          title: AppLocalizations.of(context)!.vehicle,
+          subtitle: AppLocalizations.of(context)!.vehicleSubtitle,
           onTap: () {
             ref.invalidate(vehicleProvider);
             Navigator.push(
@@ -391,13 +394,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _buildQuickAccessCard(
           context,
           icon: Icons.location_on_rounded,
-          title: 'Address',
-          subtitle: 'Your registered address',
+          title: AppLocalizations.of(context)!.address,
+          subtitle: AppLocalizations.of(context)!.addressSubtitle,
           onTap: () {
             ref.invalidate(addressProvider);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AddressScreen()),
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+
+        // Language Card
+        _buildQuickAccessCard(
+          context,
+          icon: Icons.language_rounded,
+          title: AppLocalizations.of(context)!.languageTitle,
+          subtitle: AppLocalizations.of(context)!.languageSubtitle,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LanguageScreen()),
             );
           },
         ),
@@ -507,11 +525,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildInfoRow(
             context,
             icon: Icons.person_rounded,
-            title: 'First Name',
-            value: driver.firstName ?? 'Not set',
+            title: AppLocalizations.of(context)!.firstName,
+            value: driver.firstName ?? AppLocalizations.of(context)!.notSet,
             onEdit: () => _showEditDialog(
               context,
-              'First Name',
+              AppLocalizations.of(context)!.firstName,
               driver.firstName ?? '',
               (value) => _updateFirstName(value),
             ),
@@ -520,11 +538,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildInfoRow(
             context,
             icon: Icons.person_rounded,
-            title: 'Last Name',
-            value: driver.lastName?.isNotEmpty == true ? driver.lastName! : 'Not set',
+            title: AppLocalizations.of(context)!.lastName,
+            value: driver.lastName?.isNotEmpty == true ? driver.lastName! : AppLocalizations.of(context)!.notSet,
             onEdit: () => _showEditDialog(
               context,
-              'Last Name',
+              AppLocalizations.of(context)!.lastName,
               driver.lastName ?? '',
               (value) => _updateLastName(value),
             ),
@@ -533,15 +551,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildInfoRow(
             context,
             icon: Icons.phone_android_rounded,
-            title: 'Alternate Phone',
-            value: driver.alternatePhone?.isNotEmpty == true ? driver.alternatePhone! : 'Not set',
+            title: AppLocalizations.of(context)!.alternatePhone,
+            value: driver.alternatePhone?.isNotEmpty == true ? driver.alternatePhone! : AppLocalizations.of(context)!.notSet,
             onEdit: () => _showEditDialog(
               context,
-              'Alternate Phone',
+              AppLocalizations.of(context)!.alternatePhone,
               driver.alternatePhone ?? '',
               (value) => _updateAlternatePhone(value),
             ),
           ),
+
         ],
       ),
     );
@@ -564,7 +583,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildInfoRow(
             context,
             icon: Icons.phone_rounded,
-            title: 'Phone Number',
+            title: AppLocalizations.of(context)!.phoneNumber,
             value: driver.phoneNumber,
             onEdit: null,
           ),
@@ -572,17 +591,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           _buildInfoRow(
             context,
             icon: Icons.email_rounded,
-            title: 'Email',
-            value: driver.email ?? 'Not linked',
+            title: AppLocalizations.of(context)!.email,
+            value: driver.email ?? AppLocalizations.of(context)!.notLinked,
             onEdit: () => _showEmailLinkDialog(driver),
             isAction: driver.email == null,
-            actionLabel: 'Link',
+            actionLabel: AppLocalizations.of(context)!.link,
           ),
           _buildDivider(context),
           _buildInfoRow(
             context,
             icon: Icons.calendar_today_rounded,
-            title: 'Member Since',
+            title: AppLocalizations.of(context)!.memberSince,
             value: DateTimeUtils.formatShortDateIST(driver.createdAt),
             onEdit: null,
           ),
@@ -591,7 +610,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             _buildInfoRow(
               context,
               icon: Icons.card_giftcard_rounded,
-              title: 'Referral Code',
+              title: AppLocalizations.of(context)!.referralCode,
               value: driver.referalCode!,
               onEdit: null,
             ),
@@ -694,7 +713,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           Icon(Icons.logout_rounded, size: 20),
           const SizedBox(width: 8),
           Text(
-            'Logout',
+            AppLocalizations.of(context)!.logout,
             style: tt.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -723,7 +742,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         currentPhotoUrl: driver.photo,
         onSuccess: () {
           ref.invalidate(driverProvider);
-          SnackBars.success(context, 'Profile picture updated successfully');
+          SnackBars.success(context, AppLocalizations.of(context)!.profilePictureUpdated);
         },
       ),
     );
@@ -736,7 +755,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         currentEmail: driver.email,
         onSuccess: () {
           ref.invalidate(driverProvider);
-          SnackBars.success(context, 'Email linked successfully');
+          SnackBars.success(context, AppLocalizations.of(context)!.emailLinkedSuccess);
         },
       ),
     );
@@ -744,22 +763,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   void _showLogoutDialog(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     final shouldLogout = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
+        title: Text(l10n.logoutConfirmTitle),
+        content: Text(l10n.logoutConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
-              'Logout',
+              l10n.logout,
               style: TextStyle(color: cs.error),
             ),
           ),
@@ -774,6 +794,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   // Update methods
   Future<void> _updateFirstName(String value) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final api = ref.read(apiProvider).value!;
       await driver_api.updateDriverProfile(
@@ -782,16 +803,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
       ref.invalidate(driverProvider);
       if (mounted) {
-        SnackBars.success(context, 'First name updated successfully');
+        SnackBars.success(context, l10n.firstNameUpdated);
       }
     } catch (e) {
       if (mounted) {
-        SnackBars.error(context, 'Failed to update first name: $e');
+        SnackBars.error(context, l10n.failedToUpdate(l10n.firstName, e.toString()));
       }
     }
   }
 
+
   Future<void> _updateLastName(String value) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final api = ref.read(apiProvider).value!;
       await driver_api.updateDriverProfile(
@@ -800,16 +823,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
       ref.invalidate(driverProvider);
       if (mounted) {
-        SnackBars.success(context, 'Last name updated successfully');
+        SnackBars.success(context, l10n.lastNameUpdated);
       }
     } catch (e) {
       if (mounted) {
-        SnackBars.error(context, 'Failed to update last name: $e');
+        SnackBars.error(context, l10n.failedToUpdate(l10n.lastName, e.toString()));
       }
     }
   }
 
+
   Future<void> _updateAlternatePhone(String value) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final api = ref.read(apiProvider).value!;
       await driver_api.updateDriverProfile(
@@ -818,11 +843,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
       ref.invalidate(driverProvider);
       if (mounted) {
-        SnackBars.success(context, 'Alternate phone updated successfully');
+        SnackBars.success(context, l10n.alternatePhoneUpdated);
       }
     } catch (e) {
       if (mounted) {
-        SnackBars.error(context, 'Failed to update alternate phone: $e');
+        SnackBars.error(context, l10n.failedToUpdate(l10n.alternatePhone, e.toString()));
       }
     }
   }

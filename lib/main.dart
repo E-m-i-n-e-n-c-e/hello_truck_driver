@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
+import 'package:hello_truck_driver/providers/locale_provider.dart';
 import 'package:hello_truck_driver/hello_truck.dart';
 import 'package:hello_truck_driver/login_page.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:hello_truck_driver/services/fcm_service.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 void main() async {
   // Preserve splash screen until app is fully loaded
@@ -31,11 +33,32 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  bool _localeInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeLocale();
+  }
+
+  Future<void> _initializeLocale() async {
+    final initialLocale = await ref.read(localeInitializerProvider.future);
+    ref.read(localeProvider.notifier).initialize(initialLocale);
+    setState(() {
+      _localeInitialized = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Remove splash screen once the app is built
     FlutterNativeSplash.remove();
 
@@ -62,7 +85,7 @@ class MyApp extends ConsumerWidget {
 
     final authState = ref.watch(authStateProvider);
     final api = ref.watch(apiProvider);
-    final isLoading = authState.isLoading || api.isLoading;
+    final isLoading = authState.isLoading || api.isLoading || !_localeInitialized;
     final isAnimationComplete = ref.watch(AnimatedSplashScreenState.isAnimationComplete);
 
     if (isLoading || !isAnimationComplete) {
@@ -71,8 +94,31 @@ class MyApp extends ConsumerWidget {
       );
     }
 
+    // Watch locale from provider
+    final currentLocale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'Hello Truck',
+      // Localization configuration
+      locale: currentLocale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        // If user has selected a locale, use it
+        if (currentLocale != null) {
+          return currentLocale;
+        }
+        // Otherwise, try to match device locale
+        if (deviceLocale != null) {
+          for (final locale in supportedLocales) {
+            if (locale.languageCode == deviceLocale.languageCode) {
+              return locale;
+            }
+          }
+        }
+        // Fallback to English
+        return const Locale('en');
+      },
       theme: ThemeData(
         colorScheme: colorScheme,
         appBarTheme: AppBarTheme(
