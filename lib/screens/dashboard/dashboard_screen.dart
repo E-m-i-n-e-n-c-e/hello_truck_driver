@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/booking.dart';
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/models/ride_summary.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/utils/format_utils.dart';
 import 'package:hello_truck_driver/widgets/ready_modal.dart';
-import '../../utils/currency_format.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -284,9 +285,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildQuickStats(BuildContext context) {
     final driverAsync = ref.watch(driverProvider);
 
-    final isAvailable = driverAsync.whenOrNull(
-      data: (driver) => driver.driverStatus.value == 'AVAILABLE',
-    ) ?? false;
+    // Get driver status with proper handling for all statuses
+    final driverStatus = driverAsync.whenOrNull(
+      data: (driver) => driver.driverStatus,
+    );
+
+    // Determine status display text and color
+    String statusText = 'Unavailable';
+    Color statusColor = Colors.grey;
+
+    if (driverStatus != null) {
+      switch (driverStatus) {
+        case DriverStatus.available:
+          statusText = 'Available';
+          statusColor = Colors.green;
+          break;
+        case DriverStatus.onRide:
+          statusText = 'On Ride';
+          statusColor = Colors.blue;
+          break;
+        case DriverStatus.rideOffered:
+          statusText = 'Ride Offered';
+          statusColor = Colors.orange;
+          break;
+        case DriverStatus.unavailable:
+          statusText = 'Unavailable';
+          statusColor = Colors.grey;
+          break;
+      }
+    }
 
     return Row(
       children: [
@@ -295,8 +322,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: _QuickStatCard(
             icon: Icons.verified_rounded,
             label: 'Status',
-            value: isAvailable ? 'Available' : 'Unavailable',
-            color: isAvailable ? Colors.green : Colors.grey,
+            value: statusText,
+            color: statusColor,
           ),
         ),
         Expanded(
@@ -474,7 +501,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              '${booking.distanceKm.toStringAsFixed(1)} km',
+              booking.distanceKm.toDistance(),
               style: tt.bodySmall?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.6),
               ),

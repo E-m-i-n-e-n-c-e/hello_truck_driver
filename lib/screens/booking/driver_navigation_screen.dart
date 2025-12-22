@@ -46,7 +46,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
       if (!await GoogleMapsNavigator.isInitialized()) {
         AppLogger.log('Initializing navigation session');
         await GoogleMapsNavigator.initializeNavigationSession(
-          taskRemovedBehavior: TaskRemovedBehavior.continueService,
+          taskRemovedBehavior: TaskRemovedBehavior.quitService,
         );
       }
       if (mounted) setState(() => _ready = true);
@@ -215,7 +215,7 @@ class _DriverNavigationScreenState extends ConsumerState<DriverNavigationScreen>
   }
 
   void _handleNavigationExit() async {
-    await stopAndCleanupNavigation(ref);
+    await stopAndCleanupNavigation(RefReader.fromWidgetRef(ref));
     if (mounted) Navigator.of(context).pop();
   }
 

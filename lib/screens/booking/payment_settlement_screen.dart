@@ -8,7 +8,7 @@ import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 
 import '../../utils/logger.dart';
-import '../../utils/currency_format.dart';
+import '../../utils/format_utils.dart';
 
 class PaymentSettlementScreen extends ConsumerStatefulWidget {
   final Booking booking;

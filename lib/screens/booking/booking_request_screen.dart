@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hello_truck_driver/utils/format_utils.dart';
 import '../../models/booking.dart';
-import '../../utils/currency_format.dart';
 
 const int _totalSeconds = 30;
 
@@ -506,7 +506,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen>
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  '${widget.booking.distanceKm.toStringAsFixed(1)} km',
+                  widget.booking.distanceKm.toDistance(),
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: cs.onSurface,

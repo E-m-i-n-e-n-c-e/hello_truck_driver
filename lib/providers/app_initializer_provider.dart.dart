@@ -3,6 +3,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/fcm_providers.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/providers/navigation_providers.dart';
 import 'package:hello_truck_driver/providers/socket_providers.dart';
 
 import '../utils/logger.dart';
@@ -38,5 +39,6 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
     socketService.dispose();
     fcmService.stop();
     locationService.dispose();
+    stopAndCleanupNavigation(RefReader.fromRef(ref));
   });
 });

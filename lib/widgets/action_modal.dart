@@ -9,6 +9,7 @@ import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/booking/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/widgets/finish_ride_modal.dart';
+import '../../utils/format_utils.dart';
 
 final isActionModalOpenProvider = StateProvider<bool>((ref) => false);
 
@@ -293,7 +294,7 @@ class _NavigationContent extends ConsumerWidget {
                 Icon(Icons.straighten_rounded, size: 18, color: cs.onSurfaceVariant),
                 const SizedBox(width: 8),
                 Text(
-                  '${booking.distanceKm.toStringAsFixed(1)} km',
+                  booking.distanceKm.toDistance(),
                   style: tt.titleSmall?.copyWith(
                     color: cs.onSurfaceVariant,
                     fontWeight: FontWeight.w700,

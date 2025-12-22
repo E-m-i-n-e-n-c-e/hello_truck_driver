@@ -9,8 +9,19 @@ final lastNavInfoProvider = StateProvider<NavInfo?>((ref) => null);
 final lastRoadSnappedProvider = StateProvider<LatLng?>((ref) => null);
 final cachedRouteProvider = StateProvider<String?>((ref) => null);
 
+/// Wrapper class that can hold either WidgetRef or Ref
+class RefReader {
+  final dynamic _ref;
+
+  RefReader.fromWidgetRef(WidgetRef ref) : _ref = ref;
+  RefReader.fromRef(Ref ref) : _ref = ref;
+
+  T read<T>(ProviderListenable<T> provider) => _ref.read(provider);
+}
+
 /// Cleanup navigation session
-Future<void> stopAndCleanupNavigation(WidgetRef ref) async {
+/// Accepts both WidgetRef and Ref types through RefReader wrapper
+Future<void> stopAndCleanupNavigation(RefReader ref) async {
   try {
     await GoogleMapsNavigator.stopGuidance();
   } catch (_) {}
@@ -20,7 +31,7 @@ Future<void> stopAndCleanupNavigation(WidgetRef ref) async {
   await _cleanupNavigationListenersAndCache(ref);
 }
 
-Future<void> _cleanupNavigationListenersAndCache(WidgetRef ref) async {
+Future<void> _cleanupNavigationListenersAndCache(RefReader ref) async {
   // clear listeners
   await ref.read(navInfoListenerProvider.notifier).state?.cancel();
   await ref.read(roadSnappedLocationUpdatedListenerProvider.notifier).state?.cancel();

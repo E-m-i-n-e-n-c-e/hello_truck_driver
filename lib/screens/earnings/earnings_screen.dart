@@ -5,7 +5,7 @@ import 'package:hello_truck_driver/models/transaction_log.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/payment_providers.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
-import '../../utils/currency_format.dart';
+import 'package:hello_truck_driver/utils/format_utils.dart';
 
 class EarningsScreen extends ConsumerStatefulWidget {
   const EarningsScreen({super.key});

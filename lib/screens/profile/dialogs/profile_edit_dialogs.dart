@@ -34,7 +34,7 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
   }
 
   Future<void> _save() async {
-    if (_controller.text.trim().isEmpty) {
+    if (_controller.text.trim().isEmpty && widget.title != 'Last Name') {
       SnackBars.error(context, 'This field cannot be empty');
       return;
     }

@@ -6,12 +6,12 @@ import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/utils/format_utils.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/models/booking_assignment.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/widgets/action_modal.dart';
-import '../../utils/currency_format.dart';
 
 class RidesScreen extends ConsumerStatefulWidget {
   const RidesScreen({super.key});
@@ -659,7 +659,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             runSpacing: 8,
             children: [
               _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
-              _chip(context, icon: Icons.straighten_rounded, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+              _chip(context, icon: Icons.straighten_rounded, label: booking.distanceKm.toDistance()),
               _chip(context, icon: Icons.currency_rupee_rounded, label: (booking.finalCost ?? booking.estimatedCost).toCurrency()),
               if (booking.scheduledAt != null)
                 _chip(context, icon: Icons.schedule_rounded, label: booking.formattedPickupTime),
@@ -872,7 +872,7 @@ class _RidesScreenState extends ConsumerState<RidesScreen> with SingleTickerProv
             runSpacing: 6,
             children: [
               _chip(context, icon: Icons.inventory_2_rounded, label: _getFormattedWeight(package)),
-              _chip(context, icon: Icons.straighten_rounded, label: '${booking.distanceKm.toStringAsFixed(1)} km'),
+              _chip(context, icon: Icons.straighten_rounded, label: booking.distanceKm.toDistance()),
               _chip(context, icon: Icons.currency_rupee_rounded, label: (booking.finalCost ?? booking.estimatedCost).toCurrency()),
             ],
           ),

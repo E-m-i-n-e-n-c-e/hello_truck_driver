@@ -7,8 +7,8 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
 import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
+import 'package:hello_truck_driver/utils/format_utils.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
-import '../../utils/currency_format.dart';
 
 void showFinishRideModal(BuildContext context, BookingAssignment assignment, {required VoidCallback whenComplete}) {
   showModalBottomSheet(
@@ -163,7 +163,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                         context,
                         icon: Icons.straighten_rounded,
                         label: 'Distance',
-                        value: '${booking.distanceKm.toStringAsFixed(1)} km',
+                        value: booking.distanceKm.toDistance(),
                       ),
                     ),
                     const SizedBox(width: 16),

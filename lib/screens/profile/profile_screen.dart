@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/driver.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
+import 'package:hello_truck_driver/utils/format_utils.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/screens/profile/dialogs/profile_edit_dialogs.dart';
@@ -12,7 +13,6 @@ import 'package:hello_truck_driver/screens/profile/documents_screen.dart';
 import 'package:hello_truck_driver/screens/profile/vehicle_screen.dart';
 import 'package:hello_truck_driver/screens/profile/address_screen.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
-import '../../utils/currency_format.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});

@@ -194,7 +194,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
         if (event == FcmEventType.rideCancelled && mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             // Cleanup navigation session
-            await stopAndCleanupNavigation(ref);
+            await stopAndCleanupNavigation(RefReader.fromWidgetRef(ref));
 
             // Pop all screens to home
             if (mounted) {
