@@ -110,7 +110,9 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     final commissionRate = rideSummaryAsync.value?.commissionRate ?? 0.07;
 
     final finalInvoice = widget.booking.finalInvoice;
-    final amount = finalInvoice?.finalAmount ?? 0.0;
+    // Use totalPrice (full service cost) for commission calculation
+    // NOT finalAmount (which is after wallet deduction)
+    final amount = finalInvoice?.totalPrice ?? 0.0;
     final commission = amount * commissionRate;
 
     return PopScope(

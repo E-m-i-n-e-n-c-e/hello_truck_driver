@@ -117,8 +117,8 @@ class Booking {
   /// Get estimated cost from estimate invoice
   double get estimatedCost => estimateInvoice?.totalPrice ?? finalInvoice?.totalPrice ?? 0.0;
 
-  /// Get final cost from final invoice
-  double? get finalCost => finalInvoice?.finalAmount;
+  /// Get final cost from final invoice (total service cost, NOT customer's payment after wallet)
+  double? get finalCost => finalInvoice?.totalPrice;
 
   /// Get the distance from the final invoice or estimate
   double get distanceKm => finalInvoice?.distanceKm ?? estimateInvoice?.distanceKm ?? 0.0;
@@ -339,8 +339,6 @@ class Invoice {
   final double weightInTons;
   final double effectiveBasePrice;
   final double totalPrice;
-  final double walletApplied;
-  final double finalAmount;
   final String? paymentLinkUrl;
   final String? rzpPaymentLinkId;
   final String? rzpPaymentId;
@@ -362,8 +360,6 @@ class Invoice {
     required this.weightInTons,
     required this.effectiveBasePrice,
     required this.totalPrice,
-    required this.walletApplied,
-    required this.finalAmount,
     this.paymentLinkUrl,
     this.rzpPaymentLinkId,
     this.rzpPaymentId,
@@ -387,8 +383,6 @@ class Invoice {
       weightInTons: (json['weightInTons'] ?? 0).toDouble(),
       effectiveBasePrice: (json['effectiveBasePrice'] ?? 0).toDouble(),
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
-      walletApplied: (json['walletApplied'] ?? 0).toDouble(),
-      finalAmount: (json['finalAmount'] ?? 0).toDouble(),
       paymentLinkUrl: json['paymentLinkUrl'],
       rzpPaymentLinkId: json['rzpPaymentLinkId'],
       rzpPaymentId: json['rzpPaymentId'],
