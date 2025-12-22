@@ -339,6 +339,8 @@ class Invoice {
   final double weightInTons;
   final double effectiveBasePrice;
   final double totalPrice;
+  final double walletApplied; // Customer wallet credit/debt applied
+  final double finalAmount; // What customer pays (cash to collect)
   final String? paymentLinkUrl;
   final String? rzpPaymentLinkId;
   final String? rzpPaymentId;
@@ -360,6 +362,8 @@ class Invoice {
     required this.weightInTons,
     required this.effectiveBasePrice,
     required this.totalPrice,
+    required this.walletApplied,
+    required this.finalAmount,
     this.paymentLinkUrl,
     this.rzpPaymentLinkId,
     this.rzpPaymentId,
@@ -383,6 +387,8 @@ class Invoice {
       weightInTons: (json['weightInTons'] ?? 0).toDouble(),
       effectiveBasePrice: (json['effectiveBasePrice'] ?? 0).toDouble(),
       totalPrice: (json['totalPrice'] ?? 0).toDouble(),
+      walletApplied: (json['walletApplied'] ?? 0).toDouble(),
+      finalAmount: (json['finalAmount'] ?? 0).toDouble(),
       paymentLinkUrl: json['paymentLinkUrl'],
       rzpPaymentLinkId: json['rzpPaymentLinkId'],
       rzpPaymentId: json['rzpPaymentId'],

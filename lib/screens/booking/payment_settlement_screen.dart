@@ -110,10 +110,13 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     final commissionRate = rideSummaryAsync.value?.commissionRate ?? 0.07;
 
     final finalInvoice = widget.booking.finalInvoice;
-    // Use totalPrice (full service cost) for commission calculation
-    // NOT finalAmount (which is after wallet deduction)
-    final amount = finalInvoice?.totalPrice ?? 0.0;
-    final commission = amount * commissionRate;
+    final totalPrice = finalInvoice?.totalPrice ?? 0.0;
+    final walletApplied = finalInvoice?.walletApplied ?? 0.0;
+    final cashToCollect = finalInvoice?.finalAmount ?? 0.0;
+    final commission = totalPrice * commissionRate;
+    final driverEarnings = totalPrice - commission;
+    // walletChange = walletApplied - commission (what happens to driver wallet after cash collection)
+    final walletChange = walletApplied - commission;
 
     return PopScope(
       canPop: !_isProcessing,
@@ -163,7 +166,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
               const SizedBox(height: 24),
 
               // Amount Summary Card
-              _buildAmountCard(cs, tt, amount, commission, commissionRate),
+              _buildAmountCard(cs, tt, totalPrice, cashToCollect, walletApplied, commission, driverEarnings, walletChange, commissionRate),
               const SizedBox(height: 24),
 
               // Payment Options
@@ -250,7 +253,19 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
     );
   }
 
-  Widget _buildAmountCard(ColorScheme cs, TextTheme tt, double amount, double commission, double commissionRate) {
+  Widget _buildAmountCard(
+    ColorScheme cs,
+    TextTheme tt,
+    double totalPrice,
+    double cashToCollect,
+    double walletApplied,
+    double commission,
+    double driverEarnings,
+    double walletChange,
+    double commissionRate,
+  ) {
+    final hasWalletAdjustment = walletApplied != 0;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -270,8 +285,9 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
       ),
       child: Column(
         children: [
+          // Cash to Collect (main highlight)
           Text(
-            'Total Amount',
+            'Cash to Collect',
             style: tt.bodyLarge?.copyWith(
               color: cs.onPrimary.withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,
@@ -290,7 +306,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 ),
               ),
               Text(
-                amount.toCurrency(),
+                cashToCollect.toCurrency(),
                 style: tt.displaySmall?.copyWith(
                   color: cs.onPrimary,
                   fontWeight: FontWeight.w800,
@@ -302,6 +318,22 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           const SizedBox(height: 16),
           Divider(color: cs.onPrimary.withValues(alpha: 0.3), height: 1),
           const SizedBox(height: 16),
+
+          // Breakdown rows
+          _buildBreakdownRow(tt, cs, 'Service Cost', totalPrice.toRupees()),
+          if (hasWalletAdjustment) ...[
+            const SizedBox(height: 8),
+            _buildBreakdownRow(
+              tt, cs,
+              walletApplied > 0 ? 'Customer Wallet Used' : 'Customer Debt Recovery',
+              walletApplied > 0 ? '-${walletApplied.toRupees()}' : '+${(-walletApplied).toRupees()}',
+            ),
+          ],
+          const SizedBox(height: 12),
+          Divider(color: cs.onPrimary.withValues(alpha: 0.2), height: 1),
+          const SizedBox(height: 12),
+
+          // Commission and earnings
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -309,7 +341,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Platform Fee',
+                    'Platform Fee (${(commissionRate * 100).toStringAsFixed(0)}%)',
                     style: tt.bodySmall?.copyWith(
                       color: cs.onPrimary.withValues(alpha: 0.8),
                     ),
@@ -333,7 +365,7 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
                     ),
                   ),
                   Text(
-                    (amount - commission).toRupees(),
+                    driverEarnings.toRupees(),
                     style: tt.titleMedium?.copyWith(
                       color: cs.onPrimary,
                       fontWeight: FontWeight.w700,
@@ -343,8 +375,61 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
               ),
             ],
           ),
+
+          // Wallet change indicator (only for cash with wallet adjustments)
+          if (hasWalletAdjustment) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: cs.onPrimary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    walletChange >= 0 ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+                    size: 16,
+                    color: cs.onPrimary,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    walletChange >= 0
+                        ? 'Wallet Credit: +${walletChange.abs().toRupees()}'
+                        : 'Wallet Debit: ${walletChange.toRupees()}',
+                    style: tt.bodySmall?.copyWith(
+                      color: cs.onPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildBreakdownRow(TextTheme tt, ColorScheme cs, String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: tt.bodySmall?.copyWith(
+            color: cs.onPrimary.withValues(alpha: 0.8),
+          ),
+        ),
+        Text(
+          value,
+          style: tt.bodyMedium?.copyWith(
+            color: cs.onPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
@@ -495,13 +580,19 @@ class _PaymentSettlementScreenState extends ConsumerState<PaymentSettlementScree
           _buildDisclaimerPoint(
             cs,
             tt,
-            'If you select "Received Cash", $percentage% platform fee (${commission.toRupees()}) will be deducted from your wallet.',
+            'Platform fee ($percentage%) is calculated on the full service cost, not the cash collected.',
           ),
           const SizedBox(height: 8),
           _buildDisclaimerPoint(
             cs,
             tt,
-            'Make sure you have collected the full amount from the customer before confirming.',
+            'If customer used wallet credit, you\'ll receive a wallet credit. If customer had debt, extra amount collected will be debited.',
+          ),
+          const SizedBox(height: 8),
+          _buildDisclaimerPoint(
+            cs,
+            tt,
+            'Make sure you have collected the exact "Cash to Collect" amount shown above.',
           ),
         ],
       ),
