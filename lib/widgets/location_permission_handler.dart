@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
 import 'package:hello_truck_driver/providers/location_providers.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class LocationPermissionHandler extends ConsumerStatefulWidget {
   final Widget child;
@@ -58,6 +59,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
     final colorScheme = Theme.of(context).colorScheme;
 
     if (_isCheckingPermission) {
+      final l10n = AppLocalizations.of(context)!;
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -67,7 +69,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
             ),
             const SizedBox(height: 16),
             Text(
-              'Checking location permissions...',
+              l10n.checkingLocationPermissions,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -81,6 +83,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
       return widget.child;
     }
 
+    final l10n = AppLocalizations.of(context)!;
     // Show permission request UI
     return Center(
       child: Padding(
@@ -97,7 +100,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
             ),
             const SizedBox(height: 24),
             Text(
-              _getPermissionTitle(),
+              _getPermissionTitle(l10n),
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -105,7 +108,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
             ),
             const SizedBox(height: 12),
             Text(
-              _getPermissionDescription(),
+              _getPermissionDescription(l10n),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -116,7 +119,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
               ElevatedButton.icon(
                 onPressed: _requestPermission,
                 icon: const Icon(Icons.location_on_rounded),
-                label: Text(_getButtonText()),
+                label: Text(_getButtonText(l10n)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
@@ -125,7 +128,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
               ElevatedButton.icon(
                 onPressed: () => _openAppSettings(),
                 icon: const Icon(Icons.settings_rounded),
-                label: const Text('Open Settings'),
+                label: Text(l10n.openSettings),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
@@ -133,7 +136,7 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
               const SizedBox(height: 12),
               TextButton(
                 onPressed: _requestPermission,
-                child: const Text('Check Again'),
+                child: Text(l10n.checkAgain),
               ),
             ],
           ],
@@ -142,40 +145,40 @@ class _LocationPermissionHandlerState extends ConsumerState<LocationPermissionHa
     );
   }
 
-  String _getPermissionTitle() {
+  String _getPermissionTitle(AppLocalizations l10n) {
     switch (_permissionStatus) {
       case LocationPermissionStatus.disabled:
-        return 'Location Services Disabled';
+        return l10n.locationServicesDisabled;
       case LocationPermissionStatus.denied:
-        return 'Location Permission Required';
+        return l10n.locationPermissionRequired;
       case LocationPermissionStatus.deniedForever:
-        return 'Location Permission Permanently Denied';
+        return l10n.locationPermissionDenied;
       default:
-        return 'Location Access Required';
+        return l10n.locationAccessRequired;
     }
   }
 
-  String _getPermissionDescription() {
+  String _getPermissionDescription(AppLocalizations l10n) {
     switch (_permissionStatus) {
       case LocationPermissionStatus.disabled:
-        return 'Please enable location services in your device settings to use this feature.';
+        return l10n.enableLocationServicesDesc;
       case LocationPermissionStatus.denied:
-        return 'We need location access to show your current position and help you select your address accurately.';
+        return l10n.needLocationAccessDesc;
       case LocationPermissionStatus.deniedForever:
-        return 'Location permission has been permanently denied. Please enable it in app settings to continue.';
+        return l10n.locationDeniedForeverDesc;
       default:
-        return 'Location access is required for this feature to work properly.';
+        return l10n.locationRequiredDesc;
     }
   }
 
-  String _getButtonText() {
+  String _getButtonText(AppLocalizations l10n) {
     switch (_permissionStatus) {
       case LocationPermissionStatus.disabled:
-        return 'Enable Location Services';
+        return l10n.enableLocationServices;
       case LocationPermissionStatus.denied:
-        return 'Grant Permission';
+        return l10n.grantPermission;
       default:
-        return 'Request Permission';
+        return l10n.requestPermission;
     }
   }
 

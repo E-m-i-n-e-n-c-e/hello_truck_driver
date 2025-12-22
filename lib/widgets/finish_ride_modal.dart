@@ -9,6 +9,7 @@ import 'package:hello_truck_driver/providers/dashboard_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/utils/format_utils.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 void showFinishRideModal(BuildContext context, BookingAssignment assignment, {required VoidCallback whenComplete}) {
   showModalBottomSheet(
@@ -55,6 +56,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final booking = widget.assignment.booking;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -70,14 +72,14 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ride Complete!',
+                      l10n.rideCompleteTitle,
                       style: tt.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Booking #${booking.bookingNumber}',
+                      AppLocalizations.of(context)!.bookingNumber(booking.bookingNumber.toString()),
                       style: tt.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.7),
                       ),
@@ -114,16 +116,16 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                 Icon(Icons.celebration_rounded, color: Colors.green, size: 36),
                 const SizedBox(height: 10),
                 Text(
-                  'Package delivered successfully!',
+                  l10n.packageDeliveredSuccess,
                   style: tt.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: Colors. green,
+                    color: Colors.green,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Both pickup and drop have been verified. You can now finish this ride.',
+                  l10n.rideCompleteMessage,
                   style: tt.bodyMedium?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.7),
                   ),
@@ -149,7 +151,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Trip Summary',
+                  l10n.tripSummary,
                   style: tt.labelLarge?.copyWith(
                     color: cs.onSurface.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w700,
@@ -162,7 +164,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                       child: _summaryItem(
                         context,
                         icon: Icons.straighten_rounded,
-                        label: 'Distance',
+                        label: l10n.distance,
                         value: booking.distanceKm.toDistance(),
                       ),
                     ),
@@ -171,7 +173,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                       child: _summaryItem(
                         context,
                         icon: Icons.currency_rupee_rounded,
-                        label: 'Earnings',
+                        label: l10n.earnings,
                         value: (booking.finalCost ?? booking.estimatedCost).toRupees(),
                       ),
                     ),
@@ -208,7 +210,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
                       const Icon(Icons.check_circle_rounded, size: 22),
                       const SizedBox(width: 10),
                       Text(
-                        'Finish Ride',
+                        l10n.finishRide,
                         style: tt.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: cs.onPrimary,
@@ -226,7 +228,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             child: Text(
-              'Not Now',
+              l10n.notNow,
               style: tt.labelLarge?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w600,
@@ -274,6 +276,7 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
   }
 
   Future<void> _handleFinishRide() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isLoading = true);
 
     try {
@@ -291,11 +294,11 @@ class _FinishRideContentState extends ConsumerState<_FinishRideContent> {
 
       if (mounted) {
         Navigator.pop(context);
-        SnackBars.success(context, 'Ride completed successfully! 🎉');
+        SnackBars.success(context, l10n.rideCompletedSuccessToast);
       }
     } catch (e) {
       if (mounted) {
-        SnackBars.error(context, 'Failed to finish ride: $e');
+        SnackBars.error(context, l10n.failedToFinishRide(e.toString()));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class OtpBottomSheet extends StatefulWidget {
   final String title;
@@ -30,6 +31,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       top: false,
@@ -123,7 +125,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -136,7 +138,7 @@ class _OtpBottomSheetState extends State<OtpBottomSheet> {
                         backgroundColor: cs.primary,
                         foregroundColor: cs.onPrimary,
                       ),
-                      child: const Text('Verify'),
+                      child: Text(l10n.verify),
                     ),
                   ),
                 ],

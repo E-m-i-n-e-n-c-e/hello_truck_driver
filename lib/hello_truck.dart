@@ -23,6 +23,7 @@ import 'package:hello_truck_driver/screens/booking/booking_request_screen.dart';
 import 'package:hello_truck_driver/models/enums/booking_enums.dart';
 import 'package:hello_truck_driver/api/assignment_api.dart';
 import 'package:hello_truck_driver/widgets/action_modal.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class HelloTruck extends ConsumerStatefulWidget {
   const HelloTruck({super.key});
@@ -47,15 +48,16 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
 
   Future<void> _maybePromptForLocation() async {
     final locationService = ref.read(locationServiceProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     final status = await locationService.checkAndRequestPermissions();
 
     if (status == LocationPermissionStatus.disabled) {
       final openSettings = await _showPermissionDialog(
-        title: 'Turn on Location Services',
-        content: 'Location services are off. Without location, you won’t be able to take rides.',
-        primaryText: 'Open Settings',
-        secondaryText: 'Skip for now',
+        title: l10n.turnOnLocationServices,
+        content: l10n.locationServicesOffMessage,
+        primaryText: l10n.openSettings,
+        secondaryText: l10n.skipForNow,
       );
       if (openSettings == true) {
         await Geolocator.openLocationSettings();
@@ -64,10 +66,10 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
 
     if (status == LocationPermissionStatus.denied) {
       final tryEnable = await _showPermissionDialog(
-        title: 'Enable Location Permission',
-        content: 'We need your location to assign rides. You won’t be able to take rides otherwise.',
-        primaryText: 'Enable',
-        secondaryText: 'Skip for now',
+        title: l10n.enableLocationPermission,
+        content: l10n.locationPermissionMessage,
+        primaryText: l10n.enable,
+        secondaryText: l10n.skipForNow,
       );
       if (tryEnable == true) {
         await locationService.checkAndRequestPermissions();
@@ -76,10 +78,10 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
 
     if (status == LocationPermissionStatus.deniedForever) {
       final openAppSettings = await _showPermissionDialog(
-        title: 'Location Permission Required',
-        content: 'Permission is permanently denied. Open app settings to allow location.\nWithout this, you won’t be able to take rides.',
-        primaryText: 'Open Settings',
-        secondaryText: 'Skip for now',
+        title: l10n.locationPermissionRequired,
+        content: l10n.locationPermissionDeniedMessage,
+        primaryText: l10n.openSettings,
+        secondaryText: l10n.skipForNow,
       );
       if (openAppSettings == true) {
         await Geolocator.openAppSettings();
@@ -152,11 +154,13 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
   }
 
   void _setupListeners(AsyncValue<AuthState> authState) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!_hasSetupListener) {
       // Show offline snackbar if user is offline
       if (authState.value?.isOffline == true) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          SnackBars.error(context, 'You are offline. Please check your internet connection.');
+          SnackBars.error(context, l10n.youAreOffline);
         });
       }
 
@@ -165,10 +169,10 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     // Listen for offline status changes
     ref.listen(authStateProvider, (previous, next) {
       if (next.value?.isOffline == true) {
-        SnackBars.error(context, 'You are offline. Please check your internet connection.');
+        SnackBars.error(context, l10n.youAreOffline);
       }
       else if (previous?.value?.isOffline == true && next.value?.isOffline == false) {
-        SnackBars.success(context, 'You are back online');
+        SnackBars.success(context, l10n.youAreBackOnline);
       }
     });
 
@@ -210,14 +214,14 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
                     children: [
                       Icon(Icons.cancel_rounded, color: Theme.of(dialogContext).colorScheme.error),
                       const SizedBox(width: 12),
-                      const Text('Booking Cancelled'),
+                      Text(l10n.bookingCancelled),
                     ],
                   ),
-                  content: const Text('Sorry, your booking has been cancelled by the customer. You will receive some compensation for your time.'),
+                  content: Text(l10n.bookingCancelledMessage),
                   actions: [
                     FilledButton(
                       onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('OK'),
+                      child: Text(l10n.ok),
                     ),
                   ],
                 ),
@@ -233,6 +237,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final hasShownActionModalThisSession = ref.watch(hasShownActionModalProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     _setupListeners(authState);
 
@@ -266,7 +271,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             await rejectAssignment(api, assignment.id);
           } catch (e) {
             if (context.mounted) {
-              SnackBars.error(context, 'Failed to reject booking: $e');
+              SnackBars.error(context, l10n.failedToRejectBooking(e.toString()));
             }
           } finally {
             ref.invalidate(currentAssignmentProvider);
@@ -283,7 +288,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
             }
           } catch (e) {
             if (context.mounted) {
-              SnackBars.error(context, 'Failed to process booking: $e');
+              SnackBars.error(context, l10n.failedToProcessBooking(e.toString()));
             }
           } finally {
             // This will cause the UI to transition away when status becomes on_ride/available

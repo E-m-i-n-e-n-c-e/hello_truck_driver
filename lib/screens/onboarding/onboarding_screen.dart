@@ -4,6 +4,7 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_header.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_bottom_section.dart';
@@ -78,9 +79,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   Future<bool> _validateCurrentStep() async {
+    final l10n = AppLocalizations.of(context)!;
     switch (_controller.currentStep) {
       case 0: // Name step
-        final nameError = _controller.validatePersonalInfo();
+        final nameError = _controller.validatePersonalInfo(context);
         if (nameError != null) {
           _showError(nameError);
           _controller.shake();
@@ -103,14 +105,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
       case 2: // Email step
         if (!_controller.validateEmail()) {
-          _showError('Please enter a valid email address');
+          _showError(l10n.enterValidEmail);
           _controller.shake();
           return false;
         }
         return true;
 
       case 3: // Address step
-        final addressError = _controller.validateAddress();
+        final addressError = _controller.validateAddress(context);
         if (addressError != null) {
           _showError(addressError);
           _controller.shake();
@@ -119,7 +121,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         return true;
 
       case 4: // Vehicle step
-        final vehicleError = _controller.validateVehicle();
+        final vehicleError = _controller.validateVehicle(context);
         if (vehicleError != null) {
           _showError(vehicleError);
           _controller.shake();
@@ -128,7 +130,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         return true;
 
       case 5: // Documents step
-        final documentError = _controller.validateDocuments();
+        final documentError = _controller.validateDocuments(context);
         if (documentError != null) {
           _showError(documentError);
           _controller.shake();
@@ -137,7 +139,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         return true;
 
       case 6: // Payout step
-        final payoutError = _controller.validatePayout();
+        final payoutError = _controller.validatePayout(context);
         if (payoutError != null) {
           _showError(payoutError);
           _controller.shake();
@@ -146,7 +148,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
         return true;
 
       case 7: // Phone step
-        final error = _controller.validatePhoneDetails();
+        final error = _controller.validatePhoneDetails(context);
         if (error != null) {
           _showError(error);
           _controller.shake();
@@ -160,6 +162,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   Future<void> _submitForm() async {
+    final l10n = AppLocalizations.of(context)!;
+    // Get all context-dependent values before async gap
+    final payoutDetails = _controller.getPayoutDetails(context);
+
     if (!await _validateCurrentStep()) return;
 
     _controller.setLoading(true);
@@ -168,28 +174,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       final documents = _controller.getDriverDocuments();
       final address = _controller.getAddress();
       final vehicle = _controller.getVehicle();
-      final payoutDetails = _controller.getPayoutDetails();
 
       if (documents == null) {
-        _showError('Please complete all document uploads');
+        _showError(l10n.completeDocumentUploads);
         _controller.setLoading(false);
         return;
       }
 
       if (address == null) {
-        _showError('Please complete address details');
+        _showError(l10n.completeAddressDetails);
         _controller.setLoading(false);
         return;
       }
 
       if (vehicle == null) {
-        _showError('Please complete vehicle details');
+        _showError(l10n.completeVehicleDetails);
         _controller.setLoading(false);
         return;
       }
 
       if (payoutDetails == null) {
-        _showError('Please complete payout details');
+        _showError(l10n.completePayoutDetails);
         _controller.setLoading(false);
         return;
       }
@@ -217,7 +222,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       }
     } catch (e) {
       if (mounted) {
-        _showError('Failed to complete onboarding: $e');
+        _showError(l10n.failedToCompleteOnboarding(e.toString()));
         _controller.setLoading(false);
       }
     }

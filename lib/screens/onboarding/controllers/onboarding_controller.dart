@@ -11,6 +11,7 @@ import 'package:hello_truck_driver/models/vehicle_owner.dart';
 import 'package:hello_truck_driver/models/enums/vehicle_enums.dart';
 import 'package:hello_truck_driver/models/enums/payout_enums.dart';
 import 'package:hello_truck_driver/models/payout_details.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 import 'dart:io';
 
 class OnboardingController {
@@ -312,13 +313,14 @@ class OnboardingController {
   }
 
   // Validation
-  String? validatePersonalInfo() {
+  String? validatePersonalInfo(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final firstName = firstNameController.text.trim();
     if (firstName.isEmpty) {
-      return 'Please enter your first name';
+      return l10n.pleaseEnterFirstName;
     }
     if (firstName.length < 3) {
-      return 'First name must be at least 3 characters long';
+      return l10n.firstNameMinLength;
     }
     return null;
   }
@@ -328,161 +330,167 @@ class OnboardingController {
     return true;
   }
 
-  String? validatePhoneDetails() {
+  String? validatePhoneDetails(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final phone = alternatePhoneController.text.trim();
 
     if (phone.isEmpty) return null; // Phone is optional
 
     if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
-      return 'Please enter a valid 10-digit phone number';
+      return l10n.pleaseEnterValidPhone;
     }
 
     return null;
   }
 
-  String? validateAddress() {
+  String? validateAddress(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (addressLine1Controller.text.trim().isEmpty) {
-      return 'Please enter address line 1';
+      return l10n.pleaseEnterAddressLine1;
     }
     if (pincodeController.text.trim().isEmpty) {
-      return 'Please enter pincode';
+      return l10n.pleaseEnterPincode;
     }
     if (!RegExp(r'^[0-9]{6}$').hasMatch(pincodeController.text.trim())) {
-      return 'Please enter a valid 6-digit pincode';
+      return l10n.pleaseEnterValidPincode;
     }
     if (cityController.text.trim().isEmpty) {
-      return 'Please enter city';
+      return l10n.pleaseEnterCity;
     }
     if (districtController.text.trim().isEmpty) {
-      return 'Please enter district';
+      return l10n.pleaseEnterDistrict;
     }
     if (stateController.text.trim().isEmpty) {
-      return 'Please enter state';
+      return l10n.pleaseEnterState;
     }
     return null;
   }
 
-  String? validateVehicle() {
+  String? validateVehicle(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (vehicleNumberController.text.trim().isEmpty) {
-      return 'Please enter vehicle number';
+      return l10n.pleaseEnterVehicleNumber;
     }
     if (vehicleBodyLengthController.text.trim().isEmpty) {
-      return 'Please enter vehicle body length';
+      return l10n.pleaseEnterVehicleBodyLength;
     }
 
     // Validate vehicle body length is a valid number
     try {
       final length = double.parse(vehicleBodyLengthController.text.trim());
       if (length <= 0) {
-        return 'Vehicle body length must be greater than 0';
+        return l10n.vehicleBodyLengthMustBePositive;
       }
     } catch (e) {
-      return 'Please enter a valid vehicle body length';
+      return l10n.pleaseEnterValidBodyLength;
     }
 
     // Validate vehicle type selection
     if (_selectedVehicleType == null) {
-      return 'Please select vehicle type';
+      return l10n.pleaseSelectVehicleType;
     }
 
     // Validate vehicle model selection
     if (_selectedVehicleModelName == null) {
-      return 'Please select vehicle model';
+      return l10n.pleaseSelectVehicleModel;
     }
 
     // Validate vehicle body type selection
     if (_selectedVehicleBodyType == null) {
-      return 'Please select vehicle body type';
+      return l10n.pleaseSelectVehicleBodyType;
     }
 
     // Validate fuel type selection
     if (_selectedFuelType == null) {
-      return 'Please select fuel type';
+      return l10n.pleaseSelectFuelType;
     }
 
     // Validate vehicle image
     if (_uploadedVehicleImageUrl == null) {
-      return 'Please upload vehicle image';
+      return l10n.pleaseUploadVehicleImage;
     }
 
     // Validate owner details if not same as driver
     if (!_sameAsDriver) {
       if (ownerNameController.text.trim().isEmpty) {
-        return 'Please enter owner name';
+        return l10n.pleaseEnterOwnerName;
       }
       if (ownerContactController.text.trim().isEmpty) {
-        return 'Please enter owner contact number';
+        return l10n.pleaseEnterOwnerContact;
       }
       if (!RegExp(r'^[0-9]{10}$').hasMatch(ownerContactController.text.trim())) {
-        return 'Please enter a valid 10-digit owner contact number';
+        return l10n.pleaseEnterValidOwnerContact;
       }
       if (ownerAddressLine1Controller.text.trim().isEmpty) {
-        return 'Please enter owner address';
+        return l10n.pleaseEnterOwnerAddress;
       }
       if (ownerPincodeController.text.trim().isEmpty) {
-        return 'Please enter owner pincode';
+        return l10n.pleaseEnterOwnerPincode;
       }
       if (!RegExp(r'^[0-9]{6}$').hasMatch(ownerPincodeController.text.trim())) {
-        return 'Please enter a valid 6-digit owner pincode';
+        return l10n.pleaseEnterValidOwnerPincode;
       }
       if (ownerCityController.text.trim().isEmpty) {
-        return 'Please enter owner city';
+        return l10n.pleaseEnterOwnerCity;
       }
       if (ownerDistrictController.text.trim().isEmpty) {
-        return 'Please enter owner district';
+        return l10n.pleaseEnterOwnerDistrict;
       }
       if (ownerStateController.text.trim().isEmpty) {
-        return 'Please enter owner state';
+        return l10n.pleaseEnterOwnerState;
       }
       if (_uploadedOwnerAadharUrl == null) {
-        return 'Please upload owner Aadhar card';
+        return l10n.pleaseUploadOwnerAadhar;
       }
     }
     return null;
   }
 
-  String? validateDocuments() {
+  String? validateDocuments(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Validate PAN number format
     if (!RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(panNumberController.text.trim())) {
-      return 'Please enter a valid PAN number';
+      return l10n.pleaseEnterValidPan;
       // example: ABCDE1234F
     }
 
     // Check if all required documents are uploaded
-    if (_uploadedLicenseUrl == null) return 'Please upload your driving license';
-    if (_uploadedRcBookUrl == null) return 'Please upload your RC book';
-    if (_uploadedFcUrl == null) return 'Please upload your FC certificate';
-    if (_uploadedInsuranceUrl == null) return 'Please upload your insurance certificate';
-    if (_uploadedAadharUrl == null) return 'Please upload your Aadhar card';
-    if (_uploadedEbBillUrl == null) return 'Please upload your electricity bill';
-    if (panNumberController.text.trim().isEmpty) return 'Please enter your PAN number';
+    if (_uploadedLicenseUrl == null) return l10n.pleaseUploadDrivingLicense;
+    if (_uploadedRcBookUrl == null) return l10n.pleaseUploadRcBook;
+    if (_uploadedFcUrl == null) return l10n.pleaseUploadFc;
+    if (_uploadedInsuranceUrl == null) return l10n.pleaseUploadInsurance;
+    if (_uploadedAadharUrl == null) return l10n.pleaseUploadAadhar;
+    if (_uploadedEbBillUrl == null) return l10n.pleaseUploadEbBill;
+    if (panNumberController.text.trim().isEmpty) return l10n.pleaseEnterPanNumber;
 
     return null;
   }
 
-  String? validatePayout() {
+  String? validatePayout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedPayoutMethod == PayoutMethod.bankAccount) {
-      if (accountHolderNameController.text.trim().isEmpty) return 'Please enter account holder name';
-      if (accountNumberController.text.trim().isEmpty) return 'Please enter account number';
-      if (ifscCodeController.text.trim().isEmpty) return 'Please enter IFSC code';
+      if (accountHolderNameController.text.trim().isEmpty) return l10n.pleaseEnterAccountHolderName;
+      if (accountNumberController.text.trim().isEmpty) return l10n.pleaseEnterAccountNumber;
+      if (ifscCodeController.text.trim().isEmpty) return l10n.pleaseEnterIfscCode;
       if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(ifscCodeController.text.trim())) {
-        return 'Please enter a valid IFSC code';
+        return l10n.pleaseEnterValidIfsc;
       }
       return null;
     } else {
-      if (vpaController.text.trim().isEmpty) return 'Please enter UPI ID (VPA)';
+      if (vpaController.text.trim().isEmpty) return l10n.pleaseEnterUpiId;
       if (!RegExp(r'^[a-zA-Z0-9\.\-_]{2,256}@[a-zA-Z0-9\.\-_]{2,64}$').hasMatch(vpaController.text.trim())) {
-        return 'Please enter a valid UPI ID';
+        return l10n.pleaseEnterValidUpiId;
       }
       return null;
     }
   }
 
-  String getButtonText() {
+  String getButtonText(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_currentStep == totalSteps - 1) {
-      return 'Complete Setup';
+      return l10n.completeSetup;
     }
-    return 'Continue';
+    return l10n.continueText;
   }
 
   // Document methods
@@ -735,8 +743,8 @@ class OnboardingController {
     );
   }
 
-  PayoutDetails? getPayoutDetails() {
-    final error = validatePayout();
+  PayoutDetails? getPayoutDetails(BuildContext context) {
+    final error = validatePayout(context);
     if (error != null) return null;
     if (_selectedPayoutMethod == PayoutMethod.bankAccount) {
       return PayoutDetails(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class PhoneStep extends StatelessWidget {
   final OnboardingController controller;
@@ -17,6 +18,7 @@ class PhoneStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: controller,
@@ -34,14 +36,14 @@ class PhoneStep extends StatelessWidget {
 
           OnboardingStepTitle(
             controller: controller,
-            title: 'Almost done!',
+            title: l10n.almostDone,
           ),
 
           const SizedBox(height: 16),
 
           OnboardingStepDescription(
             controller: controller,
-            description: 'Add an alternate phone number for better communication with customers. This helps ensure smooth pickups and deliveries.',
+            description: l10n.phoneStepDescription,
           ),
 
           const SizedBox(height: 56),
@@ -50,8 +52,8 @@ class PhoneStep extends StatelessWidget {
             controller: controller,
             textController: controller.alternatePhoneController,
             focusNode: controller.alternatePhoneFocus,
-            label: 'Alternate Phone',
-            hint: 'Phone Number',
+            label: l10n.alternatePhone,
+            hint: l10n.phoneNumber,
             icon: Icons.phone_rounded,
             keyboardType: TextInputType.phone,
             inputFormatters: [
@@ -116,7 +118,7 @@ class PhoneStep extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'You\'re all set!',
+                          l10n.youAreAllSet,
                           style: GoogleFonts.dmSans(
                             color: colorScheme.secondary,
                             fontSize: 18,
@@ -125,7 +127,7 @@ class PhoneStep extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Complete your profile to start accepting rides and earning money with Hello Truck.',
+                          l10n.completeProfileDescription,
                           style: GoogleFonts.dmSans(
                             color: colorScheme.secondary.withValues(alpha: 0.8),
                             fontSize: 14,

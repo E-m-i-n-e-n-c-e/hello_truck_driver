@@ -1,7 +1,8 @@
 import 'package:hello_truck_driver/models/documents.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 /// Calculate expiry alerts from driver documents
-ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents) {
+ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents, AppLocalizations l10n) {
   final now = DateTime.now();
 
   String? licenseAlert;
@@ -16,13 +17,13 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents) {
     final daysUntilLicenseExpiry = documents.licenseExpiry!.difference(now).inDays;
 
     if (daysUntilLicenseExpiry <= 15 && daysUntilLicenseExpiry > 0) {
-      licenseAlert = 'Your driving license expires in $daysUntilLicenseExpiry days. Please renew it soon.';
+      licenseAlert = l10n.licenseExpiresInDays(daysUntilLicenseExpiry);
     } else if (daysUntilLicenseExpiry == 30) {
-      licenseAlert = 'Your driving license expires in 30 days. Please renew it.';
+      licenseAlert = l10n.licenseExpiresIn30Days;
     } else if (daysUntilLicenseExpiry == 45) {
-      licenseAlert = 'Your driving license expires in 45 days. Please renew it.';
+      licenseAlert = l10n.licenseExpiresIn45Days;
     } else if (daysUntilLicenseExpiry <= 0) {
-      licenseAlert = 'Your driving license has expired. Please renew it immediately.';
+      licenseAlert = l10n.licenseExpired;
       isLicenseExpired = true;
     }
   }
@@ -32,13 +33,13 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents) {
     final daysUntilFcExpiry = documents.fcExpiry!.difference(now).inDays;
 
     if (daysUntilFcExpiry <= 15 && daysUntilFcExpiry > 0) {
-      fcAlert = 'Your fitness certificate expires in $daysUntilFcExpiry days. Please renew it soon.';
+      fcAlert = l10n.fcExpiresInDays(daysUntilFcExpiry);
     } else if (daysUntilFcExpiry == 30) {
-      fcAlert = 'Your fitness certificate expires in 30 days. Please renew it.';
+      fcAlert = l10n.fcExpiresIn30Days;
     } else if (daysUntilFcExpiry == 45) {
-      fcAlert = 'Your fitness certificate expires in 45 days. Please renew it.';
+      fcAlert = l10n.fcExpiresIn45Days;
     } else if (daysUntilFcExpiry <= 0) {
-      fcAlert = 'Your fitness certificate has expired. Please renew it immediately.';
+      fcAlert = l10n.fcExpired;
       isFcExpired = true;
     }
   }
@@ -48,13 +49,13 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents) {
     final daysUntilInsuranceExpiry = documents.insuranceExpiry!.difference(now).inDays;
 
     if (daysUntilInsuranceExpiry <= 15 && daysUntilInsuranceExpiry > 0) {
-      insuranceAlert = 'Your insurance expires in $daysUntilInsuranceExpiry days. Please renew it soon.';
+      insuranceAlert = l10n.insuranceExpiresInDays(daysUntilInsuranceExpiry);
     } else if (daysUntilInsuranceExpiry == 30) {
-      insuranceAlert = 'Your insurance expires in 30 days. Please renew it.';
+      insuranceAlert = l10n.insuranceExpiresIn30Days;
     } else if (daysUntilInsuranceExpiry == 45) {
-      insuranceAlert = 'Your insurance expires in 45 days. Please renew it.';
+      insuranceAlert = l10n.insuranceExpiresIn45Days;
     } else if (daysUntilInsuranceExpiry <= 0) {
-      insuranceAlert = 'Your insurance has expired. Please renew it immediately.';
+      insuranceAlert = l10n.insuranceExpired;
       isInsuranceExpired = true;
     }
   }

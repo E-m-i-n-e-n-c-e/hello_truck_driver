@@ -5,6 +5,7 @@ import 'package:hello_truck_driver/pages/otp_verification_page.dart';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -64,7 +65,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      SnackBars.error(context, 'Error sending OTP: ${e.toString()}');
+      final l10n = AppLocalizations.of(context)!;
+      SnackBars.error(context, l10n.errorSendingOtp(e.toString()));
     } finally {
       if (mounted) {
         _loadingState.value = false;
@@ -155,8 +157,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Widget _buildTitle(TextTheme textTheme) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     return Text(
-      'Enter your phone number',
+      l10n.loginTitle,
       style: textTheme.headlineSmall?.copyWith(
         fontWeight: FontWeight.w700,
         color: colorScheme.onSurface,
@@ -166,8 +169,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   Widget _buildSubtitle(TextTheme textTheme) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
     return Text(
-      "We'll send you a verification code",
+      l10n.loginSubtitle,
       style: textTheme.titleMedium?.copyWith(
         color: colorScheme.onSurface.withValues(alpha: 0.7),
         fontWeight: FontWeight.w500,
@@ -176,6 +180,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Widget _buildPhoneInput(TextTheme textTheme, ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return TextFormField(
       controller: _phoneController,
       focusNode: _phoneFocusNode,
@@ -200,7 +205,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ],
           ),
         ),
-        hintText: 'Phone Number',
+        hintText: l10n.phoneNumberHint,
         hintStyle: TextStyle(
           color: Colors.grey.shade400,
           fontWeight: FontWeight.w500,
@@ -221,10 +226,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Please enter your phone number';
+          return l10n.phoneEmptyError;
         }
         if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-          return 'Please enter a valid 10-digit phone number';
+          return l10n.phoneInvalidError;
         }
         return null;
       },
@@ -241,6 +246,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     ColorScheme colorScheme,
     API? api,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: ValueListenableBuilder<bool>(
@@ -259,7 +265,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               elevation: 0,
             ),
             child: Text(
-              'Send OTP',
+              l10n.sendOtp,
               style: textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSecondary,
                 fontWeight: FontWeight.w600,

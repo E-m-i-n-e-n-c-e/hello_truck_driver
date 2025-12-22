@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:hello_truck_driver/auth/api.dart';
 import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class OtpVerificationPage extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -75,12 +76,14 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
       await api.sendOtp(widget.phoneNumber);
       if (!mounted) return;
 
-      SnackBars.success(context, 'OTP sent successfully!');
+      final l10n = AppLocalizations.of(context)!;
+      SnackBars.success(context, l10n.otpSentSuccess);
       _otpController.clear();
       _startResendTimer();
     } catch (e) {
       if (!mounted) return;
-      SnackBars.error(context, 'Error sending OTP: ${e.toString()}');
+      final l10n = AppLocalizations.of(context)!;
+      SnackBars.error(context, l10n.errorSendingOtp(e.toString()));
     } finally {
       if (mounted) {
         _loadingState.value = false;
@@ -101,7 +104,8 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
       if (mounted) {
         _otpController.clear();
         _errorController?.add(ErrorAnimationType.shake);
-        SnackBars.error(context, "Error verifying OTP: ${e.toString()}");
+        final l10n = AppLocalizations.of(context)!;
+        SnackBars.error(context, l10n.errorVerifyingOtp(e.toString()));
         _loadingState.value = false;
       }
     }
@@ -111,6 +115,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context)!;
     // Only watch what we need from the API
     final api = ref.watch(apiProvider.select((value) => value));
 
@@ -136,7 +141,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                     icon:  BackButton(color: colorScheme.onSurface.withValues(alpha: 0.8)),
                   ),
                   Text(
-                    'OTP Verification',
+                    l10n.otpVerification,
                     style: textTheme.titleLarge?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,
@@ -153,7 +158,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                           const SizedBox(height: 20),
 
                           Text(
-                            'We have sent a verification code to',
+                            l10n.otpSentTo,
                             style: textTheme.titleMedium?.copyWith(
                               color: colorScheme.onSurface.withValues(alpha: 0.87),
                             ),
@@ -229,7 +234,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                             children: [
                               if (timerState.resendCountdown > 25) ...[
                                 Text(
-                                  'Check text messages for your OTP',
+                                  l10n.checkTextMessages,
                                   style: textTheme.bodyMedium?.copyWith(
                                     color: Colors.blueAccent,
                                     fontWeight: FontWeight.w700,
@@ -244,7 +249,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "Didn't get the OTP? ",
+                                    "${l10n.didntGetOtp} ",
                                     style: textTheme.titleMedium?.copyWith(
                                       color: colorScheme.onSurface.withValues(alpha: 0.87),
                                       fontWeight: FontWeight.w600,
@@ -265,7 +270,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                                     MaterialTapTargetSize.shrinkWrap,
                                               ),
                                               child: Text(
-                                                'Resend SMS',
+                                                l10n.resendSms,
                                                 style: textTheme.titleMedium?.copyWith(
                                                   color: colorScheme.secondary,
                                                   fontWeight: FontWeight.bold,
@@ -273,7 +278,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                                               ),
                                             )
                                           : Text(
-                                              'Resend SMS in ${timerState.resendCountdown}s',
+                                              l10n.resendSmsIn(timerState.resendCountdown),
                                               style: textTheme.titleMedium?.copyWith(
                                                 color: Colors.grey,
                                                 fontWeight: FontWeight.w500,
@@ -296,7 +301,7 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                             child: TextButton(
                               onPressed: () => Navigator.pop(context),
                               child: Text(
-                                'Change phone number',
+                                l10n.changePhoneNumber,
                                 style: textTheme.bodyLarge?.copyWith(
                                   color: colorScheme.secondary,
                                   fontWeight: FontWeight.w700,

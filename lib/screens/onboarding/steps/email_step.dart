@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class EmailStep extends StatelessWidget {
   final OnboardingController controller;
@@ -20,6 +21,7 @@ class EmailStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: controller,
@@ -37,14 +39,14 @@ class EmailStep extends StatelessWidget {
 
           OnboardingStepTitle(
             controller: controller,
-            title: 'Verify your email',
+            title: l10n.emailStepTitle,
           ),
 
           const SizedBox(height: 16),
 
           OnboardingStepDescription(
             controller: controller,
-            description: 'Connect with Google to verify your email address and receive important updates about your rides and earnings.',
+            description: l10n.emailStepDescription,
           ),
 
           const SizedBox(height: 56),
@@ -97,7 +99,7 @@ class EmailStep extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Email Verified Successfully',
+                            l10n.emailVerifiedSuccess,
                             style: GoogleFonts.dmSans(
                               fontWeight: FontWeight.bold,
                               color: Colors.green.shade800,
@@ -154,7 +156,7 @@ class EmailStep extends StatelessWidget {
                     ),
                   ),
                   label: Text(
-                    'Connect with Google',
+                    l10n.connectWithGoogle,
                     style: GoogleFonts.dmSans(
                       color: colorScheme.onSurface.withValues(alpha: 0.8),
                       fontSize: 16,

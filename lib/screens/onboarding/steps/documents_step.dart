@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/document_upload_card.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class DocumentsStep extends ConsumerWidget {
   final OnboardingController controller;
@@ -18,6 +19,7 @@ class DocumentsStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: controller,
@@ -35,7 +37,7 @@ class DocumentsStep extends ConsumerWidget {
           // Title
           OnboardingStepTitle(
             controller: controller,
-            title: 'Upload Documents',
+            title: l10n.documentsStepTitle,
           ),
 
           const SizedBox(height: 16),
@@ -43,7 +45,7 @@ class DocumentsStep extends ConsumerWidget {
           // Description
           OnboardingStepDescription(
             controller: controller,
-            description: 'Please upload all required documents to complete your driver profile verification.',
+            description: l10n.documentsStepDescription,
           ),
 
           const SizedBox(height: 40),
@@ -53,8 +55,8 @@ class DocumentsStep extends ConsumerWidget {
             controller: controller,
             textController: controller.panNumberController,
             focusNode: controller.panNumberFocus,
-            label: 'PAN Number',
-            hint: 'Enter your PAN number',
+            label: l10n.panNumber,
+            hint: l10n.enterPanNumber,
             icon: Icons.credit_card_rounded,
             isRequired: true,
             keyboardType: TextInputType.text,
@@ -65,8 +67,8 @@ class DocumentsStep extends ConsumerWidget {
 
           // Document Upload Cards
           DocumentUploadCard(
-            title: 'Driving License',
-            subtitle: 'Upload your valid driving license',
+            title: l10n.drivingLicense,
+            subtitle: l10n.uploadLicense,
             icon: Icons.drive_eta_rounded,
             documentType: 'license',
             selectedFile: controller.selectedLicense,
@@ -78,8 +80,8 @@ class DocumentsStep extends ConsumerWidget {
           const SizedBox(height: 16),
 
           DocumentUploadCard(
-            title: 'RC Book',
-            subtitle: 'Upload your vehicle registration certificate',
+            title: l10n.rcBook,
+            subtitle: l10n.uploadRcBook,
             icon: Icons.local_shipping_rounded,
             documentType: 'rcBook',
             selectedFile: controller.selectedRcBook,
@@ -91,8 +93,8 @@ class DocumentsStep extends ConsumerWidget {
           const SizedBox(height: 16),
 
           DocumentUploadCard(
-            title: 'FC Certificate',
-            subtitle: 'Upload your fitness certificate',
+            title: l10n.fcCertificate,
+            subtitle: l10n.uploadFc,
             icon: Icons.verified_rounded,
             documentType: 'fc',
             selectedFile: controller.selectedFc,
@@ -104,8 +106,8 @@ class DocumentsStep extends ConsumerWidget {
           const SizedBox(height: 16),
 
           DocumentUploadCard(
-            title: 'Insurance Certificate',
-            subtitle: 'Upload your vehicle insurance certificate',
+            title: l10n.insuranceCertificate,
+            subtitle: l10n.uploadInsurance,
             icon: Icons.security_rounded,
             documentType: 'insurance',
             selectedFile: controller.selectedInsurance,
@@ -117,8 +119,8 @@ class DocumentsStep extends ConsumerWidget {
           const SizedBox(height: 16),
 
           DocumentUploadCard(
-            title: 'Aadhar Card',
-            subtitle: 'Upload your Aadhar card',
+            title: l10n.aadharCard,
+            subtitle: l10n.uploadAadhar,
             icon: Icons.person_rounded,
             documentType: 'aadhar',
             selectedFile: controller.selectedAadhar,
@@ -130,8 +132,8 @@ class DocumentsStep extends ConsumerWidget {
           const SizedBox(height: 16),
 
           DocumentUploadCard(
-            title: 'Electricity Bill',
-            subtitle: 'Upload your address proof (electricity bill)',
+            title: l10n.electricityBill,
+            subtitle: l10n.uploadEbBill,
             icon: Icons.receipt_long_rounded,
             documentType: 'ebBill',
             selectedFile: controller.selectedEbBill,

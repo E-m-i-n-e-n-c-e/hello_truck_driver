@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class PhotoStep extends StatelessWidget {
   final OnboardingController controller;
@@ -18,6 +19,7 @@ class PhotoStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: controller,
@@ -33,14 +35,13 @@ class PhotoStep extends StatelessWidget {
 
           const SizedBox(height: 40),
 
-          OnboardingStepTitle(controller: controller, title: 'Add your photo'),
+          OnboardingStepTitle(controller: controller, title: l10n.photoStepTitle),
 
           const SizedBox(height: 16),
 
           OnboardingStepDescription(
             controller: controller,
-            description:
-                'Upload a clear, professional photo to help customers recognize you. This builds trust and makes pickups smoother.',
+            description: l10n.photoStepDescription,
           ),
 
           const SizedBox(height: 56),
@@ -156,7 +157,7 @@ class PhotoStep extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Tap to add photo',
+                                  l10n.tapToAddPhoto,
                                   style: GoogleFonts.dmSans(
                                     color: colorScheme.secondary,
                                     fontSize: 16,
@@ -204,7 +205,7 @@ class PhotoStep extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Photo selected',
+                        l10n.photoSelected,
                         style: GoogleFonts.dmSans(
                           color: Colors.green.shade700,
                           fontSize: 14,
@@ -236,7 +237,7 @@ class PhotoStep extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Uploading your photo...',
+                    l10n.uploadingPhoto,
                     style: GoogleFonts.dmSans(
                       color: colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 16,

@@ -10,6 +10,7 @@ import 'package:hello_truck_driver/screens/booking/payment_settlement_screen.dar
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/widgets/otp_bottom_sheet.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class NavigationOverlay extends ConsumerStatefulWidget {
   final BookingAssignment assignment;
@@ -59,7 +60,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildCompactOverlay(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
-    final (_, _, icon, color) = _getStatusInfo(status);
+    final l10n = AppLocalizations.of(context)!;
+    final (_, _, icon, color) = _getStatusInfo(l10n, status);
 
     return GestureDetector(
       onTap: () => setState(() => _isExpanded = true),
@@ -90,7 +92,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             ),
             const SizedBox(width: 8),
             Text(
-              'Actions',
+              l10n.actions,
               style: tt.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: cs.onSurface,
@@ -154,6 +156,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildCallButton(BuildContext context, BookingStatus status, dynamic booking, TextTheme tt, ColorScheme cs) {
+    final l10n = AppLocalizations.of(context)!;
     // Pickup phase: confirmed, pickupArrived
     // Drop phase: pickupVerified, inTransit, dropArrived
     final isPickupPhase = status == BookingStatus.confirmed || status == BookingStatus.pickupArrived;
@@ -172,7 +175,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         onPressed: () async {
           final url = Uri.parse('tel:$phone');
           if (!await launchUrl(url)) {
-            if (context.mounted) SnackBars.error(context, 'Could not make call');
+            if (context.mounted) SnackBars.error(context, l10n.couldNotMakeCall);
           }
         },
         style: OutlinedButton.styleFrom(
@@ -190,7 +193,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
             Icon(Icons.call_rounded, size: 18, color: Colors.green),
             const SizedBox(width: 8),
             Text(
-              'Call ${contactName.isNotEmpty ? contactName.split(' ').first : 'Contact'}',
+              l10n.callContact(contactName.isNotEmpty ? contactName.split(' ').first : 'Contact'),
               style: tt.labelLarge?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: Colors.green,
@@ -203,7 +206,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildStatusHeader(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
-    final (title, subtitle, icon, color) = _getStatusInfo(status);
+    final l10n = AppLocalizations.of(context)!;
+    final (title, subtitle, icon, color) = _getStatusInfo(l10n, status);
 
     return Row(
       children: [
@@ -244,7 +248,8 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
   }
 
   Widget _buildActionButton(BuildContext context, BookingStatus status, TextTheme tt, ColorScheme cs) {
-    final (buttonText, buttonIcon, buttonColor, isEnabled) = _getButtonInfo(status);
+    final l10n = AppLocalizations.of(context)!;
+    final (buttonText, buttonIcon, buttonColor, isEnabled) = _getButtonInfo(l10n, status);
 
     return ElevatedButton(
       onPressed: isEnabled && !_isLoading ? () => _handleAction(status) : null,
@@ -285,44 +290,45 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
     );
   }
 
-  (String, String, IconData, Color) _getStatusInfo(BookingStatus status) {
+  (String, String, IconData, Color) _getStatusInfo(AppLocalizations l10n, BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
-        return ('Navigate to Pickup', 'Mark arrival at pickup location', Icons.trip_origin_rounded, Colors.green);
+        return (l10n.navigateToPickup, l10n.markArrivalAtPickup, Icons.trip_origin_rounded, Colors.green);
       case BookingStatus.pickupArrived:
-        return ('Verify Pickup', 'Enter customer OTP', Icons.verified_rounded, Colors.blue);
+        return (l10n.verifyPickup, l10n.enterCustomerOtp, Icons.verified_rounded, Colors.blue);
       case BookingStatus.pickupVerified:
       case BookingStatus.inTransit:
-        return ('Navigate to Drop', 'Mark arrival at drop location', Icons.location_on_rounded, Colors.orange);
+        return (l10n.navigateToDrop, l10n.markArrivalAtDrop, Icons.location_on_rounded, Colors.orange);
       case BookingStatus.dropArrived:
-        return ('Verify Drop', 'Enter customer OTP', Icons.verified_rounded, Colors.purple);
+        return (l10n.verifyDrop, l10n.enterCustomerOtp, Icons.verified_rounded, Colors.purple);
       case BookingStatus.dropVerified:
-        return ('Ride Complete', 'Ready to finish', Icons.check_circle_rounded, Colors.green);
+        return (l10n.rideComplete, l10n.readyToFinish, Icons.check_circle_rounded, Colors.green);
       default:
-        return ('Navigation', 'Follow the route', Icons.navigation_rounded, Colors.grey);
+        return (l10n.navigation, l10n.followTheRoute, Icons.navigation_rounded, Colors.grey);
     }
   }
 
-  (String, IconData, Color, bool) _getButtonInfo(BookingStatus status) {
+  (String, IconData, Color, bool) _getButtonInfo(AppLocalizations l10n, BookingStatus status) {
     switch (status) {
       case BookingStatus.confirmed:
-        return ('Mark Arrived', Icons.location_on_rounded, Colors.green, true);
+        return (l10n.markArrived, Icons.location_on_rounded, Colors.green, true);
       case BookingStatus.pickupArrived:
-        return ('Verify Pickup', Icons.verified_rounded, Colors.blue, true);
+        return (l10n.verifyPickup, Icons.verified_rounded, Colors.blue, true);
       case BookingStatus.pickupVerified:
       case BookingStatus.inTransit:
-        return ('Mark Arrived', Icons.location_on_rounded, Colors.orange, true);
+        return (l10n.markArrived, Icons.location_on_rounded, Colors.orange, true);
       case BookingStatus.dropArrived:
-        return ('Verify Drop', Icons.verified_rounded, Colors.purple, true);
+        return (l10n.verifyDrop, Icons.verified_rounded, Colors.purple, true);
       case BookingStatus.dropVerified:
-        return ('Finish Ride', Icons.check_circle_rounded, Colors.green, true);
+        return (l10n.finishRide, Icons.check_circle_rounded, Colors.green, true);
       default:
-        return ('Continue', Icons.arrow_forward_rounded, Colors.grey, false);
+        return (l10n.continueText, Icons.arrow_forward_rounded, Colors.grey, false);
     }
   }
 
   Future<void> _handleAction(BookingStatus status) async {
     setState(() => _isLoading = true);
+    final l10n = AppLocalizations.of(context)!;
 
     try {
       final api = await ref.read(apiProvider.future);
@@ -331,7 +337,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         case BookingStatus.confirmed:
           await pickupArrived(api);
           ref.invalidate(currentAssignmentProvider);
-          _showSuccess('Marked as arrived at pickup');
+          _showSuccess(l10n.markedAsArrivedAtPickup);
           break;
 
         case BookingStatus.pickupArrived:
@@ -359,30 +365,30 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
               await Future.delayed(const Duration(milliseconds: 300));
 
               if (!mounted) return;
-              final otp = await _showOtpDialog(context, 'Pickup Verification', 'Enter customer OTP');
+              final otp = await _showOtpDialog(context, l10n.pickupVerificationTitle, l10n.enterCustomerOtp);
               if (otp != null && otp.length == 4) {
                 try {
                   await verifyPickupOtp(api, otp);
                   ref.invalidate(currentAssignmentProvider);
-                  _showSuccess('Pickup verified! 🎉');
+                  _showSuccess(l10n.pickupVerified);
                   widget.onNavigationExit();
                 } catch (e) {
-                  _showError('Invalid OTP. Please try again.');
+                  _showError(l10n.invalidOtpTryAgain);
                 }
               }
             }
           } else {
             // Payment already received - proceed with OTP verification
             if (!mounted) return;
-            final otp = await _showOtpDialog(context, 'Pickup Verification', 'Enter customer OTP');
+            final otp = await _showOtpDialog(context, l10n.pickupVerificationTitle, l10n.enterCustomerOtp);
             if (otp != null && otp.length == 4) {
               try {
                 await verifyPickupOtp(api, otp);
                 ref.invalidate(currentAssignmentProvider);
-                _showSuccess('Pickup verified! 🎉');
+                _showSuccess(l10n.pickupVerified);
                 widget.onNavigationExit();
               } catch (e) {
-                _showError('Invalid OTP. Please try again.');
+                _showError(l10n.invalidOtpTryAgain);
               }
             }
           }
@@ -392,20 +398,20 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         case BookingStatus.inTransit:
           await dropArrived(api);
           ref.invalidate(currentAssignmentProvider);
-          _showSuccess('Marked as arrived at drop');
+          _showSuccess(l10n.markedAsArrivedAtDrop);
           break;
 
         case BookingStatus.dropArrived:
           if (!mounted) return;
-          final otp = await _showOtpDialog(context, 'Drop Verification', 'Enter customer OTP');
+          final otp = await _showOtpDialog(context, l10n.dropVerificationTitle, l10n.enterCustomerOtp);
           if (otp != null && otp.length == 4) {
             try {
               await verifyDropOtp(api, otp);
               ref.invalidate(currentAssignmentProvider);
-              _showSuccess('Drop verified! 🎉');
+              _showSuccess(l10n.dropVerified);
               widget.onNavigationExit();
             } catch (e) {
-              _showError('Invalid OTP. Please try again.');
+              _showError(l10n.invalidOtpTryAgain);
             }
           }
           break;
@@ -413,7 +419,7 @@ class _NavigationOverlayState extends ConsumerState<NavigationOverlay> {
         case BookingStatus.dropVerified:
           await finishRide(api);
           ref.invalidate(currentAssignmentProvider);
-          _showSuccess('Ride completed! 🎉');
+          _showSuccess(l10n.rideCompleted);
           break;
 
         default:

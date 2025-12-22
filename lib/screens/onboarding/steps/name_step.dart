@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class NameStep extends StatelessWidget {
   final OnboardingController controller;
@@ -14,6 +15,7 @@ class NameStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return OnboardingStepContainer(
       controller: controller,
       child: Column(
@@ -32,15 +34,14 @@ class NameStep extends StatelessWidget {
           // Enhanced title with better typography
           OnboardingStepTitle(
             controller: controller,
-            title: 'What\'s your name?',
+            title: l10n.nameStepTitle,
           ),
 
           const SizedBox(height: 16),
 
           OnboardingStepDescription(
             controller: controller,
-            description:
-                'This will be displayed on your driver profile and help customers identify you during their rides.',
+            description: l10n.nameStepDescription,
           ),
 
           const SizedBox(height: 56),
@@ -50,8 +51,8 @@ class NameStep extends StatelessWidget {
             controller: controller,
             textController: controller.firstNameController,
             focusNode: controller.firstNameFocus,
-            label: 'First Name',
-            hint: 'Enter your first name',
+            label: l10n.firstName,
+            hint: l10n.enterFirstName,
             icon: Icons.person_rounded,
             isRequired: true,
             onSubmitted: (_) => controller.lastNameFocus.requestFocus(),
@@ -63,8 +64,8 @@ class NameStep extends StatelessWidget {
             controller: controller,
             textController: controller.lastNameController,
             focusNode: controller.lastNameFocus,
-            label: 'Last Name',
-            hint: 'Enter your last name (optional)',
+            label: l10n.lastName,
+            hint: l10n.enterLastNameOptional,
             icon: Icons.person_outline_rounded,
             onSubmitted: (_) => onNext(),
           ),

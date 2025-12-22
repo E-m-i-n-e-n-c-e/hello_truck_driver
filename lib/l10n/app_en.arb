@@ -1,0 +1,883 @@
+{
+    "@@locale": "en",
+
+    "appTitle": "Hello Truck Driver",
+
+    "languageSystem": "System Default",
+    "languageEnglish": "English",
+    "languageHindi": "हिन्दी",
+    "languageTitle": "Language",
+    "currentLanguage": "English",
+
+    "loginTitle": "Enter your phone number",
+    "loginSubtitle": "We'll send you a verification code",
+    "phoneNumberHint": "Phone Number",
+    "sendOtp": "Send OTP",
+    "phoneEmptyError": "Please enter your phone number",
+    "phoneInvalidError": "Please enter a valid 10-digit phone number",
+    "errorSendingOtp": "Error sending OTP: {error}",
+    "@errorSendingOtp": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "otpVerification": "OTP Verification",
+    "otpSentTo": "We have sent a verification code to",
+    "otpSentSuccess": "OTP sent successfully!",
+    "checkTextMessages": "Check text messages for your OTP",
+    "didntGetOtp": "Didn't get the OTP?",
+    "resendSms": "Resend SMS",
+    "resendSmsIn": "Resend SMS in {seconds}s",
+    "@resendSmsIn": {
+        "placeholders": {
+            "seconds": {"type": "int"}
+        }
+    },
+    "changePhoneNumber": "Change phone number",
+    "errorVerifyingOtp": "Error verifying OTP: {error}",
+    "@errorVerifyingOtp": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "profile": "Profile",
+    "failedToLoadProfile": "Failed to load profile",
+    "retry": "Retry",
+    "walletBalance": "Wallet Balance",
+    "documents": "Documents",
+    "documentsSubtitle": "License, RC, Insurance & more",
+    "vehicle": "Vehicle",
+    "vehicleSubtitle": "Vehicle details & owner info",
+    "address": "Address",
+    "addressSubtitle": "Your registered address",
+    "languageSubtitle": "Change app language",
+    "personalInformation": "Personal Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "alternatePhone": "Alternate Phone",
+    "notSet": "Not set",
+    "account": "Account",
+    "phoneNumber": "Phone Number",
+    "email": "Email",
+    "notLinked": "Not linked",
+    "link": "Link",
+    "memberSince": "Member Since",
+    "referralCode": "Referral Code",
+    "edit": "Edit",
+    "add": "Add",
+    "logout": "Logout",
+    "logoutConfirmTitle": "Logout",
+    "logoutConfirmMessage": "Are you sure you want to logout?",
+    "cancel": "Cancel",
+    "ok": "OK",
+
+    "pendingVerification": "Pending Verification",
+    "verified": "Verified",
+    "verificationRejected": "Verification Rejected",
+
+    "profilePictureUpdated": "Profile picture updated successfully",
+    "emailLinkedSuccess": "Email linked successfully",
+    "firstNameUpdated": "First name updated successfully",
+    "lastNameUpdated": "Last name updated successfully",
+    "alternatePhoneUpdated": "Alternate phone updated successfully",
+    "failedToUpdate": "Failed to update {field}: {error}",
+    "@failedToUpdate": {
+        "placeholders": {
+            "field": {"type": "String"},
+            "error": {"type": "String"}
+        }
+    },
+
+    "dashboard": "Dashboard",
+    "home": "Home",
+    "rides": "Rides",
+    "earnings": "Earnings",
+
+    "helloDriver": "Hello, {name} 👋",
+    "@helloDriver": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "stayReadyEarnMore": "Stay ready. Earn more.",
+    "todaysSummary": "Today's Summary",
+    "ridesLabel": "rides",
+    "earned": "earned",
+    "status": "Status",
+    "score": "Score",
+    "todaysRides": "Today's Rides",
+    "noRidesCompletedYet": "No rides completed yet",
+    "completeFirstRide": "Complete your first ride today!",
+    "bookingNumber": "Booking #{number}",
+    "@bookingNumber": {
+        "placeholders": {
+            "number": {"type": "String"}
+        }
+    },
+    "completed": "Completed",
+    "dismiss": "Dismiss",
+    "documentExpired": "Document Expired!",
+    "documentExpiringSoon": "Document Expiring Soon",
+    "cannotTakeBookings": "You cannot take bookings until documents are updated.",
+
+    "turnOnLocationServices": "Turn on Location Services",
+    "locationServicesOffMessage": "Location services are off. Without location, you won't be able to take rides.",
+    "openSettings": "Open Settings",
+    "skipForNow": "Skip for now",
+    "enableLocationPermission": "Enable Location Permission",
+    "locationPermissionMessage": "We need your location to assign rides. You won't be able to take rides otherwise.",
+    "enable": "Enable",
+    "locationPermissionRequired": "Location Permission Required",
+    "locationPermissionDeniedMessage": "Permission is permanently denied. Open app settings to allow location.\nWithout this, you won't be able to take rides.",
+    "youAreOffline": "You are offline. Please check your internet connection.",
+    "youAreBackOnline": "You are back online",
+
+    "bookingCancelled": "Booking Cancelled",
+    "bookingCancelledMessage": "Sorry, your booking has been cancelled by the customer. You will receive some compensation for your time.",
+
+    "failedToRejectBooking": "Failed to reject booking: {error}",
+    "@failedToRejectBooking": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "failedToProcessBooking": "Failed to process booking: {error}",
+    "@failedToProcessBooking": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "error": "Error: {message}",
+    "@error": {
+        "placeholders": {
+            "message": {"type": "String"}
+        }
+    },
+
+    "driverStatusAvailable": "Available",
+    "driverStatusUnavailable": "Unavailable",
+    "driverStatusOnRide": "On Ride",
+    "driverStatusRideOffered": "Ride Offered",
+
+    "bookingStatusPending": "Pending",
+    "bookingStatusDriverAssigned": "Driver Assigned",
+    "bookingStatusConfirmed": "Confirmed",
+    "bookingStatusPickupArrived": "Pickup Arrived",
+    "bookingStatusPickupVerified": "Pickup Verified",
+    "bookingStatusInTransit": "In Transit",
+    "bookingStatusDropArrived": "Drop Arrived",
+    "bookingStatusDropVerified": "Drop Verified",
+    "bookingStatusCompleted": "Completed",
+    "bookingStatusCancelled": "Cancelled",
+    "bookingStatusExpired": "Expired",
+
+    "assignmentStatusOffered": "Offered",
+    "assignmentStatusAccepted": "Accepted",
+    "assignmentStatusRejected": "Rejected",
+    "assignmentStatusAutoRejected": "Auto Rejected",
+
+    "transactionTypeCredit": "Credit",
+    "transactionTypeDebit": "Debit",
+
+    "transactionCategoryBookingPayment": "Booking Payment",
+    "transactionCategoryBookingRefund": "Booking Refund",
+    "transactionCategoryDriverPayout": "Payout",
+    "transactionCategoryWalletCredit": "Wallet Credit",
+    "transactionCategoryOther": "Other",
+
+    "paymentMethodCash": "Cash",
+    "paymentMethodOnline": "Online",
+    "paymentMethodWallet": "Wallet",
+
+    "payoutStatusPending": "Pending",
+    "payoutStatusProcessing": "Processing",
+    "payoutStatusCompleted": "Completed",
+    "payoutStatusFailed": "Failed",
+    "payoutStatusCancelled": "Cancelled",
+
+    "productTypePersonal": "Personal",
+    "productTypeAgricultural": "Agricultural",
+    "productTypeNonAgricultural": "Non-Agricultural",
+
+    "weightUnitKg": "kg",
+    "weightUnitQuintal": "Quintal",
+
+    "vehicleTypeThreeWheeler": "Three Wheeler",
+    "vehicleTypeFourWheeler": "Four Wheeler",
+
+    "vehicleBodyTypeOpen": "Open",
+    "vehicleBodyTypeClosed": "Closed",
+
+    "fuelTypeDiesel": "Diesel",
+    "fuelTypePetrol": "Petrol",
+    "fuelTypeEv": "Electric",
+    "fuelTypeCng": "CNG",
+
+    "payoutMethodBankAccount": "Bank Account",
+    "payoutMethodVpa": "UPI",
+
+    "pickup": "Pickup",
+    "drop": "Drop",
+    "accept": "Accept",
+    "reject": "Reject",
+    "startNavigation": "Start Navigation",
+    "arrived": "Arrived",
+    "verifyOtp": "Verify OTP",
+    "startRide": "Start Ride",
+    "completeRide": "Complete Ride",
+    "collectPayment": "Collect Payment",
+    "customer": "Customer",
+    "package": "Package",
+    "distance": "Distance",
+    "estimatedTime": "Est. Time",
+    "fare": "Fare",
+    "commission": "Commission",
+    "netEarnings": "Net Earnings",
+    "cashToCollect": "Cash to Collect",
+    "onlinePayment": "Online Payment",
+    "paymentReceived": "Payment Received",
+    "confirm": "Confirm",
+    "close": "Close",
+    "save": "Save",
+    "update": "Update",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "noDataFound": "No data found",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try Again",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+
+    "tabActive": "Active",
+    "tabHistory": "History",
+
+    "failedToLoadActiveRide": "Failed to load active ride",
+    "noActiveRides": "No active rides",
+    "noActiveRidesSubtitle": "Your active rides will appear here",
+    "failedToLoadRideHistory": "Failed to load ride history",
+    "noRideHistory": "No ride history",
+    "noRideHistorySubtitle": "Your completed rides will appear here",
+
+    "cannotAcceptRides": "Cannot Accept Rides",
+    "youAreAvailable": "You're available",
+    "youAreUnavailable": "You're unavailable",
+    "readyToAcceptRequests": "Ready to accept new ride requests",
+    "turnOnToReceiveRides": "Turn on to start receiving rides",
+
+    "verificationRejectedMessage": "Your verification was rejected. Please contact support to resolve the issue.",
+    "verificationPendingMessage": "Your account is pending verification. You cannot accept rides until your documents are verified.",
+    "documentsExpiredMessage": "Your {docs} have expired. Please update them to accept rides.",
+    "@documentsExpiredMessage": {
+        "placeholders": {
+            "docs": {"type": "String"}
+        }
+    },
+
+    "youAreNowAvailable": "You are now available",
+    "youAreNowUnavailable": "You are now unavailable",
+    "failedToUpdateStatus": "Failed to update status",
+
+    "agriculturalProduct": "Agricultural Product",
+    "packageDelivery": "Package Delivery",
+
+    "navigateToPickup": "Navigate to Pickup",
+    "navigateToDrop": "Navigate to Drop",
+
+    "walletActivity": "Wallet Activity",
+    "payouts": "Payouts",
+    "failedToLoadWalletBalance": "Failed to load wallet balance",
+    "totalBalance": "Total Balance",
+    "failedToLoadWalletActivity": "Failed to load wallet activity",
+    "noWalletActivity": "No wallet activity yet",
+    "walletActivitySubtitle": "Your wallet transactions will appear here",
+    "failedToLoadPayouts": "Failed to load payouts",
+    "noPayouts": "No payouts yet",
+    "payoutsSubtitle": "Daily payouts will appear here",
+
+    "license": "License",
+    "fc": "Fitness Certificate",
+    "insurance": "Insurance",
+
+    "pickupLocation": "Pickup Location",
+    "dropLocation": "Drop Location",
+    "navigation": "Navigation",
+    "location": "Location",
+    "navigate": "Navigate",
+
+    "termsAndConditionsTitle": "Hello Truck Navigation",
+    "termsAndConditionsCompanyName": "Hello Truck",
+    "failedToStartNavigation": "Failed to start navigation session",
+    "routeError": "Route error: {status}",
+    "@routeError": {
+        "placeholders": {
+            "status": {"type": "String"}
+        }
+    },
+    "exitNavigationTitle": "Exit Navigation?",
+    "exitNavigationMessage": "This will stop navigation and location updates",
+    "consequences": "Consequences:",
+    "warningNavigationStop": "Navigation updates will stop",
+    "warningLocationInvisible": "Customer won't see your location",
+    "warningRating": "May affect your rating",
+    "exitAnyway": "Exit Anyway",
+    "navigatingToPickup": "Navigating to Pickup",
+    "navigatingToDrop": "Navigating to Drop",
+
+    "enterValidEmail": "Please enter a valid email address",
+    "completeDocumentUploads": "Please complete all document uploads",
+    "completeAddressDetails": "Please complete address details",
+    "completeVehicleDetails": "Please complete vehicle details",
+    "completePayoutDetails": "Please complete payout details",
+    "failedToCompleteOnboarding": "Failed to complete onboarding: {error}",
+    "@failedToCompleteOnboarding": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "rideCompleteTitle": "Ride Complete!",
+    "packageDeliveredSuccess": "Package delivered successfully!",
+    "rideCompleteMessage": "Both pickup and drop have been verified. You can now finish this ride.",
+    "tripSummary": "Trip Summary",
+    "distance": "Distance",
+    "earnings": "Earnings",
+    "finishRide": "Finish Ride",
+    "notNow": "Not Now",
+    "rideCompletedSuccessToast": "Ride completed successfully!",
+    "failedToFinishRide": "Failed to finish ride: {error}",
+    "@failedToFinishRide": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "nameStepTitle": "What's your name?",
+    "nameStepDescription": "This will be displayed on your driver profile and help customers identify you during their rides.",
+    "firstName": "First Name",
+    "enterFirstName": "Enter your first name",
+    "lastName": "Last Name",
+    "enterLastNameOptional": "Enter your last name (optional)",
+
+    "photoStepTitle": "Add your photo",
+    "photoStepDescription": "Upload a clear, professional photo to help customers recognize you. This builds trust and makes pickups smoother.",
+    "tapToAddPhoto": "Tap to add photo",
+    "uploadingPhoto": "Uploading your photo...",
+    "photoSelected": "Photo selected",
+
+    "emailStepTitle": "Verify your email",
+    "emailStepDescription": "Connect with Google to verify your email address and receive important updates about your rides and earnings.",
+    "emailVerifiedSuccess": "Email Verified Successfully",
+    "connectWithGoogle": "Connect with Google",
+    "emailStepOptional": "This step is optional. You can skip it and verify your email later.",
+
+    "addressStepTitle": "Enter Your Address",
+    "addressStepDescription": "Tap the search icon to search for your address and tap on the map or drag the marker to select your precise location.",
+    "searchAddress": "Search for Address",
+    "gettingLocation": "Getting your location...",
+    "addressNote": "Please enter your address as it appears on your electricity bill.",
+    "addressLine1": "Address Line 1",
+    "addressLine1Hint": "House/Building, Street",
+    "landmark": "Landmark (Optional)",
+    "landmarkHint": "Near landmark or area",
+    "pincode": "Pincode",
+    "enterPincode": "Enter Pincode",
+    "city": "City",
+    "cityName": "City name",
+    "district": "District",
+    "districtName": "District name",
+    "state": "State",
+    "stateName": "State name",
+
+    "vehicleStepTitle": "Vehicle Details",
+    "vehicleStepDescription": "Enter your vehicle information and owner details for registration.",
+    "vehicleNumber": "Vehicle Number",
+    "enterVehicleNumber": "Enter vehicle registration number",
+    "vehicleType": "Vehicle Type",
+    "vehicleModel": "Vehicle Model",
+    "vehicleBodyLength": "Vehicle Body Length (ft)",
+    "enterBodyLength": "Enter body length",
+    "vehicleImage": "Vehicle Image",
+    "uploadVehicleImage": "Upload a clear image of your vehicle",
+    "vehicleBodyType": "Vehicle Body Type",
+    "fuelType": "Fuel Type",
+    "vehicleOwnerDetails": "Vehicle Owner Details",
+    "sameAsDriver": "Same as Driver",
+    "sameAsDriverSubtitle": "Vehicle owner details are same as driver",
+    "ownerName": "Owner Name",
+    "enterOwnerName": "Enter owner full name",
+    "contactNumber": "Contact Number",
+    "enterContactNumber": "Enter contact number",
+    "ownerAadharCard": "Owner Aadhar Card",
+    "uploadOwnerAadhar": "Upload owner's Aadhar card",
+    "noVehicleModels": "No vehicle models available",
+
+    "documentsStepTitle": "Upload Documents",
+    "documentsStepDescription": "Please upload all required documents to complete your driver profile verification.",
+    "panNumber": "PAN Number",
+    "enterPanNumber": "Enter your PAN number",
+    "drivingLicense": "Driving License",
+    "uploadLicense": "Upload your valid driving license",
+    "rcBook": "RC Book",
+    "uploadRcBook": "Upload your vehicle registration certificate",
+    "fcCertificate": "FC Certificate",
+    "uploadFc": "Upload your fitness certificate",
+    "insuranceCertificate": "Insurance Certificate",
+    "uploadInsurance": "Upload your vehicle insurance certificate",
+    "aadharCard": "Aadhar Card",
+    "uploadAadhar": "Upload your Aadhar card",
+    "electricityBill": "Electricity Bill",
+    "uploadEbBill": "Upload your address proof (electricity bill)",
+
+    "payoutDetails": "Payout Details",
+    "payoutDescription": "Choose how you want to receive payouts. You can use a bank account or a UPI ID (VPA).",
+    "bankAccount": "Bank Account",
+    "upiVpa": "UPI (VPA)",
+    "accountHolderName": "Account Holder Name",
+    "enterAccountHolderName": "Enter account holder name",
+    "accountNumber": "Account Number",
+    "enterAccountNumber": "Enter bank account number",
+    "ifscCode": "IFSC Code",
+    "upiId": "UPI ID (VPA)",
+    "upiHint": "e.g., username@okicici",
+    "bankDetailsNote": "Your bank details are used only to create a secure payout account. We do not store your complete bank information.",
+
+    "almostDone": "Almost done!",
+    "phoneStepDescription": "Add an alternate phone number for better communication with customers. This helps ensure smooth pickups and deliveries.",
+    "alternatePhone": "Alternate Phone",
+    "phoneNumber": "Phone Number",
+    "youAreAllSet": "You're all set!",
+    "completeProfileDescription": "Complete your profile to start accepting rides and earning money with Hello Truck.",
+
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "retry": "Retry",
+    "view": "View",
+    "reupload": "Re-upload",
+    "titleAddress": "Address",
+    "titleVehicle": "Vehicle",
+    "titleDocuments": "Documents",
+
+    "addAddress": "Add Address",
+    "failedToLoadAddress": "Failed to load address",
+    "noAddressFound": "No address found",
+    "addressFoundSubtitle": "Add your address to continue",
+    "tapMapToSelect": "Tap on map or drag marker to select location",
+    "fillAllRequired": "Please fill all required fields",
+    "addressUpdatedSuccess": "Address updated successfully",
+    "failedToSaveAddress": "Failed to save address: {error}",
+
+    "failedToLoadVehicle": "Failed to load vehicle",
+    "noVehicleFound": "No vehicle found",
+    "completeOnboardingToAddVehicle": "Complete your onboarding to add vehicle details",
+    "vehicleNumberLabel": "Vehicle Number",
+    "selfOwned": "Self Owned",
+    "selfOwnedDescription": "You are the owner of this vehicle",
+
+    "failedToLoadDocuments": "Failed to load documents",
+    "noDocumentsFound": "No documents found",
+    "completeOnboardingToUploadDocuments": "Complete your onboarding to upload documents",
+    "expiredOn": "Expired on {date}",
+    "validUntil": "Valid until {date}",
+    "reuploadedSuccess": "{title} re-uploaded successfully",
+
+    "selectPaymentMethod": "Select Payment Method",
+    "searchForAddress": "Search for Address",
+    "searchLocationHint": "Search for location...",
+    "startTypingToSearch": "Start typing to search for locations",
+
+    "newRideRequest": "New Ride Request",
+    "bookingNumberPrefix": "Booking #",
+    "pickupPrefix": "Pickup: ",
+    "pickup": "Pickup",
+    "drop": "Drop",
+    "reject": "Reject",
+    "acceptRide": "Accept Ride",
+
+    "paymentReceivedSuccess": "Payment received successfully! 💰",
+    "paymentSettledSuccess": "Payment settled successfully! 💰",
+    "paymentSettlementTitle": "Payment Settlement",
+    "checkPaymentStatusTooltip": "Check Payment Status",
+    "paymentPendingTitle": "Payment Pending",
+    "paymentPendingMessage": "Customer hasn't paid yet. Choose how to receive payment below.",
+    "cashToCollect": "Cash to Collect",
+    "serviceCost": "Service Cost",
+    "customerWalletUsed": "Customer Wallet Used",
+    "customerDebtRecovery": "Customer Debt Recovery",
+    "platformFeePercentage": "Platform Fee ({percentage}%)",
+    "@platformFeePercentage": {
+        "placeholders": {
+            "percentage": {
+                "type": "String"
+            }
+        }
+    },
+    "yourEarnings": "Your Earnings",
+    "walletCreditAmount": "Wallet Credit: +{amount}",
+    "@walletCreditAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "walletDebitAmount": "Wallet Debit: {amount}",
+    "@walletDebitAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "receivedCashTitle": "Received Cash",
+    "receivedCashSubtitle": "I collected cash from customer",
+    "onlinePaymentTitle": "Customer Pays via App",
+    "onlinePaymentSubtitle": "Ask customer to pay via payment link in their app",
+    "importantInformation": "Important Information",
+    "platformFeeDisclaimer": "Platform fee ({percentage}%) is calculated on the full service cost, not the cash collected.",
+    "@platformFeeDisclaimer": {
+        "placeholders": {
+            "percentage": {
+                "type": "String"
+            }
+        }
+    },
+    "walletAdjustmentDisclaimer": "If customer used wallet credit, you'll receive a wallet credit. If customer had debt, extra amount collected will be debited.",
+    "exactCashCollectionWarning": "Make sure you have collected the exact \"Cash to Collect\" amount shown above.",
+    "confirmCashPaymentTitle": "Confirm Cash Payment",
+    "confirmCashPaymentMessage": "By confirming, you declare that you have received the full cash payment from the customer.",
+    "platformFeeDeductionMessage": "{amount} platform fee will be deducted from your wallet",
+    "platformFeeDeductionSuffix": " platform fee will be deducted from your wallet",
+    "@platformFeeDeductionMessage": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "confirm": "Confirm",
+
+    "reUploadTitle": "Re-upload {title}",
+    "@reUploadTitle": {
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "fileSizeLimit10MB": "File size must be less than 10MB",
+    "fileSizeLimit5MB": "Image size must be less than 5MB",
+    "documentSelected": "Document Selected",
+    "tapToSelectDocument": "Tap to select document",
+    "documentFormatHint": "JPG, PNG, PDF (Max 10MB)",
+    "docVerificationInfo": "Document will be verified by admin. Expiry dates will be set during verification.",
+    "linkEmailAddress": "Link Email Address",
+    "emailLinkedSuccess": "Email Linked Successfully",
+    "emailAlreadyLinkedMessage": "Your email is already linked with Google. You can re-link with a different Google account if needed.",
+    "linkEmailMessage": "Link your email with Google to receive important updates about your rides and earnings.",
+    "linking": "Linking...",
+    "connectWithGoogle": "Connect with Google",
+    "failedToLinkEmail": "Failed to link email with Google: {error}",
+    "@failedToLinkEmail": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "fieldCannotBeEmpty": "This field cannot be empty",
+    "failedToSave": "Failed to save: {error}",
+    "@failedToSave": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "editTitle": "Edit {title}",
+    "@editTitle": {
+        "placeholders": {
+            "title": {
+                "type": "String"
+            }
+        }
+    },
+    "enterFieldHint": "Enter your {field}",
+    "@enterFieldHint": {
+        "placeholders": {
+            "field": {
+                "type": "String"
+            }
+        }
+    },
+    "updateProfilePicture": "Update Profile Picture",
+    "currentPicture": "Current Picture",
+    "newPicture": "New Picture",
+    "camera": "Camera",
+    "gallery": "Gallery",
+    "uploadPicture": "Upload Picture",
+    "chooseDifferentImage": "Choose Different Image",
+
+    "enterFirstName": "Please enter your first name",
+    "firstNameMinLength": "First name must be at least 3 characters long",
+    "enterValidPhone": "Please enter a valid 10-digit phone number",
+    "enterAddressLine1": "Please enter address line 1",
+    "enterPincode": "Please enter pincode",
+    "enterValidPincode": "Please enter a valid 6-digit pincode",
+    "enterCity": "Please enter city",
+    "enterDistrict": "Please enter district",
+    "enterState": "Please enter state",
+    "enterVehicleNumber": "Please enter vehicle number",
+    "enterVehicleBodyLength": "Please enter vehicle body length",
+    "vehicleBodyLengthGreaterThanZero": "Vehicle body length must be greater than 0",
+    "enterValidVehicleBodyLength": "Please enter a valid vehicle body length",
+    "selectVehicleType": "Please select vehicle type",
+    "selectVehicleModel": "Please select vehicle model",
+    "selectVehicleBodyType": "Please select vehicle body type",
+    "selectFuelType": "Please select fuel type",
+    "uploadVehicleImage": "Please upload vehicle image",
+    "enterOwnerName": "Please enter owner name",
+    "enterOwnerContact": "Please enter owner contact number",
+    "enterValidOwnerContact": "Please enter a valid 10-digit owner contact number",
+    "enterOwnerAddress": "Please enter owner address",
+    "enterOwnerPincode": "Please enter owner pincode",
+    "enterValidOwnerPincode": "Please enter a valid 6-digit owner pincode",
+    "enterOwnerCity": "Please enter owner city",
+    "enterOwnerDistrict": "Please enter owner district",
+    "enterOwnerState": "Please enter owner state",
+    "uploadOwnerAadhar": "Please upload owner Aadhar card",
+    "enterValidPAN": "Please enter a valid PAN number",
+    "uploadDrivingLicense": "Please upload your driving license",
+    "uploadRCBook": "Please upload your RC book",
+    "uploadFCCertificate": "Please upload your FC certificate",
+    "uploadInsurance": "Please upload your insurance certificate",
+    "uploadAadhar": "Please upload your Aadhar card",
+    "uploadElectricityBill": "Please upload your electricity bill",
+    "enterPAN": "Please enter your PAN number",
+    "enterAccountHolderName": "Please enter account holder name",
+    "enterAccountNumber": "Please enter account number",
+    "enterIFSCCode": "Please enter IFSC code",
+    "enterValidIFSC": "Please enter a valid IFSC code",
+    "enterUPIID": "Please enter UPI ID (VPA)",
+    "enterValidUPI": "Please enter a valid UPI ID",
+    "completeSetup": "Complete Setup",
+    "continueText": "Continue",
+    "documentUploadedSuccess": "Document uploaded successfully!",
+    "failedToPickDocument": "Failed to pick document: {error}",
+    "@failedToPickDocument": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToUploadDocument": "Failed to upload document: {error}",
+    "@failedToUploadDocument": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToPickImage": "Failed to pick image: {error}",
+    "@failedToPickImage": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToUploadImage": "Failed to upload profile picture: {error}",
+    "@failedToUploadImage": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+
+    "documentsNotFound": "Documents not found",
+    "documentsNotUploadedYet": "The documents may not be uploaded yet.",
+    "documentNotFound": "Document not found",
+    "documentNotUploadedYet": "This document has not been uploaded yet.",
+    "loadingDocument": "Loading document...",
+    "failedToLoadDocument": "Failed to load document",
+    "checkInternetAndRetry": "Check your internet connection and try again.",
+    "failedToLoadPdf": "Failed to load PDF: {description}",
+    "@failedToLoadPdf": {
+        "placeholders": {
+            "description": {"type": "String"}
+        }
+    },
+    "loadingImage": "Loading image...",
+    "documentLoadError": "The document could not be loaded. Please check your internet connection and try again.",
+
+    "checkingLocationPermissions": "Checking location permissions...",
+    "locationServicesDisabled": "Location Services Disabled",
+    "locationPermissionRequired": "Location Permission Required",
+    "locationPermissionDenied": "Location Permission Permanently Denied",
+    "locationAccessRequired": "Location Access Required",
+    "enableLocationServicesDesc": "Please enable location services in your device settings to use this feature.",
+    "needLocationAccessDesc": "We need location access to show your current position and help you select your address accurately.",
+    "locationDeniedForeverDesc": "Location permission has been permanently denied. Please enable it in app settings to continue.",
+    "locationRequiredDesc": "Location access is required for this feature to work properly.",
+    "enableLocationServices": "Enable Location Services",
+    "grantPermission": "Grant Permission",
+    "requestPermission": "Request Permission",
+    "openSettings": "Open Settings",
+    "checkAgain": "Check Again",
+
+    "actions": "Actions",
+    "callContact": "Call {name}",
+    "@callContact": {
+        "placeholders": {
+            "name": {"type": "String"}
+        }
+    },
+    "couldNotMakeCall": "Could not make call",
+    "navigateToPickup": "Navigate to Pickup",
+    "markArrivalAtPickup": "Mark arrival at pickup location",
+    "verifyPickup": "Verify Pickup",
+    "enterCustomerOtp": "Enter customer OTP",
+    "navigateToDrop": "Navigate to Drop",
+    "markArrivalAtDrop": "Mark arrival at drop location",
+    "verifyDrop": "Verify Drop",
+    "rideComplete": "Ride Complete",
+    "readyToFinish": "Ready to finish",
+    "navigation": "Navigation",
+    "followTheRoute": "Follow the route",
+    "markArrived": "Mark Arrived",
+    "finishRide": "Finish Ride",
+    "continueText": "Continue",
+    "markedAsArrivedAtPickup": "Marked as arrived at pickup",
+    "pickupVerificationTitle": "Pickup Verification",
+    "pickupVerified": "Pickup verified! 🎉",
+    "invalidOtpTryAgain": "Invalid OTP. Please try again.",
+    "markedAsArrivedAtDrop": "Marked as arrived at drop",
+    "dropVerificationTitle": "Drop Verification",
+    "dropVerified": "Drop verified! 🎉",
+    "rideCompleted": "Ride completed! 🎉",
+
+    "verify": "Verify",
+
+    "nowAvailableForRides": "You are now available for rides",
+    "failedToMarkReady": "Failed to mark driver as ready: {error}",
+    "@failedToMarkReady": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "failedToMarkPromptSeen": "Failed to mark prompt as seen: {error}",
+    "@failedToMarkPromptSeen": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "readyToTakeRides": "Ready to take rides today?",
+    "startEarningDesc": "Start earning by accepting ride requests from customers near you",
+    "getInstantNotifications": "Get instant notifications",
+    "receiveRideRequestsImmediately": "Receive ride requests immediately",
+    "findNearbyRides": "Find nearby rides",
+    "connectWithCustomers": "Connect with customers in your area",
+    "startEarningToday": "Start earning today",
+    "maximizeDailyIncome": "Maximize your daily income potential",
+    "maybeLater": "Maybe later",
+    "imReady": "I'm ready!",
+    "changeFromRidesTab": "You can change this anytime from the Rides tab",
+
+    "pleaseEnterFirstName": "Please enter your first name",
+    "firstNameMinLength": "First name must be at least 3 characters long",
+    "pleaseEnterValidPhone": "Please enter a valid 10-digit phone number",
+    "pleaseEnterAddressLine1": "Please enter address line 1",
+    "pleaseEnterPincode": "Please enter pincode",
+    "pleaseEnterValidPincode": "Please enter a valid 6-digit pincode",
+    "pleaseEnterCity": "Please enter city",
+    "pleaseEnterDistrict": "Please enter district",
+    "pleaseEnterState": "Please enter state",
+    "pleaseEnterVehicleNumber": "Please enter vehicle number",
+    "pleaseEnterVehicleBodyLength": "Please enter vehicle body length",
+    "vehicleBodyLengthMustBePositive": "Vehicle body length must be greater than 0",
+    "pleaseEnterValidBodyLength": "Please enter a valid vehicle body length",
+    "pleaseSelectVehicleType": "Please select vehicle type",
+    "pleaseSelectVehicleModel": "Please select vehicle model",
+    "pleaseSelectVehicleBodyType": "Please select vehicle body type",
+    "pleaseSelectFuelType": "Please select fuel type",
+    "pleaseUploadVehicleImage": "Please upload vehicle image",
+    "pleaseEnterOwnerName": "Please enter owner name",
+    "pleaseEnterOwnerContact": "Please enter owner contact number",
+    "pleaseEnterValidOwnerContact": "Please enter a valid 10-digit owner contact number",
+    "pleaseEnterOwnerAddress": "Please enter owner address",
+    "pleaseEnterOwnerPincode": "Please enter owner pincode",
+    "pleaseEnterValidOwnerPincode": "Please enter a valid 6-digit owner pincode",
+    "pleaseEnterOwnerCity": "Please enter owner city",
+    "pleaseEnterOwnerDistrict": "Please enter owner district",
+    "pleaseEnterOwnerState": "Please enter owner state",
+    "pleaseUploadOwnerAadhar": "Please upload owner Aadhar card",
+    "pleaseEnterValidPan": "Please enter a valid PAN number",
+    "pleaseUploadDrivingLicense": "Please upload your driving license",
+    "pleaseUploadRcBook": "Please upload your RC book",
+    "pleaseUploadFc": "Please upload your FC certificate",
+    "pleaseUploadInsurance": "Please upload your insurance certificate",
+    "pleaseUploadAadhar": "Please upload your Aadhar card",
+    "pleaseUploadEbBill": "Please upload your electricity bill",
+    "pleaseEnterPanNumber": "Please enter your PAN number",
+    "pleaseEnterAccountHolderName": "Please enter account holder name",
+    "pleaseEnterAccountNumber": "Please enter account number",
+    "pleaseEnterIfscCode": "Please enter IFSC code",
+    "pleaseEnterValidIfsc": "Please enter a valid IFSC code",
+    "pleaseEnterUpiId": "Please enter UPI ID (VPA)",
+    "pleaseEnterValidUpiId": "Please enter a valid UPI ID",
+    "completeSetup": "Complete Setup",
+    "fileSizeMustBeLessThan10Mb": "File size must be less than 10MB",
+    "failedToPickDocument": "Failed to pick document: {error}",
+    "@failedToPickDocument": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "documentUploadedSuccessfully": "Document uploaded successfully!",
+    "failedToUploadDocument": "Failed to upload document: {error}",
+    "@failedToUploadDocument": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+    "failedToPickImage": "Failed to pick image: {error}",
+    "@failedToPickImage": {
+        "placeholders": {
+            "error": {"type": "String"}
+        }
+    },
+
+    "licenseExpiresInDays": "Your driving license expires in {days} days. Please renew it soon.",
+    "@licenseExpiresInDays": {
+        "placeholders": {
+            "days": {"type": "int"}
+        }
+    },
+    "licenseExpiresIn30Days": "Your driving license expires in 30 days. Please renew it.",
+    "licenseExpiresIn45Days": "Your driving license expires in 45 days. Please renew it.",
+    "licenseExpired": "Your driving license has expired. Please renew it immediately.",
+
+    "fcExpiresInDays": "Your fitness certificate expires in {days} days. Please renew it soon.",
+    "@fcExpiresInDays": {
+        "placeholders": {
+            "days": {"type": "int"}
+        }
+    },
+    "fcExpiresIn30Days": "Your fitness certificate expires in 30 days. Please renew it.",
+    "fcExpiresIn45Days": "Your fitness certificate expires in 45 days. Please renew it.",
+    "fcExpired": "Your fitness certificate has expired. Please renew it immediately.",
+
+    "insuranceExpiresInDays": "Your insurance expires in {days} days. Please renew it soon.",
+    "@insuranceExpiresInDays": {
+        "placeholders": {
+            "days": {"type": "int"}
+        }
+    },
+    "insuranceExpiresIn30Days": "Your insurance expires in 30 days. Please renew it.",
+    "insuranceExpiresIn45Days": "Your insurance expires in 45 days. Please renew it.",
+    "insuranceExpired": "Your insurance has expired. Please renew it immediately."
+}

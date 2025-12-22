@@ -6,6 +6,7 @@ import 'package:hello_truck_driver/providers/driver_providers.dart';
 import 'package:hello_truck_driver/providers/payment_providers.dart';
 import 'package:hello_truck_driver/utils/date_time_utils.dart';
 import 'package:hello_truck_driver/utils/format_utils.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class EarningsScreen extends ConsumerStatefulWidget {
   const EarningsScreen({super.key});
@@ -54,7 +55,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                       children: [
                         // Header
                         Text(
-                          'Earnings',
+                          AppLocalizations.of(context)!.earnings,
                           style: tt.headlineSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: cs.onSurface,
@@ -95,9 +96,9 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                             ),
                             overlayColor: WidgetStateProperty.all(Colors.transparent),
                             splashFactory: NoSplash.splashFactory,
-                            tabs: const [
-                              Tab(text: 'Wallet Activity'),
-                              Tab(text: 'Payouts'),
+                            tabs: [
+                              Tab(text: AppLocalizations.of(context)!.walletActivity),
+                              Tab(text: AppLocalizations.of(context)!.payouts),
                             ],
                           ),
                         ),
@@ -156,7 +157,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Failed to load wallet balance',
+                AppLocalizations.of(context)!.failedToLoadWalletBalance,
                 style: tt.bodyMedium?.copyWith(color: cs.onErrorContainer),
               ),
             ),
@@ -199,7 +200,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total Balance',
+                        AppLocalizations.of(context)!.totalBalance,
                         style: tt.labelLarge?.copyWith(
                           color: cs.onPrimary.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w600,
@@ -254,7 +255,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
               ),
               const SizedBox(height: 20),
               Text(
-                'Failed to load wallet activity',
+                AppLocalizations.of(context)!.failedToLoadWalletActivity,
                 style: tt.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -293,14 +294,14 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'No wallet activity yet',
+                    AppLocalizations.of(context)!.noWalletActivity,
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Your wallet transactions will appear here',
+                    AppLocalizations.of(context)!.walletActivitySubtitle,
                     textAlign: TextAlign.center,
                     style: tt.bodyMedium?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.7),
@@ -355,7 +356,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
               ),
               const SizedBox(height: 20),
               Text(
-                'Failed to load payouts',
+                AppLocalizations.of(context)!.failedToLoadPayouts,
                 style: tt.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -394,14 +395,14 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'No payouts yet',
+                    AppLocalizations.of(context)!.noPayouts,
                     style: tt.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Daily payouts will appear here',
+                    AppLocalizations.of(context)!.payoutsSubtitle,
                     textAlign: TextAlign.center,
                     style: tt.bodyMedium?.copyWith(
                       color: cs.onSurface.withValues(alpha: 0.7),
@@ -537,7 +538,7 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
                     const SizedBox(height: 4),
                     if (log.booking != null)
                       Text(
-                        'Booking #${log.booking!.bookingNumber}',
+                        AppLocalizations.of(context)!.bookingNumber(log.booking!.bookingNumber.toString()),
                         style: tt.bodySmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.6),
                         ),

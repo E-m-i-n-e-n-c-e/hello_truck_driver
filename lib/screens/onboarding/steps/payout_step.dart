@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hello_truck_driver/models/enums/payout_enums.dart';
 import 'package:hello_truck_driver/screens/onboarding/controllers/onboarding_controller.dart';
 import 'package:hello_truck_driver/screens/onboarding/widgets/onboarding_components.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 class PayoutStep extends ConsumerStatefulWidget {
   final OnboardingController controller;
@@ -19,6 +20,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return OnboardingStepContainer(
       controller: widget.controller,
@@ -39,14 +41,14 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
 
           OnboardingStepTitle(
             controller: widget.controller,
-            title: 'Payout Details',
+            title: l10n.payoutDetails,
           ),
 
           const SizedBox(height: 12),
 
           OnboardingStepDescription(
             controller: widget.controller,
-            description: 'Choose how you want to receive payouts. You can use a bank account or a UPI ID (VPA).',
+            description: l10n.payoutDescription,
           ),
 
           const SizedBox(height: 24),
@@ -63,7 +65,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
           const SizedBox(height: 32),
 
           OnboardingNote(
-            note: 'Your bank details are used only to create a secure payout account. We do not store your complete bank information.',
+            note: l10n.bankDetailsNote,
           ),
 
           const SizedBox(height: 40),
@@ -75,6 +77,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
   Widget _buildPayoutMethodSelector(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final selected = widget.controller.selectedPayoutMethod;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -87,7 +90,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
         children: [
           Expanded(
             child: ChoiceChip(
-              label: const Text('Bank Account'),
+              label: Text(l10n.bankAccount),
               selected: selected == PayoutMethod.bankAccount,
               onSelected: (_) => widget.controller.updatePayoutMethod(PayoutMethod.bankAccount),
             ),
@@ -95,7 +98,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
           const SizedBox(width: 12),
           Expanded(
             child: ChoiceChip(
-              label: const Text('UPI (VPA)'),
+              label: Text(l10n.upiVpa),
               selected: selected == PayoutMethod.vpa,
               onSelected: (_) => widget.controller.updatePayoutMethod(PayoutMethod.vpa),
             ),
@@ -106,14 +109,15 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
   }
 
   Widget _buildBankForm(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         OnboardingTextField(
           controller: widget.controller,
           textController: widget.controller.accountHolderNameController,
           focusNode: widget.controller.accountHolderNameFocus,
-          label: 'Account Holder Name',
-          hint: 'Enter account holder name',
+          label: l10n.accountHolderName,
+          hint: l10n.enterAccountHolderName,
           icon: Icons.person_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.controller.accountNumberFocus.requestFocus(),
@@ -123,8 +127,8 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
           controller: widget.controller,
           textController: widget.controller.accountNumberController,
           focusNode: widget.controller.accountNumberFocus,
-          label: 'Account Number',
-          hint: 'Enter bank account number',
+          label: l10n.accountNumber,
+          hint: l10n.enterAccountNumber,
           icon: Icons.numbers_rounded,
           keyboardType: TextInputType.number,
           inputFormatters: [
@@ -139,7 +143,7 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
           controller: widget.controller,
           textController: widget.controller.ifscCodeController,
           focusNode: widget.controller.ifscCodeFocus,
-          label: 'IFSC Code',
+          label: l10n.ifscCode,
           hint: 'Ex: HDFC0000001',
           icon: Icons.account_balance_rounded,
           inputFormatters: [
@@ -154,14 +158,15 @@ class _PayoutStepState extends ConsumerState<PayoutStep> {
   }
 
   Widget _buildVpaForm(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         OnboardingTextField(
           controller: widget.controller,
           textController: widget.controller.vpaController,
           focusNode: widget.controller.vpaFocus,
-          label: 'UPI ID (VPA)',
-          hint: 'e.g., username@okicici',
+          label: l10n.upiId,
+          hint: l10n.upiHint,
           icon: Icons.alternate_email_rounded,
           isRequired: true,
           onSubmitted: (_) => widget.onNext(),

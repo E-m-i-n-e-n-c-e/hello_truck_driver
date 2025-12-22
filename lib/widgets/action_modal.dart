@@ -10,6 +10,8 @@ import 'package:hello_truck_driver/providers/auth_providers.dart';
 import 'package:hello_truck_driver/screens/booking/driver_navigation_screen.dart';
 import 'package:hello_truck_driver/widgets/finish_ride_modal.dart';
 import '../../utils/format_utils.dart';
+import 'package:hello_truck_driver/l10n/app_localizations.dart';
+import 'package:hello_truck_driver/utils/l10n_extensions.dart';
 
 final isActionModalOpenProvider = StateProvider<bool>((ref) => false);
 
@@ -112,7 +114,7 @@ class _NavigationContent extends ConsumerWidget {
     final package = booking.package;
 
     // Determine navigation type based on booking status
-    final navigationInfo = _getNavigationInfo(booking.status);
+    final navigationInfo = _getNavigationInfo(context, booking.status);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -135,7 +137,7 @@ class _NavigationContent extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Booking #${booking.bookingNumber}',
+                      AppLocalizations.of(context)!.bookingNumber(booking.bookingNumber.toString()),
                       style: tt.bodyMedium?.copyWith(
                         color: cs.onSurface.withValues(alpha: 0.7),
                       ),
@@ -174,7 +176,7 @@ class _NavigationContent extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Package',
+                        AppLocalizations.of(context)!.package,
                         style: tt.labelMedium?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w600,
@@ -182,14 +184,14 @@ class _NavigationContent extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        _getPackageTitle(package),
+                        _getPackageTitle(context, package),
                         style: tt.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _getFormattedWeight(package),
+                        _getFormattedWeight(context, package),
                         style: tt.bodyMedium?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.7),
                         ),
@@ -358,7 +360,7 @@ class _NavigationContent extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
             child: Text(
-              'Close',
+              AppLocalizations.of(context)!.close,
               style: tt.labelLarge?.copyWith(
                 color: cs.onSurface.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w600,
@@ -370,15 +372,16 @@ class _NavigationContent extends ConsumerWidget {
     );
   }
 
-  NavigationInfo _getNavigationInfo(BookingStatus status) {
+  NavigationInfo _getNavigationInfo(BuildContext context, BookingStatus status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case BookingStatus.confirmed:
       case BookingStatus.pickupArrived:
         return NavigationInfo(
-          title: 'Navigate to Pickup',
-          locationTitle: 'Pickup Location',
+          title: l10n.navigatingToPickup, // Using navigatingToPickup as title ("Navigating to Pickup")
+          locationTitle: l10n.pickupLocation,
           locationIcon: Icons.trip_origin_rounded,
-          buttonText: 'Navigate to Pickup',
+          buttonText: l10n.navigateToPickup,
           buttonIcon: Icons.navigation_rounded,
           icon: Icons.navigation_rounded,
           color: Colors.green,
@@ -390,10 +393,10 @@ class _NavigationContent extends ConsumerWidget {
       case BookingStatus.inTransit:
       case BookingStatus.dropArrived:
         return NavigationInfo(
-          title: 'Navigate to Drop',
-          locationTitle: 'Drop Location',
+          title: l10n.navigatingToDrop,
+          locationTitle: l10n.dropLocation,
           locationIcon: Icons.location_on_rounded,
-          buttonText: 'Navigate to Drop',
+          buttonText: l10n.navigateToDrop,
           buttonIcon: Icons.navigation_rounded,
           icon: Icons.navigation_rounded,
           color: Colors.red,
@@ -403,10 +406,10 @@ class _NavigationContent extends ConsumerWidget {
 
       default:
         return NavigationInfo(
-          title: 'Navigation',
-          locationTitle: 'Location',
+          title: l10n.navigation,
+          locationTitle: l10n.location,
           locationIcon: Icons.location_on_rounded,
-          buttonText: 'Navigate',
+          buttonText: l10n.navigate,
           buttonIcon: Icons.navigation_rounded,
           icon: Icons.navigation_rounded,
           color: Colors.grey,
@@ -416,17 +419,17 @@ class _NavigationContent extends ConsumerWidget {
     }
   }
 
-  String _getPackageTitle(Package package) {
+  String _getPackageTitle(BuildContext context, Package package) {
     if (package.productType.value == 'AGRICULTURAL') {
-      return package.productName ?? 'Agricultural Product';
+      return package.productName ?? AppLocalizations.of(context)!.agriculturalProduct;
     } else {
-      return package.description ?? 'Package Delivery';
+      return package.description ?? AppLocalizations.of(context)!.packageDelivery;
     }
   }
 
-  String _getFormattedWeight(Package package) {
+  String _getFormattedWeight(BuildContext context, Package package) {
     final weight = package.approximateWeight;
-    final unit = package.weightUnit.value;
+    final unit = package.weightUnit.toLocalizedString(context);
     return '$weight $unit';
   }
 }
