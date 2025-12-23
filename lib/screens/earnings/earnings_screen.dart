@@ -37,84 +37,77 @@ class _EarningsScreenState extends ConsumerState<EarningsScreen> with SingleTick
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(driverProvider);
-          ref.invalidate(walletLogsProvider);
-          ref.invalidate(transactionLogsProvider);
-        },
-        child: SafeArea(
-          child: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header
-                        Text(
-                          AppLocalizations.of(context)!.earnings,
-                          style: tt.headlineSmall?.copyWith(
+      body: SafeArea(
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header
+                      Text(
+                        AppLocalizations.of(context)!.earnings,
+                        style: tt.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Wallet Balance Card
+                      _buildWalletBalanceCard(context),
+                      const SizedBox(height: 20),
+
+                      // Tabs
+                      Container(
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: cs.outline.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: TabBar(
+                          controller: _tabController,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          indicator: BoxDecoration(
+                            color: cs.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          labelColor: cs.onPrimary,
+                          unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
+                          labelStyle: tt.labelLarge?.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: cs.onSurface,
                           ),
+                          unselectedLabelStyle: tt.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overlayColor: WidgetStateProperty.all(Colors.transparent),
+                          splashFactory: NoSplash.splashFactory,
+                          tabs: [
+                            Tab(text: AppLocalizations.of(context)!.walletActivity),
+                            Tab(text: AppLocalizations.of(context)!.payouts),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-
-                        // Wallet Balance Card
-                        _buildWalletBalanceCard(context),
-                        const SizedBox(height: 20),
-
-                        // Tabs
-                        Container(
-                          decoration: BoxDecoration(
-                            color: cs.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: cs.outline.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          padding: const EdgeInsets.all(4),
-                          child: TabBar(
-                            controller: _tabController,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            dividerColor: Colors.transparent,
-                            indicator: BoxDecoration(
-                              color: cs.primary,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            labelColor: cs.onPrimary,
-                            unselectedLabelColor: cs.onSurface.withValues(alpha: 0.7),
-                            labelStyle: tt.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                            unselectedLabelStyle: tt.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overlayColor: WidgetStateProperty.all(Colors.transparent),
-                            splashFactory: NoSplash.splashFactory,
-                            tabs: [
-                              Tab(text: AppLocalizations.of(context)!.walletActivity),
-                              Tab(text: AppLocalizations.of(context)!.payouts),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ];
-            },
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildWalletActivityTab(context),
-                _buildPayoutsTab(context),
-              ],
-            ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildWalletActivityTab(context),
+              _buildPayoutsTab(context),
+            ],
           ),
         ),
       ),
