@@ -242,25 +242,20 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(addressProvider);
-        },
-        child: addressAsync.when(
-          loading: () => const Center(
-            child: CircularProgressIndicator(strokeWidth: 3),
-          ),
-          error: (error, stack) => _buildErrorState(context, error),
-          data: (address) {
-            if (!_isEditing && address == null) {
-              return _buildEmptyState(context);
-            }
-            if (_isEditing) {
-              return _buildEditMode(context, address);
-            }
-            return _buildViewMode(context, address!);
-          },
+      body: addressAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(strokeWidth: 3),
         ),
+        error: (error, stack) => _buildErrorState(context, error),
+        data: (address) {
+          if (!_isEditing && address == null) {
+            return _buildEmptyState(context);
+          }
+          if (_isEditing) {
+            return _buildEditMode(context, address);
+          }
+          return _buildViewMode(context, address!);
+        },
       ),
     );
   }
