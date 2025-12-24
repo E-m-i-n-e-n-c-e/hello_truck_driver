@@ -97,28 +97,15 @@ class _MyAppState extends ConsumerState<MyApp> {
     // Watch locale from provider
     final currentLocale = ref.watch(localeProvider);
 
+    // Resolve effective locale: user preference or current system locale
+    final effectiveLocale = currentLocale ?? _resolveSystemLocale(AppLocalizations.supportedLocales);
+
     return MaterialApp(
       title: 'Hello Truck',
       // Localization configuration
-      locale: currentLocale,
+      locale: effectiveLocale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      localeResolutionCallback: (deviceLocale, supportedLocales) {
-        // If user has selected a locale, use it
-        if (currentLocale != null) {
-          return currentLocale;
-        }
-        // Otherwise, try to match device locale
-        if (deviceLocale != null) {
-          for (final locale in supportedLocales) {
-            if (locale.languageCode == deviceLocale.languageCode) {
-              return locale;
-            }
-          }
-        }
-        // Fallback to English
-        return const Locale('en');
-      },
       theme: ThemeData(
         colorScheme: colorScheme,
         appBarTheme: AppBarTheme(
@@ -169,4 +156,16 @@ class _MyAppState extends ConsumerState<MyApp> {
       ),
     );
   }
+}
+
+/// Resolves the current system locale to one of the supported locales
+Locale _resolveSystemLocale(List<Locale> supportedLocales) {
+  final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+  for (final locale in supportedLocales) {
+    if (locale.languageCode == systemLocale.languageCode) {
+      return locale;
+    }
+  }
+  // Fallback to English
+  return const Locale('en');
 }
