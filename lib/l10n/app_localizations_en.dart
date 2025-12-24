@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageHindi => 'हिन्दी';
 
   @override
+  String get languageTamil => 'தமிழ்';
+
+  @override
   String get languageTitle => 'Language';
 
   @override
