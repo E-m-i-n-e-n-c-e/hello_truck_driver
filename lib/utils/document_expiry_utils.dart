@@ -3,8 +3,6 @@ import 'package:hello_truck_driver/l10n/app_localizations.dart';
 
 /// Calculate expiry alerts from driver documents
 ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents, AppLocalizations l10n) {
-  final now = DateTime.now();
-
   String? licenseAlert;
   String? fcAlert;
   String? insuranceAlert;
@@ -12,9 +10,16 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents, AppLocalizations l
   bool isFcExpired = false;
   bool isInsuranceExpired = false;
 
+  // Helper to normalize DateTime to start of day
+  DateTime startOfDay(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+
+  final today = DateTime.now();
+  final now = startOfDay(today);
+
   // Check license expiry (only if expiry date is set)
   if (documents.licenseExpiry != null) {
-    final daysUntilLicenseExpiry = documents.licenseExpiry!.difference(now).inDays;
+    final expiryDate = startOfDay(documents.licenseExpiry!);
+    final daysUntilLicenseExpiry = expiryDate.difference(now).inDays;
 
     if (daysUntilLicenseExpiry <= 15 && daysUntilLicenseExpiry > 0) {
       licenseAlert = l10n.licenseExpiresInDays(daysUntilLicenseExpiry);
@@ -30,7 +35,8 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents, AppLocalizations l
 
   // Check FC expiry (only if expiry date is set)
   if (documents.fcExpiry != null) {
-    final daysUntilFcExpiry = documents.fcExpiry!.difference(now).inDays;
+    final expiryDate = startOfDay(documents.fcExpiry!);
+    final daysUntilFcExpiry = expiryDate.difference(now).inDays;
 
     if (daysUntilFcExpiry <= 15 && daysUntilFcExpiry > 0) {
       fcAlert = l10n.fcExpiresInDays(daysUntilFcExpiry);
@@ -46,7 +52,8 @@ ExpiryAlerts calculateExpiryAlerts(DriverDocuments documents, AppLocalizations l
 
   // Check insurance expiry (only if expiry date is set)
   if (documents.insuranceExpiry != null) {
-    final daysUntilInsuranceExpiry = documents.insuranceExpiry!.difference(now).inDays;
+    final expiryDate = startOfDay(documents.insuranceExpiry!);
+    final daysUntilInsuranceExpiry = expiryDate.difference(now).inDays;
 
     if (daysUntilInsuranceExpiry <= 15 && daysUntilInsuranceExpiry > 0) {
       insuranceAlert = l10n.insuranceExpiresInDays(daysUntilInsuranceExpiry);

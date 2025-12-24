@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hello_truck_driver/api/driver_api.dart' as driver_api;
 import 'package:hello_truck_driver/models/auth_state.dart';
 import 'package:hello_truck_driver/models/enums/driver_enums.dart';
 import 'package:hello_truck_driver/providers/app_initializer_provider.dart.dart';
@@ -16,6 +17,7 @@ import 'package:hello_truck_driver/screens/rides/rides_screen.dart';
 import 'package:hello_truck_driver/screens/earnings/earnings_screen.dart';
 import 'package:hello_truck_driver/screens/onboarding/onboarding_screen.dart';
 import 'package:hello_truck_driver/services/location_service.dart';
+import 'package:hello_truck_driver/utils/document_expiry_utils.dart';
 import 'package:hello_truck_driver/widgets/bottom_navbar.dart';
 import 'package:hello_truck_driver/widgets/snackbars.dart';
 import 'package:hello_truck_driver/providers/assignment_providers.dart';
@@ -190,6 +192,20 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
       } else {
         locationService.stopLocationUpdates();
       }
+    });
+
+    // Listen for document expiry - set unavailable if any document expired
+    ref.listen(documentsProvider, (previous, next) {
+      next.whenData((documents) async {
+        if (documents == null) return;
+        final alerts = calculateExpiryAlerts(documents, l10n);
+        if (!alerts.hasExpiredDocuments) return;
+
+        // Set driver to unavailable (driver listener will stop location tracking)
+        final api = await ref.read(apiProvider.future);
+        await driver_api.updateDriverStatus(api, isAvailable: false);
+        ref.invalidate(driverProvider);
+      });
     });
 
     // Listen for ride cancellations
