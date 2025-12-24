@@ -48,7 +48,7 @@ final throttlePositionStreamProvider = positionStreamProvider((
   throttle: const Duration(seconds: 5),
 ));
 
-final locationUpdatesProvider = FutureProvider<void>((ref) async {
+final locationUpdatesProvider = FutureProvider.autoDispose<void>((ref) async {
   final socketService = ref.read(socketServiceProvider);
   final locationService = ref.read(locationServiceProvider);
 

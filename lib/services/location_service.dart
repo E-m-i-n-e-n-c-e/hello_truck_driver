@@ -115,12 +115,6 @@ class LocationService {
     _positionSubscription = null;
   }
 
-  /// Dispose the service
-  Future<void> dispose() async {
-    await stopLocationUpdates();
-    await _positionController.close();
-  }
-
   // Get current position once
   Future<Position> getCurrentPosition() async {
     return await Geolocator.getCurrentPosition(

@@ -67,6 +67,7 @@ class API {
   InterceptorsWrapper get _errorInterceptor => InterceptorsWrapper(
     onError: (error, handler) {
       if (error.response?.statusCode == 401) {
+        AppLogger.log('Unauthorized error on ${error.requestOptions.path}: ${error.response?.data}');
         // Schedule sign out after 2 seconds if the error is an unauthorized error
         Future.delayed(const Duration(seconds: 2), () {
           signOut();
