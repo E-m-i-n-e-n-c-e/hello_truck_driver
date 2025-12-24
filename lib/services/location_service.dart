@@ -73,11 +73,11 @@ class LocationService {
         intervalDuration: const Duration(seconds: 5),
         // Enable background location for Android
         foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationText: "HelloTruck is tracking your location",
+          notificationText: "HelloTruck is tracking your location. Don't dismiss this notification",
           notificationTitle: "Location Active",
           enableWakeLock: true,
           enableWifiLock: true,
-          setOngoing: true, // Makes notification persistent (cannot be swiped away)
+          setOngoing: false,
         ),
       );
     } else if (Platform.isIOS) {
