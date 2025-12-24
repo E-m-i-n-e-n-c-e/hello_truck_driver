@@ -70,6 +70,15 @@ class LanguageScreen extends ConsumerWidget {
                       locale: const Locale('hi'),
                       isSelected: currentLocale?.languageCode == 'hi',
                     ),
+                    _buildDivider(cs),
+                    // Tamil
+                    _buildLanguageOption(
+                      context: context,
+                      ref: ref,
+                      title: l10n.languageTamil,
+                      locale: const Locale('ta'),
+                      isSelected: currentLocale?.languageCode == 'ta',
+                    ),
                   ],
                 ),
               ),
