@@ -38,7 +38,7 @@ final appInitializerProvider = FutureProvider.autoDispose<void>((ref) async {
     AppLogger.log('AppInitializerProvider disposed');
     socketService.dispose();
     fcmService.stop();
-    locationService.dispose();
+    locationService.stopLocationUpdates();
     stopAndCleanupNavigation(RefReader.fromRef(ref));
   });
 });
