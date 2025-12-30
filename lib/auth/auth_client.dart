@@ -108,7 +108,7 @@ class AuthClient with WidgetsBindingObserver {
     _refreshTimer?.cancel();
 
     // Refresh tokens every 5 minutes
-    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+    _refreshTimer = Timer.periodic(const Duration(minutes: 5), (_) {
       refreshTokens();
     });
   }
@@ -130,6 +130,13 @@ class AuthClient with WidgetsBindingObserver {
     _refreshTimer?.cancel();
     _refreshTimer = null;
     _controller.add(AuthState.unauthenticated());
+  }
+
+  Future<void> emitOfflineState() async {
+    final accessToken = await _storage.read(key: 'accessToken');
+    if (accessToken != null && accessToken.isNotEmpty) {
+      _controller.add(AuthState.fromToken(accessToken, isOffline: true));
+    }
   }
 
   void dispose() {

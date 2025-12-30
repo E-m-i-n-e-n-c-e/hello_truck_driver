@@ -170,7 +170,7 @@ class _HelloTruckState extends ConsumerState<HelloTruck> {
     }
     // Listen for offline status changes
     ref.listen(authStateProvider, (previous, next) {
-      if (next.value?.isOffline == true) {
+      if (previous?.value?.isOffline == false && next.value?.isOffline == true) {
         SnackBars.error(context, l10n.youAreOffline);
       }
       else if (previous?.value?.isOffline == true && next.value?.isOffline == false) {
